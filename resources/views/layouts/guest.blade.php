@@ -27,21 +27,48 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background-image: url('{{ asset('/images/usn-login.png') }}');
+                background-image: linear-gradient(130deg, rgba(15, 118, 110, 0.88), rgba(15, 23, 42, 0.84)), url('{{ asset('/images/bgwatch.jpg') }}');
                 background-size: cover;
                 background-position: center;
                 z-index: 0;
             }
 
             .login-form-overlay {
-                background: rgba(255, 255, 255, 0.308);
+                background: rgba(255, 255, 255, 0.15);
                 backdrop-filter: blur(10px);
-                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.35);
+                border-radius: 16px;
                 padding: 30px;
                 width: 100%;
-                max-width: 400px;
+                max-width: 430px;
                 z-index: 1;
-                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+                box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+            }
+
+            .shop-brand {
+                text-align: center;
+                margin-bottom: 18px;
+            }
+
+            .shop-brand img {
+                height: 64px;
+                width: auto;
+                object-fit: contain;
+                border-radius: 12px;
+                margin: 0 auto 10px;
+            }
+
+            .shop-brand h2 {
+                margin: 0;
+                color: #ffffff;
+                font-size: 1.25rem;
+                font-weight: 700;
+            }
+
+            .shop-brand p {
+                margin: 0;
+                color: #d1fae5;
+                font-size: 0.86rem;
             }
 
             .user-icon-container {
@@ -69,7 +96,7 @@
             .form-control {
                 border-radius: 25px;
                 padding: 12px 20px;
-                border: 1px solid #ddd;
+                border: 1px solid #d7f0ec;
             }
 
             /* Invalid state: red border */
@@ -97,7 +124,7 @@
             }
 
             .forgot-link {
-                color: #304b8a;
+                color: #d1fae5;
                 text-decoration: none;
             }
 
@@ -105,11 +132,12 @@
                 width: 100%;
                 border-radius: 25px;
                 padding: 10px;
-                background-color: #304b8a;
+                background: linear-gradient(135deg, #0f766e, #115e59);
                 border: none;
                 font-weight: 600;
                 margin-bottom: 20px;
             }
+            .login-btn:hover { filter: brightness(1.05); }
 
             .divider {
                 text-align: center;
@@ -159,7 +187,7 @@
                 height: 35px;
                 border-radius: 50%;
                 background-color: #f5f5f5;
-                color: #304b8a;
+                color: #0f766e;
                 text-decoration: none;
                 transition: all 0.3s ease;
             }

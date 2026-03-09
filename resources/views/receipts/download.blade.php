@@ -265,7 +265,11 @@
         <div class="screen-only-header pb-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <div>
-                    <img src="{{ asset('images/usn-header.png') }}" alt="header" class="img-fluid" style="width: 100%;">
+                    <div style="text-align: center; padding: 8px 0;">
+                        <img src="{{ asset('images/logo.png') }}" alt="{{ config('shop.name') }}" class="img-fluid" style="height: 60px; margin: 0 auto 8px;">
+                        <h2 style="margin: 0; font-size: 24px;">{{ config('shop.name') }}</h2>
+                        <p style="margin: 0; color: #475569;">{{ config('shop.tagline') }}</p>
+                    </div>
                 </div>
             </div>
             <hr class="my-2" style="border-top: 2px solid #000;">
@@ -383,22 +387,22 @@
                 <div style="flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 10px;">
                     <p><strong>.............................</strong></p>
                     <p style="margin-bottom: 8px;"><strong>Checked By</strong></p>
-                    <img src="{{ public_path('images/tata.png') }}" alt="TATA" style="height: 35px; margin: auto;">
+                    <img src="{{ public_path('images/logo.png') }}" alt="{{ config('shop.name') }}" style="height: 35px; margin: auto;">
                 </div>
                 <div style="flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 10px;">
                     <p><strong>.............................</strong></p>
                     <p style="margin-bottom: 8px;"><strong>Authorized Officer</strong></p>
-                    <img src="{{ public_path('images/USN.png') }}" alt="USN" style="height: 35px; margin: auto;">
+                    <img src="{{ public_path('images/logo.png') }}" alt="{{ config('shop.name') }}" style="height: 35px; margin: auto;">
                 </div>
                 <div style="flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 10px;">
                     <p><strong>.............................</strong></p>
                     <p style="margin-bottom: 8px;"><strong>Customer Stamp</strong></p>
-                    <img src="{{ public_path('images/mahindra.png') }}" alt="Mahindra" style="height: 35px; margin: auto;">
+                    <img src="{{ public_path('images/logo.png') }}" alt="{{ config('shop.name') }}" style="height: 35px; margin: auto;">
                 </div>
             </div>
             <div style="border-top: 1px solid #3b5b0c; padding-top: 10px;">
-                <p style="text-align: center;"><strong>ADDRESS :</strong> 103 H, Yatiyanthota Road, Seethawaka, Avissawella</p>
-                <p style="text-align: center;"><strong>TEL :</strong> (076) 9085352, <strong>EMAIL :</strong> autopartsusn@gmail.com</p>
+                <p style="text-align: center;"><strong>ADDRESS :</strong> {{ config('shop.address') }}</p>
+                <p style="text-align: center;"><strong>TEL :</strong> {{ config('shop.phone') }}, <strong>EMAIL :</strong> {{ config('shop.email') }}</p>
                 <p style="text-align: center; font-size: 11px; margin-top: 8px;"><strong>Goods return will be accepted within 10 days only. Electrical and body parts non-returnable.</strong></p>
             </div>
         </div>

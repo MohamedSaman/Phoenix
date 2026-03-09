@@ -1,4 +1,4 @@
-<div class="container-fluid py-3" style="background-color:#f5fdf1ff;">
+<div class="container-fluid py-3" style="background-color:#fffaf0;">
     {{-- Opening Cash Modal --}}
     @if($showOpeningCashModal)
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.8);"  data-bs-keyboard="false">
@@ -70,7 +70,7 @@
                     <i class="bi bi-shop fs-3 text-success"></i>
                 </div>
                 <div>
-                    <h4 class="mb-0 fw-bold" style="color:#3b5b0c;">USN AUTO PARTS</h4>
+                    <h4 class="mb-0 fw-bold" style="color:#8a6114;">{{ strtoupper(config('shop.name')) }}</h4>
                     <small class="text-muted">Point of Sale System</small>
                 </div>
             </div>
@@ -713,7 +713,7 @@
                         <div class="screen-only-header pb-4">
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <div>
-                                    <img src="{{ asset('images/usn-header.png') }}" alt="header" class="img-fluid" style="width: 100%;">
+                                    <img src="{{ asset('images/logo.png') }}" alt="{{ config('shop.name') }}" class="img-fluid" style="height: 72px; width: auto;">
                                 </div>
                             </div>
                             <hr class="my-2" style="border-top: 2px solid #000;">
@@ -811,22 +811,19 @@
                                 <div class="col-4">
                                     <p class=""><strong>.............................</strong></p>
                                     <p class="mb-2"><strong>Checked By</strong></p>
-                                    <img src="{{ asset('images/tata.png') }}" alt="TATA" style="height: 35px;margin: auto;">
                                 </div>
                                 <div class="col-4">
                                     <p class=""><strong>.............................</strong></p>
                                     <p class="mb-2"><strong>Authorized Officer</strong></p>
-                                    <img src="{{ asset('images/USN.png') }}" alt="USN" style="height: 35px;margin: auto;">
                                 </div>
                                 <div class="col-4">
                                     <p class=""><strong>.............................</strong></p>
                                     <p class="mb-2"><strong>Customer Stamp</strong></p>
-                                    <img src="{{ asset('images/mahindra.png') }}" alt="Mahindra" style="height: 35px;margin: auto;">
                                 </div>
                             </div>
                             <div class="border-top pt-3">
-                                <p class="text-center"><strong>ADDRESS :</strong> 103 H, Yatiyanthota Road, Seethawaka, Avissawella</p>
-                                <p class="text-center"><strong>TEL :</strong> (076) 9085352, <strong>EMAIL :</strong> autopartsusn@gmail.com</p>
+                                <p class="text-center"><strong>ADDRESS :</strong> {{ config('shop.address') }}</p>
+                                <p class="text-center"><strong>TEL :</strong> {{ config('shop.phone') }}, <strong>EMAIL :</strong> {{ config('shop.email') }}</p>
                                 <p class="text-center mt-2" style="font-size: 11px;"><strong>Goods return will be accepted within 10 days only. Electrical and body parts non-returnable.</strong></p>
                             </div>
                         </div>
@@ -866,10 +863,10 @@
                     {{-- Print Header (hidden on screen, shown on print) --}}
                     <div class="print-header text-center mb-4">
                         <div class="w-100 d-flex justify-content-center">
-                            <img src="{{ asset('images/USN.png') }}" alt="Logo" class="img-fluid" style="max-height:100px;">
+                            <img src="{{ asset('images/logo.png') }}" alt="{{ config('shop.name') }}" class="img-fluid" style="max-height:100px;">
                         </div>
-                        <p>103 H, Yatiyanthota Road, Seethawaka, Avissawella</p>
-                        <p><strong>TEL:</strong> (076) 9085352 | <strong>EMAIL:</strong> autopartsusn@gmail.com</p>
+                        <p>{{ config('shop.address') }}</p>
+                        <p><strong>TEL:</strong> {{ config('shop.phone') }} | <strong>EMAIL:</strong> {{ config('shop.email') }}</p>
 
                     </div>
 
@@ -1008,8 +1005,15 @@
 
 @push('styles')
 <style>
+    :root {
+        --phoenix-black: #050505;
+        --phoenix-gold: #d4a63d;
+        --phoenix-gold-dark: #8a6114;
+        --phoenix-bg-soft: #fffaf0;
+    }
+
     .container-fluid {
-        background-color: #f5fdf1ff !important;
+        background-color: var(--phoenix-bg-soft) !important;
     }
 
     .header-section {
@@ -1043,7 +1047,7 @@
     .search-results {
         max-height: 400px;
         overflow-y: auto;
-        border: 2px solid #8eb922 !important;
+        border: 2px solid var(--phoenix-gold) !important;
         border-radius: 0;
         position: relative;
         z-index: 10;
@@ -1059,12 +1063,32 @@
     }
 
     .search-results::-webkit-scrollbar-thumb {
-        background: #8eb922;
+        background: var(--phoenix-gold);
         border-radius: 4px;
     }
 
     .search-results::-webkit-scrollbar-thumb:hover {
-        background: #3b5b0c;
+        background: var(--phoenix-gold-dark);
+    }
+
+    /* Theme adapters for existing inline styles in this legacy file */
+    [style*="#3b5b0c"],
+    [style*="#3B5B0C"] {
+        color: var(--phoenix-gold-dark) !important;
+        border-color: var(--phoenix-gold-dark) !important;
+    }
+
+    [style*="#8eb922"],
+    [style*="#8EB922"] {
+        color: var(--phoenix-gold) !important;
+        border-color: var(--phoenix-gold) !important;
+    }
+
+    [style*="rgba(59, 91, 12, 1)"],
+    [style*="rgba(142, 185, 34, 1)"],
+    [style*="#3b5b0c 0%, #8eb922 100%"] {
+        background: linear-gradient(135deg, var(--phoenix-gold-dark), var(--phoenix-gold)) !important;
+        border-color: var(--phoenix-gold-dark) !important;
     }
 
     .search-item:last-child {

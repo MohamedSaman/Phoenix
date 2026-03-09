@@ -3,7 +3,6 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use App\Models\Customer;
 use App\Models\ProductDetail;
@@ -16,7 +15,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Livewire\Concerns\WithDynamicLayout;
-use App\Livewire\Concerns\WithPagination;
 
 
 
@@ -197,7 +195,7 @@ class SalesSystem extends Component
 
             $this->js("Swal.fire('success', 'Customer created successfully!', 'success')");
         } catch (\Exception $e) {
-            $this->js("Swal.fire('error', 'Failed to create customer: ', 'error')");
+            $this->js("Swal.fire('error', 'Failed to create customer: " . addslashes($e->getMessage()) . "', 'error')");
         }
     }
 
@@ -414,9 +412,6 @@ class SalesSystem extends Component
 
         // If no customer selected, use walking customer
         if (!$this->selectedCustomer && !$this->customerId) {
-
-            $this->js("Swal.fire('error', 'Please select a customer.', 'error')");
-            return;
             $this->setDefaultCustomer();
         }
 
@@ -431,8 +426,7 @@ class SalesSystem extends Component
             }
 
             if (!$customer) {
-                $this->js("Swal.fire('error', 'Customer not found.', 'error')");
-                return;
+                throw new \Exception('Customer not found.');
             }
 
             // Create sale
@@ -462,11 +456,11 @@ class SalesSystem extends Component
                     // Group deductions by selling price to combine same-price batches
                     $groupedByPrice = [];
                     foreach ($fifoResult['deductions'] as $deduction) {
-                        $price = $deduction['selling_price'];
+                        $price = (string) ($deduction['selling_price'] ?? '0');
                         if (!isset($groupedByPrice[$price])) {
                             $groupedByPrice[$price] = [
                                 'quantity' => 0,
-                                'selling_price' => $price,
+                                'selling_price' => (float) $price,
                             ];
                         }
                         $groupedByPrice[$price]['quantity'] += $deduction['quantity'];
@@ -496,8 +490,40 @@ class SalesSystem extends Component
                         'deductions' => $fifoResult['deductions']
                     ]);
                 } catch (\Exception $e) {
-                    // If FIFO fails, throw exception to rollback transaction
-                    throw new \Exception("Failed to deduct stock for {$item['name']}: " . $e->getMessage());
+                    // FIFO can fail when no product batches exist. Fall back to direct stock deduction.
+                    Log::warning("FIFO deduction failed in SalesSystem, using fallback", [
+                        'product_id' => $item['id'],
+                        'product_name' => $item['name'],
+                        'error' => $e->getMessage(),
+                    ]);
+
+                    $product = ProductDetail::with('stock')->find($item['id']);
+                    if (! $product || ! $product->stock) {
+                        throw new \Exception("Stock record not found for {$item['name']}");
+                    }
+
+                    if ($product->stock->available_stock < $item['quantity']) {
+                        throw new \Exception("Insufficient stock for {$item['name']}. Required: {$item['quantity']}, Available: {$product->stock->available_stock}");
+                    }
+
+                    // Deduct stock directly from product stock table
+                    $product->stock->available_stock -= $item['quantity'];
+                    $product->stock->sold_count += $item['quantity'];
+                    $product->stock->save();
+
+                    // Create a single sale item with current cart values
+                    SaleItem::create([
+                        'sale_id' => $sale->id,
+                        'product_id' => $item['id'],
+                        'product_code' => $item['code'],
+                        'product_name' => $item['name'],
+                        'product_model' => $item['model'],
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['price'],
+                        'discount_per_unit' => $item['discount'],
+                        'total_discount' => $item['discount'] * $item['quantity'],
+                        'total' => ($item['price'] - $item['discount']) * $item['quantity'],
+                    ]);
                 }
             }
 
@@ -526,7 +552,11 @@ class SalesSystem extends Component
             session()->flash('success', 'Sale created successfully! Payment status: Pending');
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->js("Swal.fire('error', 'Failed to create sale: ' , 'error')");
+            Log::error('SalesSystem createSale failed', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+            ]);
+            $this->js("Swal.fire('error', 'Failed to create sale: " . addslashes($e->getMessage()) . "', 'error')");
         }
     }
 
@@ -547,7 +577,7 @@ class SalesSystem extends Component
             return;
         }
 
-        $pdf = PDF::loadView('admin.sales.invoice', compact('sale'));
+        $pdf = Pdf::loadView('admin.sales.invoice', compact('sale'));
         $pdf->setPaper('a4', 'portrait');
         $pdf->setOption('dpi', 150);
         $pdf->setOption('defaultFont', 'sans-serif');
@@ -621,7 +651,7 @@ class SalesSystem extends Component
         // Group by selling price to see if we need to split
         $groupedByPrice = [];
         foreach ($simulatedDeductions as $deduction) {
-            $price = $deduction['selling_price'];
+            $price = (string) ($deduction['selling_price'] ?? '0');
             if (!isset($groupedByPrice[$price])) {
                 $groupedByPrice[$price] = 0;
             }
@@ -647,10 +677,10 @@ class SalesSystem extends Component
                 'name' => $firstItem['name'],
                 'code' => $firstItem['code'],
                 'model' => $firstItem['model'],
-                'price' => $price,
+                'price' => (float) $price,
                 'quantity' => $qty,
                 'discount' => $firstItem['discount'],
-                'total' => ($price - $firstItem['discount']) * $qty,
+                'total' => (((float) $price) - $firstItem['discount']) * $qty,
                 'stock' => $firstItem['stock']
             ];
         }

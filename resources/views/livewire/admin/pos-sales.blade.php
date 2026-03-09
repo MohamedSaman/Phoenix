@@ -329,8 +329,9 @@ use App\Models\Sale;
                 {{-- Screen Only Header (visible on screen, hidden on print) --}}
                 <div class="screen-only-header pb-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div>
-                            <img src="{{ asset('images/usn-header.png') }}" alt="header" class="img-fluid" style="width: 100%;">
+                        <div class="w-100 text-center">
+                            <h5 class="mb-1">{{ config('shop.name') }}</h5>
+                            <p class="mb-0">{{ config('shop.tagline') }}</p>
                         </div>
                     </div>
                     <hr class="my-2" style="border-top: 2px solid #000;">
@@ -505,17 +506,14 @@ use App\Models\Sale;
                             <div class="col-4">
                                 <p class=""><strong>.............................</strong></p>
                                 <p class="mb-2"><strong>Checked By</strong></p>
-                                <img src="{{ asset('images/tata.png') }}" alt="TATA" style="height: 35px;margin: auto;">
                             </div>
                             <div class="col-4">
                                 <p class=""><strong>.............................</strong></p>
                                 <p class="mb-2"><strong>Authorized Officer</strong></p>
-                                <img src="{{ asset('images/USN.png') }}" alt="USN" style="height: 35px;margin: auto;">
                             </div>
                             <div class="col-4">
                                 <p class=""><strong>.............................</strong></p>
                                 <p class="mb-2"><strong>Customer Stamp</strong></p>
-                                <img src="{{ asset('images/mahindra.png') }}" alt="Mahindra" style="height: 35px;margin: auto;">
                             </div>
                         </div>
                         <div class="border-top pt-3">

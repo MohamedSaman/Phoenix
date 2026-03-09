@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>{{ $title ?? 'Page Title' }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -21,15 +22,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --phoenix-black: #050505;
+            --phoenix-gold: #d4a63d;
+            --phoenix-gold-dark: #8a6114;
+            --phoenix-border: #e5e7eb;
+        }
+
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: #f5f7fa;
+            background-color: #f7f4ed;
         }
 
         .sidebar {
             width: 265px;
             height: 100vh;
-            background-color: #000000;
+            background-color: var(--phoenix-black);
             color: #ffffff;
             padding: 20px 0;
             position: fixed;
@@ -92,8 +100,8 @@
         }
 
         .nav-link.active {
-            background: #3B5B0C;
-            background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);
+            background: var(--phoenix-gold-dark);
+            background: linear-gradient(135deg, var(--phoenix-gold-dark) 0%, var(--phoenix-gold) 100%);
             color: #fff;
             font-weight: 500;
         }
@@ -138,7 +146,7 @@
 
         .top-bar {
             height: 60px;
-            background-color: #000000;
+            background-color: var(--phoenix-black);
             border-bottom: 1px solid #e0e0e0;
             padding: 0 20px;
             position: fixed;
@@ -166,7 +174,7 @@
         }
 
         .admin-info:hover {
-            background-color: #8eb922;
+            background-color: rgba(212, 166, 61, 0.22);
         }
 
         .admin-avatar,
@@ -175,7 +183,7 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background-color: #000000;
+            background-color: #111111;
             color: #ffffff;
             display: flex;
             align-items: center;
@@ -294,12 +302,12 @@
         }
 
         .content-tab.active {
-            color: #0d6efd;
-            border-bottom-color: #0d6efd;
+            color: var(--phoenix-gold-dark);
+            border-bottom-color: var(--phoenix-gold-dark);
         }
 
         .content-tab:hover:not(.active) {
-            color: #0d6efd;
+            color: var(--phoenix-gold-dark);
             border-bottom-color: #dee2e6;
         }
 
@@ -454,7 +462,7 @@
         }
 
         .progress-bar {
-            background-color: #007bff;
+            background-color: var(--phoenix-gold-dark);
             /* Default progress bar color */
             height: 0.5rem;
         }
@@ -736,7 +744,7 @@
         }
 
         .sidebar::-webkit-scrollbar-thumb {
-            background-color: #000000;
+            background-color: #1f2937;
         }
 
         /* Add padding to the bottom of sidebar to ensure last items are visible */
@@ -801,6 +809,33 @@
             padding-top: 2px;
             /* Add small top padding to separate from parent */
         }
+
+        .table th {
+            background: linear-gradient(135deg, var(--phoenix-gold-dark), var(--phoenix-gold)) !important;
+            color: #fff !important;
+            border-top: none;
+        }
+
+        .btn-primary,
+        .btn-success,
+        .btn-info,
+        .btn-warning,
+        .btn-dark,
+        .btn {
+            background: linear-gradient(135deg, var(--phoenix-gold), var(--phoenix-gold-dark));
+            color: #fff;
+            border: none;
+        }
+
+        .btn:hover,
+        .btn:focus {
+            filter: brightness(1.03);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--phoenix-gold-dark), var(--phoenix-gold));
+            color: #fff;
+        }
     </style>
     @stack('styles')
     @livewireStyles
@@ -812,7 +847,7 @@
         <div class="sidebar">
             <div class="sidebar-header d-flex justify-content-center">
                 <div class="sidebar-title">
-                    <img src="{{ asset('images/USN-Dark.png') }}" alt="Logo" width="200">
+                    <img src="{{ asset('images/logo.png') }}" alt="{{ config('shop.name') }}" width="170">
                 </div>
             </div>
             <ul class="nav flex-column">

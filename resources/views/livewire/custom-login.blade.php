@@ -1,4 +1,7 @@
     <div class="login-container">
+        @php
+            $shopPhoneForWa = preg_replace('/\D+/', '', config('shop.whatsapp'));
+        @endphp
         <style>
             .login-form-overlay { background: rgba(0,0,0,0.45); padding:28px; border-radius:14px; backdrop-filter: blur(5px); }
             .separator-line { height:1px; background:rgba(255,255,255,0.08); margin:10px 0; border-radius:2px; }
@@ -9,6 +12,8 @@
             .connect-icon.email { background:#e84b3c; }
             .connect-icon.whatsapp { background:#25d366; }
             .connect-icon i { font-size:22px; }
+            .shop-mini-meta { text-align:center; margin-bottom:14px; color:#fff; font-size:13px; }
+            .shop-mini-meta p { margin: 3px 0; }
             /* Make remember label and forgot link white */
             .form-options .form-check-label { color: #fff !important; }
             .forgot-link { color: #fff !important; text-decoration: none; }
@@ -20,6 +25,12 @@
 
         <!-- Centered login form overlay -->
         <div class="login-form-overlay">
+            <div class="shop-brand">
+                <img src="{{ asset('images/logo.png') }}" alt="{{ config('shop.name') }}">
+                <h2>{{ config('shop.name') }}</h2>
+                <p>{{ config('shop.tagline') }}</p>
+            </div>
+
             <!-- User icon -->
             <div class="user-icon-container">
                 <i class="bi bi-person-circle"></i>
@@ -60,7 +71,9 @@
                         <input class="form-check-input" type="checkbox" wire:model="remember" id="remember">
                         <label class="form-check-label" for="remember">Remember me</label>
                     </div>
-                    <a href="#" class="forgot-link">Forgot Password</a>
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}" class="forgot-link">Forgot Password</a>
+                    @endif
                 </div>
 
                 <!-- Login button -->
@@ -72,11 +85,15 @@
                 <!-- Connect with us section -->
                 <div class="connect-section">
                     <p class="connect-title">Connect with us</p>
+                    <div class="shop-mini-meta">
+                        <p><i class="bi bi-telephone-fill me-1"></i>{{ config('shop.phone') }}</p>
+                        <p><i class="bi bi-geo-alt-fill me-1"></i>{{ config('shop.address') }}</p>
+                    </div>
                     <div class="connect-links">
-                        <a href="mailto:contact@webxkey.com" class="connect-icon email" title="Email us">
+                        <a href="mailto:{{ config('shop.email') }}" class="connect-icon email" title="Email us">
                             <i class="bi bi-envelope-fill"></i>
                         </a>
-                        <a href="https://api.whatsapp.com/send/?phone=94755299721&text=Hi%21+I%27m+interested+in+your+services.&type=phone_number&app_absent=0" 
+                        <a href="https://api.whatsapp.com/send/?phone={{ $shopPhoneForWa }}&text=Hi%2C+I%27m+interested+in+your+bathware+products.&type=phone_number&app_absent=0" 
                            target="_blank" 
                            class="connect-icon whatsapp" 
                            title="WhatsApp us" rel="noopener noreferrer">

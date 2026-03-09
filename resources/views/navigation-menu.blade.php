@@ -1,13 +1,17 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="bg-white/95 backdrop-blur border-b border-teal-100 shadow-sm">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
-                <div class="shrink-0 flex items-center">
+                <div class="shrink-0 flex items-center gap-3">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-mark class="block h-9 w-auto" />
+                        <x-application-mark class="block h-10 w-auto" />
                     </a>
+                    <div class="hidden md:block leading-tight">
+                        <p class="text-sm font-semibold text-slate-900">{{ config('shop.name') }}</p>
+                        <p class="text-xs text-slate-500">{{ config('shop.tagline') }}</p>
+                    </div>
                 </div>
 
                 <!-- Navigation Links -->

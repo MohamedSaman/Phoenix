@@ -56,12 +56,8 @@
 
         .global-header .logo-section {
             width: 100%;
-        }
-
-        .global-header .logo-section img {
-            
-            width: 100%;
-            height: auto
+            text-align: center;
+            padding: 8px 0;
         }
 
         .global-header .company-section {
@@ -313,7 +309,8 @@
             <table>
                 <tr>
                     <td class="logo-section">
-                        <img src="{{ public_path('images/usn-header.png') }}" alt="header">
+                        <h2>{{ config('shop.name') }}</h2>
+                        <p>{{ config('shop.tagline') }}</p>
                     </td>
                 </tr>
             </table>
@@ -469,17 +466,14 @@
                     <td>
                         <p class="signature-line"><strong>.............................</strong></p>
                         <p class="signature-label"><strong>Checked By</strong></p>
-                        <img src="{{ public_path('images/tata.png') }}" alt="Checked By">
                     </td>
                     <td>
                         <p class="signature-line"><strong>.............................</strong></p>
                         <p class="signature-label"><strong>Authorized Officer</strong></p>
-                        <img src="{{ public_path('images/USN.png') }}" alt="Authorized">
                     </td>
                     <td>
                         <p class="signature-line"><strong>.............................</strong></p>
                         <p class="signature-label"><strong>Customer Stamp</strong></p>
-                        <img src="{{ public_path('images/mahindra.png') }}" alt="Customer">
                     </td>
                 </tr>
             </table>

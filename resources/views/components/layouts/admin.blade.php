@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title ?? 'Page Title' }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/usnicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -23,43 +23,21 @@
     <style>
         /* Theme tokens: change colors here to affect entire layout */
         :root {
-            /* Backgrounds */
-            --page-bg: #f5f7fa;
-            /* body background */
+            --page-bg: #f7f4ed;
             --surface: #ffffff;
-            /* cards, sidebar surface */
 
+            --primary: #ffffff;
+            --primary-600: #a17013;
+            --primary-100: #d4a63d;
+            --primary-50: #f7e7bf;
 
-            /* Primary / Brand */
-            --primary: #fff;
-            /* main blue (links, active) */
-            --primary-600: #0b5ed7;
-            /* hover background for links */
-            --primary-100: #8eb922;
-            /* main blue (links, active) */
+            --accent: #d4a63d;
 
+            --muted: #6b7280;
+            --muted-2: #4b5563;
+            --border: #e5e7eb;
+            --muted-3: #d1d5db;
 
-
-
-
-            /* Accent */
-            --accent: #198754;
-            /* green (amounts, success) */
-
-
-            /* Muted / borders / text */
-            --muted: #6c757d;
-            /* secondary text */
-            --muted-2: #495057;
-            /* nav link text */
-            --border: #e0e0e0;
-            /* general border color */
-            --muted-3: #dee2e6;
-            /* scrollbar / thumb */
-
-
-
-            /* Status colors */
             --success-bg: #d1e7dd;
             --success-text: #0f5132;
             --warning-bg: #fff3cd;
@@ -67,19 +45,13 @@
             --danger-bg: #f8d7da;
             --danger-text: #842029;
 
+            --sidebar-bg: #050505;
+            --topbar-bg: #050505;
 
-            /* Topbar / sidebar specifics */
-            --sidebar-bg: #000000;
-            --topbar-bg: #000000;
+            --text: #111827;
 
-
-            /* Text */
-            --text: #212529;
-
-
-            /* Avatars */
-            --avatar-bg: var(--primary);
-            --avatar-text: #ffffff;
+            --avatar-bg: #111111;
+            --avatar-text: #f8fafc;
         }
 
         body {
@@ -200,7 +172,7 @@
         .sidebar {
             width: 265px;
             height: 100vh;
-            background-color: #000000;
+            background-color: var(--sidebar-bg);
             color: #ffffff;
 
             padding: 20px 0;
@@ -219,11 +191,11 @@
         }
 
         .sidebar::-webkit-scrollbar-track {
-            background: #000000;
+            background: var(--sidebar-bg);
         }
 
         .sidebar::-webkit-scrollbar-thumb {
-            background-color: #000000;
+            background-color: #1f2937;
 
         }
 
@@ -281,8 +253,7 @@
 
 
         .nav-link.active {
-            background: #3B5B0C;
-            background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);
+            background: linear-gradient(135deg, #8a6114 0%, #d4a63d 100%);
             color: var(--primary);
             font-weight: 500;
         }
@@ -380,7 +351,7 @@
         }
 
         .top-bar .title {
-            color: #8eb922;
+            color: var(--primary-100);
         }
 
         /* User info styles */
@@ -395,7 +366,7 @@
         }
 
         .admin-info:hover {
-            background-color: #8eb922;
+            background-color: rgba(212, 166, 61, 0.22);
         }
 
         .admin-avatar,
@@ -404,7 +375,7 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background-color: #000000;
+            background-color: var(--avatar-bg);
             color: #ffffff;
             display: flex;
             align-items: center;
@@ -455,7 +426,7 @@
             margin-left: 260px;
             margin-top: 60px;
             padding: 20px;
-            background-color: #f5fdf1ff;
+            background-color: #fffaf0;
             min-height: calc(100vh - 60px);
             width: calc(100% - 250px);
             transition: all 0.3s ease;
@@ -706,22 +677,20 @@
             border-top: none;
             font-weight: 600;
             color: #ffffff;
-            background: #3B5B0C;
-            background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);
+            background: linear-gradient(135deg, #8a6114 0%, #d4a63d 100%);
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .btn {
-            background: #8eb922;
-            background: linear-gradient(0deg, rgba(142, 185, 34, 1) 0%, rgba(59, 91, 12, 1) 100%);
+            background: linear-gradient(135deg, #d4a63d 0%, #8a6114 100%);
             color: #ffffff;
+            border: none;
         }
 
         .modal-header {
-            background: #3B5B0C;
-            background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);
+            background: linear-gradient(135deg, #8a6114 0%, #d4a63d 100%);
             color: #ffffff;
         }
 
@@ -770,7 +739,7 @@
         <div class="sidebar">
             <div class="sidebar-header d-flex justify-content-center">
                 <div class="sidebar-title">
-                    <img src="{{ asset('images/USN-Dark.png') }}" alt="Logo" width="200">
+                    <img src="{{ asset('images/logo.png') }}" alt="{{ config('shop.name') }}" width="160">
                 </div>
             </div>
             <ul class="nav flex-column">
@@ -1115,7 +1084,7 @@
 
             <!-- Centered Company Name (hidden on small screens) -->
             <div class="flex-grow-1 d-none d-md-flex justify-content-center">
-                <h5 class="m-0 fw-bold" style="color: var(--primary-100); letter-spacing: -0.02em;">USN Auto Parts</h5>
+                <h5 class="m-0 fw-bold" style="color: var(--primary-100); letter-spacing: -0.02em;">{{ config('shop.name') }}</h5>
             </div>
             @php
             use App\Models\CashInHand as CashModel;
@@ -1124,7 +1093,7 @@
 
             <!-- Editable Cash in Hand Display -->
             <div class="badge  bg-opacity-10 rounded-pill shadow-sm border  border-opacity-25 d-flex align-items-center gap-2 me-2 "
-                style="color:#8eb922;border-color:#8eb922; font-size: 0.9rem; cursor: pointer;"
+                style="color:var(--primary-100);border-color:var(--primary-100); font-size: 0.9rem; cursor: pointer;"
                 onclick="handlePOSClick()"
                 role="button">
                 <div class="d-flex align-items-center gap-1 px-2 py-1 fs-6">
@@ -1227,7 +1196,7 @@
                             @if($yesterdaySession)
                             <div class="alert alert-info mb-3">
                                 <i class="bi bi-info-circle me-2"></i>
-                                <strong>Yesterday's Closing Cash:</strong> Rs. {{ number_format($yesterdaySession->closing_cash, 2) }}
+                                <strong>Yesterday's Closing Cash:</strong> Rs. {{ number_format((float) $yesterdaySession->closing_cash, 2) }}
                                 <br>
                                 <small class="text-muted">{{ $yesterday->format('M d, Y') }}</small>
                             </div>
@@ -1649,7 +1618,7 @@
                             title: 'Register Already Closed',
                             text: 'The POS register has already been closed for today. You cannot access the POS system again until tomorrow.',
                             confirmButtonText: 'OK',
-                            confirmButtonColor: '#3b5b0c'
+                            confirmButtonColor: '#a17013'
                         });
                         return;
                     }

@@ -1,29 +1,46 @@
-<div>
+<div class="dashboard-content">
     @push('styles')
     <style>
+        .dashboard-content {
+            color: #111827;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        .dashboard-content .text-muted {
+            color: #4b5563 !important;
+        }
+
+        .text-phoenix {
+            color: #8a6114 !important;
+        }
+
         /* Base styles */
         .stat-card {
-            background: white;
-            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid #eadfca;
+            border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
             height: 100%;
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #111827;
+        }
+
+        .stat-label {
+            color: #374151;
+            font-size: 15px;
             font-weight: 600;
             margin-bottom: 5px;
         }
 
-        .stat-label {
-            color: #6c757d;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
         .stat-change {
-            color: #28a745;
+            color: #0f5132;
             font-size: 13px;
         }
 
@@ -33,18 +50,20 @@
         }
 
         .chart-card {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            border-radius: 0.5rem;
+            background: #ffffff;
+            border: 1px solid #eadfca;
+            box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
+            border-radius: 10px;
             margin-bottom: 20px;
             height: 100%;
         }
 
         .chart-header {
-            background-color: #f8f9fa;
+            background-color: #fff8ea;
             padding: 1rem 1.5rem;
-            border-bottom: 1px solid #dee2e6;
-            border-top-left-radius: 0.5rem;
-            border-top-right-radius: 0.5rem;
+            border-bottom: 1px solid #eadfca;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
         }
 
         .chart-container {
@@ -59,8 +78,9 @@
 
         .widget-container {
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            border: 1px solid #eadfca;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
             padding: 20px;
             margin-bottom: 20px;
             height: 100%;
@@ -73,13 +93,13 @@
         .widget-header h6 {
             font-size: 1.25rem;
             margin-bottom: 5px;
-            font-weight: 500;
-            color: #212529;
+            font-weight: 700;
+            color: #111827;
         }
 
         .widget-header p {
             font-size: 0.875rem;
-            color: #6c757d;
+            color: #4b5563;
             margin-bottom: 0;
         }
 
@@ -97,12 +117,13 @@
         .item-details h6 {
             font-size: 1rem;
             margin-bottom: 3px;
-            color: #212529;
+            color: #111827;
+            font-weight: 600;
         }
 
         .item-details p {
             font-size: 0.875rem;
-            color: #6c757d;
+            color: #4b5563;
             margin-bottom: 0;
         }
 
@@ -132,13 +153,13 @@
         .progress {
             height: 0.5rem;
             margin-top: 5px;
-            background-color: #e9ecef;
+            background-color: #e5e7eb;
             border-radius: 0.25rem;
             overflow: hidden;
         }
 
         .progress-bar {
-            background-color: #007bff;
+            background-color: #8a6114;
             height: 4px;
         }
 
@@ -180,7 +201,7 @@
             }
 
             .stat-value {
-                font-size: 20px !important;
+                font-size: 22px !important;
             }
 
             .stat-info small,
@@ -228,7 +249,7 @@
             }
 
             .stat-value {
-                font-size: 18px !important;
+                font-size: 20px !important;
             }
 
             .status-badge {
@@ -268,7 +289,7 @@
         <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
                 <h3 class="fw-bold text-dark mb-2">
-                    <i class="bi bi-speedometer2 text-success me-2"></i> Overview
+                    <i class="bi bi-speedometer2 text-phoenix me-2"></i> Overview
                 </h3>
                 <p class="text-muted mb-0">Get a complete view of your product performance and stock activity.</p>
             </div>
@@ -300,7 +321,7 @@
                     <!-- Additional Info -->
                     <div class="stat-info mt-3 pt-2 border-top">
                         <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted"><i class="bi bi-cart-check-fill text-success me-1"></i> Sales Value</small>
+                            <small class="text-muted"><i class="bi bi-cart-check-fill text-phoenix me-1"></i> Sales Value</small>
                             <span class="badge bg-success">Rs.{{ number_format($totalSales, 2) }}</span>
                         </div>
                     </div>
@@ -332,7 +353,7 @@
                     <!-- Additional Info -->
                     <div class="stat-info mt-3 pt-2 border-top">
                         <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted"><i class="bi bi-box-seam text-primary me-1"></i> Inventory Value</small>
+                            <small class="text-muted"><i class="bi bi-box-seam text-phoenix me-1"></i> Inventory Value</small>
                             <span class="badge bg-primary">Rs.{{ number_format($totalAvailableInventory, 2) }}</span>
                         </div>
                     </div>
@@ -467,8 +488,8 @@
                     labels: categoryLabels,
                     datasets: [{
                         label: 'Sales by Category',
-                        backgroundColor: '#007bff',
-                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(138, 97, 20, 0.82)',
+                        borderColor: '#8a6114',
                         borderWidth: 1,
                         data: categoryTotals
                     }]
