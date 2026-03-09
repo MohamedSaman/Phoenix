@@ -27,7 +27,7 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background-image: linear-gradient(130deg, rgba(15, 118, 110, 0.88), rgba(15, 23, 42, 0.84)), url('{{ asset('/images/bgwatch.jpg') }}');
+                background-image: url('{{ asset('/images/bg.jpg') }}');
                 background-size: cover;
                 background-position: center;
                 z-index: 0;
@@ -40,7 +40,7 @@
                 border-radius: 16px;
                 padding: 30px;
                 width: 100%;
-                max-width: 430px;
+                max-width: 530px;
                 z-index: 1;
                 box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
             }
