@@ -20,16 +20,16 @@
             </div>
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3" style="width: 60%; margin: auto">
                 <!-- 🔍 Search Bar -->
-                    <div class="search-bar flex-grow-1">
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0">
-                                <i class="bi bi-search text-muted"></i>
-                            </span>
-                            <input type="text" class="form-control border-start-0" wire:model.live="returnSearch"
-                                placeholder="Search by invoice number or product name...">
-                        </div>
+                <div class="search-bar flex-grow-1">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" wire:model.live="returnSearch"
+                            placeholder="Search by invoice number or product name...">
                     </div>
                 </div>
+            </div>
             <div class="d-flex align-items-center gap-2">
                 <label class="text-sm text-muted fw-medium">Show</label>
                 <select wire:model.live="perPage" class="form-select form-select-sm" style="width: 80px;">
@@ -75,37 +75,37 @@
                             <td wire:click="showReceipt({{ $return->id }})">Rs.{{ number_format($return->total_amount, 2) }}</td>
                             <td wire:click="showReceipt({{ $return->id }})">{{ $return->created_at?->format('M d, Y') }}</td>
                             <td class="text-end pe-4">
-    <div class="dropdown">
-        <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false">
-            <i class="bi bi-gear-fill"></i> Actions
-        </button>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        <i class="bi bi-gear-fill"></i> Actions
+                                    </button>
 
-        <ul class="dropdown-menu dropdown-menu-end">
+                                    <ul class="dropdown-menu dropdown-menu-end">
 
-            <!-- Delete Return -->
-            <li>
-                <button class="dropdown-item"
-                        wire:click="deleteReturn({{ $return->id }})"
-                        wire:loading.attr="disabled"
-                        wire:target="deleteReturn({{ $return->id }})">
+                                        <!-- Delete Return -->
+                                        <li>
+                                            <button class="dropdown-item"
+                                                wire:click="deleteReturn({{ $return->id }})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="deleteReturn({{ $return->id }})">
 
-                    <span wire:loading wire:target="deleteReturn({{ $return->id }})">
-                        <i class="spinner-border spinner-border-sm me-2"></i>
-                        Loading...
-                    </span>
-                    <span wire:loading.remove wire:target="deleteReturn({{ $return->id }})">
-                        <i class="bi bi-trash text-danger me-2"></i>
-                        Delete
-                    </span>
-                </button>
-            </li>
+                                                <span wire:loading wire:target="deleteReturn({{ $return->id }})">
+                                                    <i class="spinner-border spinner-border-sm me-2"></i>
+                                                    Loading...
+                                                </span>
+                                                <span wire:loading.remove wire:target="deleteReturn({{ $return->id }})">
+                                                    <i class="bi bi-trash text-danger me-2"></i>
+                                                    Delete
+                                                </span>
+                                            </button>
+                                        </li>
 
-        </ul>
-    </div>
-</td>
+                                    </ul>
+                                </div>
+                            </td>
 
                         </tr>
                         @empty
@@ -128,22 +128,22 @@
             @endif
         </div>
     </div>
-    
+
 
     <!-- Receipt Modal (Bill Style) -->
-    <div wire:ignore.self class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true" >
+    <div wire:ignore.self class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content" id="printableReturnReceipt">
                 <!-- Header – logo + company name -->
                 <div class="modal-header text-center border-0" style="background: linear-gradient(90deg, #3b5b0c, #8eb922); color: #fff;">
                     <div class="w-100">
                         <img src="{{ asset('images/USN.png') }}" alt="Logo"
-                             class="img-fluid mb-2" style="max-height:60px;">
+                            class="img-fluid mb-2" style="max-height:60px;">
                         <h4 class="mb-0 fw-bold">USN AUTO PARTS</h4>
-                        
+
                     </div>
                     <button type="button" class="btn-close btn-close-white closebtn"
-                            wire:click="closeModal"></button>
+                        wire:click="closeModal"></button>
                 </div>
 
                 @if($selectedReturn)
@@ -158,10 +158,22 @@
                         </div>
                         <div class="col-6">
                             <table class="table table-sm table-borderless">
-                                <tr><td><strong>Return No :</strong></td><td>{{ $selectedReturn->id }}</td></tr>
-                                <tr><td><strong>Invoice No :</strong></td><td>{{ $selectedReturn->sale?->invoice_number ?? '-' }}</td></tr>
-                                <tr><td><strong>Return Status :</strong></td><td>Completed</td></tr>
-                                <tr><td><strong>Return Date :</strong></td><td>{{ $selectedReturn->created_at->format('d/m/Y H:i') }}</td></tr>
+                                <tr>
+                                    <td><strong>Return No :</strong></td>
+                                    <td>{{ $selectedReturn->id }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Invoice No :</strong></td>
+                                    <td>{{ $selectedReturn->sale?->invoice_number ?? '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Return Status :</strong></td>
+                                    <td>Completed</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Return Date :</strong></td>
+                                    <td>{{ $selectedReturn->created_at->format('d/m/Y H:i') }}</td>
+                                </tr>
                             </table>
                         </div>
                     </div>
@@ -197,9 +209,18 @@
                         <div class="col-7"></div>
                         <div class="col-5">
                             <table class="table table-sm table-borderless">
-                                <tr><td class="text-end"><strong>Total Return Amount (LKR)</strong></td><td class="text-end">Rs.{{ number_format($selectedReturn->total_amount, 2) }}</td></tr>
-                                <tr><td class="text-end"><strong>Refunded Amount (LKR)</strong></td><td class="text-end">Rs.{{ number_format($selectedReturn->total_amount, 2) }}</td></tr>
-                                <tr><td class="text-end"><strong>Balance (LKR)</strong></td><td class="text-end">Rs.0.00</td></tr>
+                                <tr>
+                                    <td class="text-end"><strong>Total Return Amount (LKR)</strong></td>
+                                    <td class="text-end">Rs.{{ number_format($selectedReturn->total_amount, 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end"><strong>Refunded Amount (LKR)</strong></td>
+                                    <td class="text-end">Rs.{{ number_format($selectedReturn->total_amount, 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end"><strong>Balance (LKR)</strong></td>
+                                    <td class="text-end">Rs.0.00</td>
+                                </tr>
                             </table>
                         </div>
                     </div>
@@ -218,7 +239,7 @@
 
                     <!-- Footer – logos + address + note -->
                     <div class="mt-4 text-center small">
-                        
+
                         <p class="mb-0">
                             <strong>ADDRESS :</strong> 103 H, Yatiyanthota Road, Seethawaka, Avissawella<br>
                             <strong>TEL :</strong> (076) 9085352, <strong>EMAIL :</strong> autopartsusn@gmail.com
@@ -237,9 +258,9 @@
                     </button>
                     <div>
                         @if($currentReturnId)
-                       
+
                         <button type="button" class="btn btn-primary"
-                                onclick="printReturnReceipt()">
+                            onclick="printReturnReceipt()">
                             <i class="bi bi-printer me-1"></i> Print
                         </button>
                         @endif
@@ -251,7 +272,7 @@
 
     <!-- Delete Confirmation Modal -->
     <div wire:ignore.self class="modal fade" id="deleteReturnModal" tabindex="-1"
-         aria-labelledby="deleteReturnModalLabel" aria-hidden="true" >
+        aria-labelledby="deleteReturnModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
@@ -300,10 +321,10 @@
 
 @push('styles')
 <style>
-
-    .note{
+    .note {
         display: block;
     }
+
     .table th {
         font-weight: 600;
         background-color: #f8f9fa;
@@ -322,15 +343,15 @@
     }
 
     .table th {
-            border-top: none;
-            font-weight: 600;
-            color: #ffffff;
-            background: #3B5B0C;
-            background: linear-gradient(0deg,rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        border-top: none;
+        font-weight: 600;
+        color: #ffffff;
+
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
     .table-hover tbody tr:hover {
         background-color: rgba(0, 0, 0, 0.025);
     }
@@ -359,25 +380,28 @@
         background-color: #b8d7e8 !important;
     }
 
-    .closebtn { 
-        top:3%; 
-        right:3%; 
-        position:absolute; 
+    .closebtn {
+        top: 3%;
+        right: 3%;
+        position: absolute;
     }
 
     /* Print styles for receipt */
     @media print {
 
-        .note{
+        .note {
             display: none;
         }
-        body * { 
-            visibility: hidden; 
+
+        body * {
+            visibility: hidden;
         }
-        #printableReturnReceipt, 
-        #printableReturnReceipt * { 
-            visibility: visible; 
+
+        #printableReturnReceipt,
+        #printableReturnReceipt * {
+            visibility: visible;
         }
+
         #printableReturnReceipt {
             position: absolute;
             left: 0;
@@ -389,94 +413,108 @@
             font-size: 11pt;
             color: #000;
         }
-        .modal, 
-        .modal-dialog, 
-        .modal-content { 
-            all: unset; 
-        }
-        .modal-footer, 
-        .btn, 
-        .btn-close { 
-            display: none !important; 
+
+        .modal,
+        .modal-dialog,
+        .modal-content {
+            all: unset;
         }
 
-        .modal-header { 
-            border: none; 
-            padding: 0; 
-            text-align: center; 
-            margin-bottom: 1rem; 
+        .modal-footer,
+        .btn,
+        .btn-close {
+            display: none !important;
+        }
+
+        .modal-header {
+            border: none;
+            padding: 0;
+            text-align: center;
+            margin-bottom: 1rem;
             background: #000 !important;
             color: #000 !important;
         }
-        .modal-header img { 
-            max-height: 55px; 
+
+        .modal-header img {
+            max-height: 55px;
             filter: brightness(0) !important;
         }
-        .modal-header h4 { 
-            margin: 4px 0; 
-            font-size: 1.4rem; 
-            color: #000;
-        }
-        .modal-header p { 
-            margin: 0; 
-            font-size: 0.85rem; 
+
+        .modal-header h4 {
+            margin: 4px 0;
+            font-size: 1.4rem;
             color: #000;
         }
 
-        .table { 
-            border-collapse: collapse; 
-            width: 100%; 
-            margin-bottom: .8rem; 
-        }
-        .table th, 
-        .table td { 
-            border: 1px solid #999; 
-            padding: 4px 6px; 
-        }
-        .table th { 
-            background: #e9ecef; 
-            -webkit-print-color-adjust: exact; 
-        }
-        .table-sm { 
-            font-size: 0.9rem; 
+        .modal-header p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #000;
         }
 
-        .table-sm td { 
-            border: none; 
-            padding: 2px 4px; 
-        }
-        .table-sm strong { 
-            min-width: 110px; 
-            display: inline-block; 
+        .table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: .8rem;
         }
 
-        .d-flex img { 
-            height: 30px; 
-            margin: 0 8px; 
+        .table th,
+        .table td {
+            border: 1px solid #999;
+            padding: 4px 6px;
         }
-    // Row selection functions
-    function toggleRowHighlight(checkbox) {
-        const row = checkbox.closest('tr');
-        if (checkbox.checked) {
-            row.classList.add('selected-row');
-            row.style.backgroundColor = '#d4e6f1';
-        } else {
-            row.classList.remove('selected-row');
-            row.style.backgroundColor = '';
-            document.getElementById('selectAll').checked = false;
+
+        .table th {
+            background: #e9ecef;
+            -webkit-print-color-adjust: exact;
         }
-    }
 
-    function toggleAllRows(selectAllCheckbox) {
-        const checkboxes = document.querySelectorAll('.row-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = selectAllCheckbox.checked;
-            toggleRowHighlight(checkbox);
-        });
-    }
+        .table-sm {
+            font-size: 0.9rem;
+        }
 
-        .text-muted { 
-            font-size: 0.8rem; 
+        .table-sm td {
+            border: none;
+            padding: 2px 4px;
+        }
+
+        .table-sm strong {
+            min-width: 110px;
+            display: inline-block;
+        }
+
+        .d-flex img {
+            height: 30px;
+            margin: 0 8px;
+        }
+
+        // Row selection functions
+        function toggleRowHighlight(checkbox) {
+            const row=checkbox.closest('tr');
+
+            if (checkbox.checked) {
+                row.classList.add('selected-row');
+                row.style.backgroundColor='#d4e6f1';
+            }
+
+            else {
+                row.classList.remove('selected-row');
+                row.style.backgroundColor='';
+                document.getElementById('selectAll').checked=false;
+            }
+        }
+
+        function toggleAllRows(selectAllCheckbox) {
+            const checkboxes=document.querySelectorAll('.row-checkbox');
+
+            checkboxes.forEach(checkbox=> {
+                    checkbox.checked=selectAllCheckbox.checked;
+                    toggleRowHighlight(checkbox);
+                });
+        }
+
+        .text-muted {
+            font-size: 0.8rem;
         }
     }
 </style>
@@ -489,25 +527,25 @@
             const el = document.getElementById(modalId);
             if (el) new bootstrap.Modal(el).show();
         });
-        
+
         Livewire.on('hideModal', (modalId) => {
             const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
             if (modal) modal.hide();
         });
-        
+
         Livewire.on('showToast', (e) => {
             const toast = document.getElementById('livewire-toast');
             toast.querySelector('.toast-body').textContent = e.message;
             toast.querySelector('.toast-header').className = 'toast-header text-white bg-' + e.type;
             new bootstrap.Toast(toast).show();
         });
-        
+
         Livewire.on('printReceipt', () => {
             printReturnReceipt();
         });
 
-        document.addEventListener('keydown', e => { 
-            if (e.key === 'Escape') Livewire.dispatch('closeModals'); 
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') Livewire.dispatch('closeModals');
         });
     });
 

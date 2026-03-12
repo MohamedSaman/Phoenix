@@ -1,1035 +1,2359 @@
-<div class="container-fluid py-3" style="background-color:#fffaf0;">
-    {{-- Opening Cash Modal --}}
+<div class="pos-wrapper">
+
+    {{-- Toast Notifications --}}
+    <div id="posToastContainer" class="pos-toast-container"></div>
+
+    {{-- ════════════════════════════════════════════
+         OPENING CASH MODAL
+    ════════════════════════════════════════════ --}}
     @if($showOpeningCashModal)
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.8);"  data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-0 border-0 shadow-lg">
-                <div class="modal-header text-white rounded-0" style="background: linear-gradient(135deg, #3b5b0c 0%, #8eb922 100%);">
-                    <h5 class="modal-title fw-bold">
-                        <i class="bi bi-cash-stack me-2"></i>Enter Opening Cash Amount
-                    </h5>
+    <div class="pos-overlay" style="z-index:2000;">
+        <div class="pos-modal-card" style="max-width:440px;">
+            <div class="pos-modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="pos-icon-badge">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold">Open POS Session</h5>
+                        <small class="opacity-75">{{ now()->format('l, F d, Y') }}</small>
+                    </div>
                 </div>
-
-                <div class="modal-body p-4">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-calendar-check" style="font-size: 3rem; color: #8eb922;"></i>
-                        <h5 class="mt-3 mb-1 fw-bold" style="color: #3b5b0c;">Start New POS Session</h5>
-                        <p class="text-muted">{{ now()->format('l, F d, Y') }}</p>
+            </div>
+            <div class="pos-modal-body">
+                <div class="text-center mb-4">
+                    <div class="pos-cash-icon-wrap mx-auto mb-3">
+                        <i class="bi bi-safe2"></i>
                     </div>
-
-                    <div class="alert alert-info rounded-0 mb-4">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <small>Please enter the opening cash amount to start today's POS session.</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="openingCashAmount" class="form-label fw-semibold" style="color:#3b5b0c;">
-                            Opening Cash Amount (Rs.) *
-                        </label>
+                    <p class="text-muted mb-0 small">Enter the opening cash amount to start today's POS session.</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold pos-label">Opening Cash (Rs.) <span class="text-danger">*</span></label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text pos-input-prefix">Rs.</span>
                         <input type="number"
-                            class="form-control form-control-lg rounded-0 text-center fw-bold"
-                            id="openingCashAmount"
+                            class="form-control pos-input-lg text-center fw-bold"
                             wire:model="openingCashAmount"
                             step="0.01"
                             min="0"
                             placeholder="0.00"
-                            style="font-size: 1.5rem; border: 2px solid #8eb922;"
                             autofocus>
-                        @error('openingCashAmount')
-                        <div class="text-danger mt-1 small">{{ $message }}</div>
-                        @enderror
                     </div>
-
-                    <div class="bg-light p-3 rounded-0 border">
-                        <small class="text-muted">
-                            <i class="bi bi-lightbulb me-1"></i>
-                            <strong>Note:</strong> This amount will be recorded as your starting cash for today's transactions.
-                        </small>
-                    </div>
+                    @error('openingCashAmount')
+                    <div class="pos-field-error">{{ $message }}</div>
+                    @enderror
                 </div>
-
-                <div class="modal-footer justify-content-center rounded-0 bg-light">
-                    <button type="button"
-                        class="btn btn-lg rounded-0 text-white px-5"
-                        style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%); border-color:#3b5b0c;"
-                        wire:click="submitOpeningCash">
-                        <i class="bi bi-check-circle me-2"></i>Start POS Session
-                    </button>
+                <div class="pos-info-box">
+                    <i class="bi bi-info-circle me-2"></i>
+                    This amount will be recorded as your starting cash for today's transactions.
                 </div>
+            </div>
+            <div class="pos-modal-footer justify-content-center">
+                <button type="button" class="btn pos-btn-gradient btn-lg px-5" wire:click="submitOpeningCash">
+                    <i class="bi bi-play-circle me-2"></i>Start POS Session
+                </button>
             </div>
         </div>
     </div>
     @endif
 
-    <!-- Enhanced Header -->
-    <div class="header-section mb-4">
-        <div class="d-flex justify-content-between align-items-center p-3 bg-white rounded shadow-sm border">
-            <!-- Logo and Company Info -->
-            <div class="d-flex align-items-center">
-                <div class="company-logo me-3">
-                    <i class="bi bi-shop fs-3 text-success"></i>
-                </div>
-                <div>
-                    <h4 class="mb-0 fw-bold" style="color:#8a6114;">{{ strtoupper(config('shop.name')) }}</h4>
-                    <small class="text-muted">Point of Sale System</small>
-                </div>
+    {{-- ════════════════════════════════════════════
+         FULL-WIDTH TOP HEADER
+    ════════════════════════════════════════════ --}}
+    <div class="pos-top-bar">
+        <div class="d-flex align-items-center gap-3">
+            <div class="pos-top-badge">
+                <i class="bi bi-shop"></i>
             </div>
-
-            <!-- POS Button -->
-            <div class="d-flex align-items-center">
-                <div class="badge d-flex align-items-center px-3 py-2 rounded-2 shadow-sm"
-                    style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%); color:white; border:1px solid #3b5b0c; cursor: pointer; transition: all 0.2s ease;"
-                    wire:click="viewCloseRegisterReport"
-                    role="button"
-                    onmouseover="this.style.background='linear-gradient(0deg, rgba(40, 70, 5, 1) 0%, rgba(120, 160, 25, 1) 100%)';"
-                    onmouseout="this.style.background='linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%)';">
-                    <i class="bi bi-file-earmark-text me-2"></i>
-                    <span class="fw-semibold">View Report</span>
-                </div>
+            <div>
+                <h5 class="mb-0 fw-bold pos-shop-name">{{ strtoupper(config('shop.name')) }}</h5>
+                <small class="pos-muted">Point of Sale</small>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            @if($currentSession)
+            <div class="pos-session-badge">
+                <i class="bi bi-circle-fill text-success me-1" style="font-size:0.5rem; vertical-align:middle;"></i>
+                <span>Session Active</span>
+            </div>
+            @endif
+            <div class="text-end">
+                <div class="fw-bold pos-clock" id="posLiveClock">{{ now()->format('h:i A') }}</div>
+                <small class="pos-muted">{{ now()->format('l, M d, Y') }}</small>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        {{-- Customer Information --}}
-        <div class="col-6 mb-4">
-            <div class="card border-2 shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h5 class="card-title mb-0 fw-bold" style="color:#3b5b0c;">
-                        <i class="bi bi-person me-2" style="color:#8eb922;"></i>Customer Information
-                    </h5>
-                    <button class="btn btn-sm rounded-1 text-white" style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%); border-color: #3b5b0c;" wire:click="openCustomerModal">
-                        <i class="bi bi-plus-circle me-1"></i> Add New Customer
+    {{-- ════════════════════════════════════════════
+         MAIN POS LAYOUT
+    ════════════════════════════════════════════ --}}
+    <div class="pos-layout">
+
+        {{-- ── LEFT PANEL: Products ── --}}
+        <main class="pos-products-panel">
+
+            {{-- Search Bar --}}
+            <div class="pos-search-wrap">
+                <div class="pos-search-box">
+                    <i class="bi bi-search pos-search-icon"></i>
+                    <input type="text" class="pos-search-input"
+                        wire:model.live.debounce.300ms="search"
+                        placeholder="Search by name, code or model...">
+                    @if($search)
+                    <button type="button" class="pos-search-clear" wire:click="$set('search', '')">
+                        <i class="bi bi-x-lg"></i>
                     </button>
-                </div>
-                <div class="card-body">
-                    {{-- Customer Success Alert --}}
-                    @if(session()->has('customer_success'))
-                    <div class="alert alert-success alert-dismissible fade show rounded-0 mb-3" role="alert">
-                        <i class="bi bi-check-circle-fill me-2"></i>
-                        <strong>Success!</strong> {{ session('customer_success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    @endif
-
-                    <div class="row g-3">
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Select Customer *</label>
-                            <select class="form-select rounded-0 border" wire:model.live="customerId">
-                                @foreach($customers as $customer)
-                                <option value="{{ $customer->id }}" {{ $customer->name === 'Walking Customer' ? 'selected' : '' }}>
-                                    {{ $customer->name }}
-                                    @if($customer->phone)
-                                    - {{ $customer->phone }}
-                                    @endif
-                                    @if($customer->name === 'Walking Customer') (Default) @endif
-                                </option>
-                                @endforeach
-                            </select>
-                            <div class="form-text">
-                                @if($selectedCustomer && $selectedCustomer->name === 'Walking Customer')
-                                <span class="text-info">
-                                    <i class="bi bi-info-circle"></i> Using default walking customer
-                                </span>
-                                @else
-                                Select existing customer or add new
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Add Products Card --}}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 shadow-sm border-1">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0 fw-semibold">
-                        <i class="bi bi-search me-2 text-success"></i> Add Products
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <input type="text" class="form-control shadow-sm"
-                            wire:model.live="search"
-                            placeholder="Search by product name, code, or model...">
-                    </div>
-
-                    {{-- Search Results --}}
-                    @if($search && count($searchResults) > 0)
-                    <div class="search-results mt-1 position-absolute w-100 z-10 shadow-lg " style="max-height: 300px; max-width: 96%;">
-                        @foreach($searchResults as $product)
-                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white rounded-1"
-                            wire:key="product-{{ $product['id'] }}">
-                            <div>
-                                <h6 class="mb-1 fw-semibold">{{ $product['name'] }}</h6>
-                                <p class="text-muted small mb-0">
-                                    Code: {{ $product['code'] }} | Model: {{ $product['model'] }}
-                                </p>
-                                <p class="text-success small mb-0">
-                                    Rs.{{ number_format($product['price'], 2) }} | Stock: {{ $product['stock'] }}
-                                </p>
-                            </div>
-                            <button class="btn btn-sm btn-outline-primary"
-                                wire:click="addToCart({{ json_encode($product) }})"
-                                {{ $product['stock'] <= 0 ? 'disabled' : '' }}>
-                                <i class="bi bi-plus-lg"></i> Add
-                            </button>
-                        </div>
-                        @endforeach
-                    </div>
-                    @elseif($search)
-                    <div class="text-center text-muted p-3">
-                        <i class="bi bi-exclamation-circle me-1"></i> No products found
-                    </div>
                     @endif
                 </div>
-            </div>
-        </div>
-    </div>
 
-    {{-- Sale Items Table --}}
-    <div class="col-md-12 mb-4">
-        <div class="card border-2 shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                <h5 class="card-title mb-0 fw-bold" style="color:#3b5b0c;">
-                    <i class="bi bi-cart me-2" style="color:#8eb922;"></i>Sale Items
-                </h5>
-                <span class="badge rounded-1 text-white" style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);">{{ count($cart) }} items</span>
-            </div>
-            <div class="card-body p-0">
-                @if(count($cart) > 0)
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th width="30">#</th>
-                                <th>Product</th>
-                                <th width="120">Unit Price</th>
-                                <th width="150">Quantity</th>
-                                <th width="120">Discount/Unit</th>
-                                <th width="120">Total</th>
-                                <th width="100" class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($cart as $index => $item)
-                            <tr wire:key="{{ $item['key'] ?? 'cart_' . $index }}">
-                                <td>{{ $index + 1 }}</td>
-                                <td>
-                                    <div>
-                                        <strong>{{ $item['name'] }}</strong>
-                                        <div class="text-muted small">
-                                            {{ $item['code'] }} | {{ $item['model'] }}
-                                        </div>
-                                        <div class="text-info small">
-                                            Stock: {{ $item['stock'] }}
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="fw-bold">
-                                    <input type="number" class="form-control-sm text-primary rounded-0" style="min-width:90px;"
-                                        wire:change="updatePrice({{ $index }}, $event.target.value)"
-                                        value="{{ $item['price'] }}" min="0" step="0.01"
-                                        placeholder="0.00">
-                                </td>
-                                <td>
-                                    <div class="input-group input-group-sm">
-                                        <button class="btn btn-outline-secondary rounded-0" type="button"
-                                            wire:click="decrementQuantity({{ $index }})">-</button>
-                                        <input type="number" class="form-control text-center rounded-0"
-                                            wire:change="updateQuantity({{ $index }}, $event.target.value)"
-                                            value="{{ $item['quantity'] }}" min="1" max="{{ $item['stock'] }}">
-                                        <button class="btn btn-outline-secondary rounded-0" type="button"
-                                            wire:click="incrementQuantity({{ $index }})">+</button>
-                                    </div>
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control-sm text-danger rounded-0"
-                                        wire:change="updateDiscount({{ $index }}, $event.target.value)"
-                                        value="{{ $item['discount'] }}" min="0" step="0.01"
-                                        placeholder="0.00">
-                                </td>
-                                <td class="fw-bold">
-                                    Rs.{{ number_format($item['total'], 2) }}
-                                </td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-danger rounded-0"
-                                        wire:click="removeFromCart({{ $index }})"
-                                        title="Delete">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                        <tfoot class="table-light">
-                            <tr>
-                                <td colspan="5" class="text-end fw-bold">Subtotal:</td>
-                                <td class="fw-bold">Rs.{{ number_format($subtotal, 2) }}</td>
-                                <td></td>
-                            </tr>
-
-                            {{-- Additional Discount Section --}}
-                            <tr>
-                                <td colspan="3" class="text-end fw-bold align-middle">
-                                    Additional Discount:
-                                    @if($additionalDiscount > 0)
-                                    <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1"
-                                        wire:click="removeAdditionalDiscount" title="Remove discount">
-                                        <i class="bi bi-x-circle"></i>
-                                    </button>
-                                    @endif
-                                </td>
-                                <td colspan="2">
-                                    <div class="input-group input-group-sm">
-                                        <input type="number"
-                                            class="form-control form-control-sm text-danger rounded-0"
-                                            wire:model.live="additionalDiscount"
-                                            min="0"
-                                            step="{{ $additionalDiscountType === 'percentage' ? '1' : '0.01' }}"
-                                            @if($additionalDiscountType==='percentage' ) max="100" @endif
-                                            placeholder="0{{ $additionalDiscountType === 'percentage' ? '' : '.00' }}">
-
-                                        <span class="input-group-text rounded-0">
-                                            {{ $additionalDiscountType === 'percentage' ? '%' : 'Rs.' }}
-                                        </span>
-
-                                        <button type="button"
-                                            class="btn btn-outline-secondary rounded-0"
-                                            wire:click="toggleDiscountType"
-                                            title="Switch Discount Type">
-                                            <i class="bi bi-arrow-repeat"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                                <td class="fw-bold text-danger">
-                                    @if($additionalDiscount > 0)
-                                    - Rs.{{ number_format($additionalDiscountAmount, 2) }}
-                                    @if($additionalDiscountType === 'percentage')
-                                    <div class="text-muted small">({{ $additionalDiscount }}%)</div>
-                                    @endif
-                                    @else
-                                    <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td></td>
-                            </tr>
-
-                            {{-- Grand Total --}}
-                            <tr>
-                                <td colspan="5" class="text-end fw-bold fs-5">Grand Total:</td>
-                                <td class="fw-bold fs-5" style="color:#8eb922;">Rs.{{ number_format($grandTotal, 2) }}</td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-                @else
-                <div class="text-center text-muted py-5">
-                    <i class="bi bi-cart display-4 d-block mb-2 text-muted"></i>
-                    No items added yet
+                {{-- Search Dropdown --}}
+                @if(count($searchResults) > 0)
+                <div class="pos-search-dropdown">
+                    @foreach($searchResults as $product)
+                    <div class="pos-search-result"
+                        wire:click="addToCart({{ json_encode($product) }})">
+                        <div>
+                            <div class="fw-semibold">{{ $product['name'] }}</div>
+                            <small class="pos-muted">{{ $product['code'] }} · {{ $product['model'] }}</small>
+                        </div>
+                        <div class="text-end flex-shrink-0">
+                            <div class="pos-search-price">Rs.{{ number_format($product['price'], 2) }}</div>
+                            <small class="pos-muted">Stock: {{ $product['stock'] }}</small>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
                 @endif
             </div>
-            @if(count($cart) > 0)
-            <div class="card-footer bg-white">
-                <button class="btn btn-danger rounded-0" wire:click="clearCart">
-                    <i class="bi bi-trash me-2"></i>Clear All Items
+
+            {{-- Category Tabs --}}
+            <div class="pos-categories">
+                <button type="button"
+                    class="pos-cat-btn {{ !$selectedCategory ? 'active' : '' }}"
+                    wire:click="selectCategory(null)">
+                    <i class="bi bi-grid-3x3-gap me-1"></i>All
                 </button>
+                @foreach($categories as $category)
+                <button type="button"
+                    class="pos-cat-btn {{ $selectedCategory == $category->id ? 'active' : '' }}"
+                    wire:click="selectCategory({{ $category->id }})">
+                    {{ $category->category_name }}
+                </button>
+                @endforeach
             </div>
-            @endif
-        </div>
+
+            {{-- Product Grid --}}
+            <div class="pos-products-scroll">
+                <div class="pos-products-grid">
+                    @forelse($products as $product)
+                    <div class="pos-product-card"
+                        wire:click="addToCart({{ json_encode($product) }})">
+                        <div class="pos-product-img">
+                            @if($product['image'])
+                            <img src="{{ str_starts_with($product['image'], 'http') ? $product['image'] : asset($product['image']) }}"
+                                alt="{{ $product['name'] }}"
+                                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                            <div class="pos-product-noimg" style="display:none;">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            @else
+                            <div class="pos-product-noimg">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            @endif
+                            <span class="pos-stock-badge {{ $product['stock'] > 0 ? 'in-stock' : 'out-stock' }}">
+                                {{ $product['stock'] }}
+                            </span>
+                        </div>
+                        <div class="pos-product-info">
+                            <div class="pos-product-name">{{ Str::limit($product['name'], 32) }}</div>
+                            <div class="pos-product-code">{{ $product['code'] }}</div>
+                            <div class="pos-product-price">Rs.{{ number_format($product['price'], 2) }}</div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="pos-no-products">
+                        <i class="bi bi-search"></i>
+                        <p>No products found</p>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
+        </main>
+
+
+        {{-- ── RIGHT PANEL: Products ── --}}
+        <aside class="pos-cart-panel">
+
+            {{-- Panel Header --}}
+            <div class="pos-cart-header">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="pos-header-icon">
+                            <i class="bi bi-cart3"></i>
+                        </div>
+                        <span class="fw-bold fs-6">Current Sale</span>
+                    </div>
+                    <button type="button" class="btn pos-btn-ghost-sm" wire:click="viewCloseRegisterReport">
+                        <i class="bi bi-file-earmark-bar-graph me-1"></i>Report
+                    </button>
+                </div>
+                {{-- Customer select --}}
+                <div class="d-flex gap-2">
+                    <select class="form-select pos-select flex-grow-1" wire:model.live="customerId">
+                        @foreach($customers as $customer)
+                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                        @endforeach
+                    </select>
+                    <button type="button" class="btn pos-btn-icon" wire:click="openCustomerModal" title="Add New Customer">
+                        <i class="bi bi-person-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Cart Items --}}
+            <div class="pos-cart-body">
+                @if(count($cart) > 0)
+                <table class="pos-cart-table">
+                    <thead>
+                        <tr>
+                            <th class="pos-ct-th pos-ct-name">Item</th>
+                            <th class="pos-ct-th pos-ct-qty">Qty</th>
+                            <th class="pos-ct-th pos-ct-price">Price</th>
+                            <th class="pos-ct-th pos-ct-disc">Disc.</th>
+                            <th class="pos-ct-th pos-ct-total">Sub Total</th>
+                            <th class="pos-ct-th pos-ct-rm"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($cart as $index => $item)
+                        <tr class="pos-ct-row">
+                            <td class="pos-ct-td pos-ct-name">
+                                <div class="fw-semibold pos-item-name">{{ Str::limit($item['name'], 24) }}</div>
+                                <div class="pos-item-code">{{ $item['code'] }}</div>
+                            </td>
+                            <td class="pos-ct-td pos-ct-qty">
+                                <div class="pos-qty-control">
+                                    <button type="button" class="pos-qty-btn" wire:click="decrementQuantity({{ $index }})">
+                                        <i class="bi bi-dash"></i>
+                                    </button>
+                                    <input type="number" class="pos-qty-input"
+                                        value="{{ $item['quantity'] }}"
+                                        wire:change="updateQuantity({{ $index }}, $event.target.value)"
+                                        min="1">
+                                    <button type="button" class="pos-qty-btn" wire:click="incrementQuantity({{ $index }})">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="pos-ct-td pos-ct-price">
+                                <input type="number"
+                                    class="pos-price-input"
+                                    value="{{ $item['price'] }}"
+                                    wire:change="updatePrice({{ $index }}, $event.target.value)"
+                                    min="0"
+                                    step="0.01">
+                            </td>
+                            <td class="pos-ct-td pos-ct-disc">
+                                <span class="{{ $item['discount'] > 0 ? 'pos-disc-val' : 'pos-muted-val' }}">
+                                    {{ $item['discount'] > 0 ? '-Rs.'.number_format($item['discount'] * $item['quantity'], 2) : '—' }}
+                                </span>
+                            </td>
+                            <td class="pos-ct-td pos-ct-total">
+                                <span class="pos-item-total">Rs.{{ number_format($item['total'], 2) }}</span>
+                            </td>
+                            <td class="pos-ct-td pos-ct-rm">
+                                <button type="button" class="btn pos-btn-remove" wire:click="removeFromCart({{ $index }})">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @else
+                <div class="pos-empty-cart">
+                    <div class="pos-empty-icon">
+                        <i class="bi bi-cart-x"></i>
+                    </div>
+                    <p class="mb-1 fw-semibold">Cart is empty</p>
+                    <small>Search or click products to add</small>
+                </div>
+                @endif
+            </div>
+        </aside>
     </div>
 
-    <div class="row">
-        {{-- Payment Information Card --}}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 border-2 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="card-title mb-0 fw-bold" style="color:#3b5b0c;">
-                        <i class="bi bi-credit-card me-2" style="color:#8eb922;"></i>Payment Information
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Payment Method *</label>
-                            <select class="form-select rounded-0 border" wire:model.live="paymentMethod">
-                                <option value="cash">Cash</option>
-                                <option value="cheque">Cheque</option>
-                                <option value="bank_transfer">Bank Transfer</option>
-                                <option value="credit">Credit (Pay Later)</option>
-                            </select>
-                        </div>
+    {{-- ════════════════════════════════════════════
+         FULL-WIDTH PAYMENT FOOTER
+    ════════════════════════════════════════════ --}}
+    <div class="pos-cart-footer">
+        <div class="pos-footer-grid">
 
-                        {{-- Cash Payment Fields --}}
-                        @if($paymentMethod === 'cash')
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Cash Amount *</label>
-                            <div class="input-group">
-                                <span class="input-group-text rounded-0">Rs.</span>
-                                <input type="number" class="form-control rounded-0"
-                                    wire:model.live="cashAmount"
-                                    min="0"
-                                    step="0.01"
-                                    placeholder="0.00">
-                            </div>
-                            <div class="form-text">
-                                Enter the cash amount received
-                            </div>
+            {{-- Totals Column --}}
+            <div class="pos-footer-totals">
+                <div class="pos-totals">
+                    <div class="pos-total-row">
+                        <span>Subtotal</span>
+                        <span>Rs.{{ number_format($this->subtotal, 2) }}</span>
+                    </div>
+                    @if($this->totalDiscount > 0)
+                    <div class="pos-total-row pos-discount-row">
+                        <span><i class="bi bi-tag me-1"></i>Item Discount</span>
+                        <span>-Rs.{{ number_format($this->totalDiscount, 2) }}</span>
+                    </div>
+                    @endif
+                    <div class="pos-total-row pos-extra-discount-row">
+                        <span>Extra Discount</span>
+                        <div class="d-flex align-items-center gap-1">
+                            <input type="number" class="pos-discount-input"
+                                wire:model.live="additionalDiscount" min="0" placeholder="0">
+                            <button type="button" class="pos-discount-toggle" wire:click="toggleDiscountType">
+                                {{ $additionalDiscountType === 'percentage' ? '%' : 'Rs' }}
+                            </button>
                         </div>
-                        @endif
-
-                        {{-- Cheque Payment Fields --}}
-                        @if($paymentMethod === 'cheque')
-                        <div class="col-md-12">
-                            <div class="card bg-light border-0">
-                                <div class="card-header d-flex justify-content-between align-items-center bg-white py-2">
-                                    <h6 class="mb-0 fw-semibold" style="color:#3b5b0c;">Add Cheque Details</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-2">
-                                        <div class="col-md-6">
-                                            <label class="form-label small fw-semibold" style="color:#3b5b0c;">Cheque Number *</label>
-                                            <input type="text" class="form-control form-control-sm rounded-0"
-                                                wire:model="tempChequeNumber"
-                                                placeholder="Enter cheque number">
-                                            @error('tempChequeNumber') <span class="text-danger small">{{ $message }}</span> @enderror
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label small fw-semibold" style="color:#3b5b0c;">Bank Name *</label>
-                                            <input type="text" class="form-control form-control-sm rounded-0"
-                                                wire:model="tempBankName"
-                                                placeholder="Enter bank name">
-                                            @error('tempBankName') <span class="text-danger small">{{ $message }}</span> @enderror
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label small fw-semibold" style="color:#3b5b0c;">Cheque Date *</label>
-                                            <input type="date" class="form-control form-control-sm rounded-0"
-                                                wire:model="tempChequeDate">
-                                            @error('tempChequeDate') <span class="text-danger small">{{ $message }}</span> @enderror
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label small fw-semibold" style="color:#3b5b0c;">Cheque Amount *</label>
-                                            <input type="number" class="form-control form-control-sm rounded-0"
-                                                wire:model="tempChequeAmount"
-                                                min="0" step="0.01"
-                                                placeholder="0.00">
-                                            @error('tempChequeAmount') <span class="text-danger small">{{ $message }}</span> @enderror
-                                        </div>
-                                        <div class="col-12">
-                                            <button type="button" class="btn btn-sm w-100 rounded-0 text-white" style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%); border-color:#3b5b0c;"
-                                                wire:click="addCheque">
-                                                <i class="bi bi-plus-circle me-1"></i> Add Cheque
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Cheques List --}}
-                            @if(count($cheques) > 0)
-                            <div class="mt-3">
-                                <h6 class="mb-2 fw-semibold" style="color:#3b5b0c;">Added Cheques ({{ count($cheques) }})</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-bordered">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Cheque No</th>
-                                                <th>Bank</th>
-                                                <th>Date</th>
-                                                <th>Amount</th>
-                                                <th width="50">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($cheques as $index => $cheque)
-                                            <tr>
-                                                <td>{{ $cheque['number'] }}</td>
-                                                <td>{{ $cheque['bank_name'] }}</td>
-                                                <td>{{ date('d/m/Y', strtotime($cheque['date'])) }}</td>
-                                                <td class="fw-bold">Rs.{{ number_format($cheque['amount'], 2) }}</td>
-                                                <td class="text-center">
-                                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-0"
-                                                        wire:click="removeCheque({{ $index }})">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                        <tfoot class="table-light">
-                                            <tr>
-                                                <td colspan="3" class="text-end fw-bold">Total:</td>
-                                                <td colspan="2" class="fw-bold text-success">
-                                                    Rs.{{ number_format(collect($cheques)->sum('amount'), 2) }}
-                                                </td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-                            @endif
-                        </div>
-                        @endif
-
-                        {{-- Bank Transfer Fields --}}
-                        @if($paymentMethod === 'bank_transfer')
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Bank Transfer Amount *</label>
-                            <div class="input-group">
-                                <span class="input-group-text rounded-0">Rs.</span>
-                                <input type="number" class="form-control rounded-0"
-                                    wire:model.live="bankTransferAmount"
-                                    min="0"
-                                    step="0.01"
-                                    placeholder="0.00">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Bank Name *</label>
-                            <input type="text" class="form-control rounded-0"
-                                wire:model="bankTransferBankName"
-                                placeholder="Enter bank name (e.g., BOC Bank)">
-                            @error('bankTransferBankName') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Reference Number (Optional)</label>
-                            <input type="text" class="form-control rounded-0"
-                                wire:model="bankTransferReferenceNumber"
-                                placeholder="Enter transaction reference or receipt number">
-                            <div class="form-text">
-                                Reference number for transfer tracking
-                            </div>
-                        </div>
-                        @endif
-
-                        {{-- Credit Payment Info --}}
-                        @if($paymentMethod === 'credit')
-                        <div class="col-md-12">
-                            <div class="alert alert-warning mb-0 rounded-0">
-                                <i class="bi bi-exclamation-triangle me-2"></i>
-                                <strong>Credit Sale</strong>
-                                <p class="mb-0 mt-2">The full amount of Rs.{{ number_format($grandTotal, 2) }} will be marked as due. Customer can pay later.</p>
-                            </div>
-                        </div>
-                        @endif
-
-                        {{-- Payment Summary --}}
-                        @if($paymentMethod !== 'credit')
-                        <div class="col-md-12">
-                            <div class="border rounded-0 p-3 bg-light">
-                                <h6 class="mb-3 fw-semibold" style="color:#3b5b0c;">Payment Summary</h6>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span>Grand Total:</span>
-                                    <span class="fw-bold">Rs.{{ number_format($grandTotal, 2) }}</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span>Paid Amount:</span>
-                                    <span class="fw-bold text-success">Rs.{{ number_format($totalPaidAmount, 2) }}</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span>Due Amount:</span>
-                                    <span class="fw-bold {{ $dueAmount > 0 ? 'text-warning' : 'text-success' }}">
-                                        Rs.{{ number_format($dueAmount, 2) }}
-                                    </span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span>Status:</span>
-                                    <span class="badge bg-{{ $paymentStatus === 'paid' ? 'success' : ($paymentStatus === 'partial' ? 'warning' : 'danger') }} rounded-1">
-                                        {{ ucfirst($paymentStatus) }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if($totalPaidAmount < $grandTotal && $totalPaidAmount> 0)
-                            <div class="col-md-12">
-                                <div class="alert alert-info small mb-0 rounded-0">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Partial payment. Remaining Rs.{{ number_format($dueAmount, 2) }} will be marked as due.
-                                </div>
-                            </div>
-                            @endif
-                            @endif
+                    </div>
+                    <div class="pos-grand-total-row">
+                        <span>Grand Total</span>
+                        <span>Rs.{{ number_format($this->grandTotal, 2) }}</span>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {{-- Notes Card --}}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 border-2 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="card-title mb-0 fw-bold" style="color:#3b5b0c;">
-                        <i class="bi bi-chat-text me-2" style="color:#8eb922;"></i>Notes
-                    </h5>
+            {{-- Payment Methods + Inputs Column --}}
+            <div class="pos-footer-payment">
+                <div class="pos-payment-methods">
+                    <div class="pos-pm-grid">
+                        <input type="radio" class="pos-pm-radio" name="paymentMethod" id="pmCash" value="cash" wire:model.live="paymentMethod">
+                        <label class="pos-pm-label" for="pmCash">
+                            <i class="bi bi-cash"></i>
+                            <span>Cash</span>
+                        </label>
+
+                        <input type="radio" class="pos-pm-radio" name="paymentMethod" id="pmCheque" value="cheque" wire:model.live="paymentMethod">
+                        <label class="pos-pm-label" for="pmCheque">
+                            <i class="bi bi-bank"></i>
+                            <span>Cheque</span>
+                        </label>
+
+                        <input type="radio" class="pos-pm-radio" name="paymentMethod" id="pmMultiple" value="multiple" wire:model.live="paymentMethod">
+                        <label class="pos-pm-label" for="pmMultiple">
+                            <i class="bi bi-layers"></i>
+                            <span>Multiple</span>
+                        </label>
+
+                        <input type="radio" class="pos-pm-radio" name="paymentMethod" id="pmDue" value="due" wire:model.live="paymentMethod">
+                        <label class="pos-pm-label" for="pmDue">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Due</span>
+                        </label>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <textarea class="form-control rounded-0" wire:model="notes" rows="8"
-                        placeholder="Add any notes for this sale..."></textarea>
+
+                {{-- Payment Amount Inputs --}}
+                <div class="pos-payment-inputs mb-0">
+                    @if($paymentMethod === 'cash')
+                    <div class="pos-input-group mb-0">
+                        <label class="pos-label">Cash Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text pos-input-prefix-sm">Rs.</span>
+                            <input type="number" class="form-control pos-input" wire:model.live="cashAmount" placeholder="0.00" min="0" max="{{ $this->grandTotal }}">
+                        </div>
+                        @if($cashAmount > $this->grandTotal)
+                        <div class="pos-overpay-warn"><i class="bi bi-exclamation-triangle me-1"></i>Amount exceeds grand total. Max: Rs.{{ number_format($this->grandTotal, 2) }}</div>
+                        @endif
+                    </div>
+                    @elseif($paymentMethod === 'cheque')
+                    {{-- Cheque List --}}
+                    @if(count($cheques) > 0)
+                    <div class="pos-cheque-list">
+                        @foreach($cheques as $ci => $cheque)
+                        <div class="pos-cheque-item">
+                            <span class="pos-cheque-meta">Cheque {{ $ci + 1 }}</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="pos-cheque-amt">Rs.{{ number_format($cheque['amount'], 2) }}</span>
+                                <button type="button" class="pos-cheque-del" wire:click="removeCheque({{ $ci }})">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                        @endforeach
+                        <div class="pos-cheque-total">
+                            <span>Cheques Total</span>
+                            <span class="fw-bold">Rs.{{ number_format(collect($cheques)->sum('amount'), 2) }}</span>
+                        </div>
+                        @if(collect($cheques)->sum('amount') > $this->grandTotal)
+                        <div class="pos-overpay-warn"><i class="bi bi-exclamation-triangle me-1"></i>Cheques total exceeds grand total. Max: Rs.{{ number_format($this->grandTotal, 2) }}</div>
+                        @endif
+                    </div>
+                    @endif
+                    {{-- Add Cheque Form (amount only) --}}
+                    <div class="pos-add-cheque">
+                        <div class="input-group mb-1">
+                            <span class="input-group-text pos-input-prefix-sm">Rs.</span>
+                            <input type="number" class="form-control pos-input-sm" wire:model="tempChequeAmount" placeholder="Cheque Amount" min="0.01">
+                        </div>
+                        @error('tempChequeAmount')<div class="pos-field-error">{{ $message }}</div>@enderror
+                        <button type="button" class="btn pos-btn-add-cheque w-100" wire:click="addCheque">
+                            <i class="bi bi-plus-circle me-1"></i>Add Cheque
+                        </button>
+                    </div>
+                    @elseif($paymentMethod === 'multiple')
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="pos-label">Cash</label>
+                            <div class="input-group">
+                                <span class="input-group-text pos-input-prefix-sm">Rs.</span>
+                                <input type="number" class="form-control pos-input" wire:model.live="cashAmount" placeholder="0.00" min="0">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label class="pos-label">Cheque</label>
+                            <div class="input-group">
+                                <span class="input-group-text pos-input-prefix-sm">Rs.</span>
+                                <input type="number" class="form-control pos-input" wire:model.live="chequeAmount" placeholder="0.00" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    @if(($cashAmount + $chequeAmount) > $this->grandTotal)
+                    <div class="pos-overpay-warn mt-1"><i class="bi bi-exclamation-triangle me-1"></i>Total exceeds grand total. Max: Rs.{{ number_format($this->grandTotal, 2) }}</div>
+                    @endif
+                    @elseif($paymentMethod === 'due')
+                    <div class="pos-due-notice mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Full amount will be credited to the customer's account.
+                    </div>
+                    @endif
                 </div>
+
+                {{-- Due Amount --}}
+                @if($paymentMethod !== 'due' && $this->dueAmount > 0)
+                <div class="pos-due-amount mt-1 mb-0">
+                    <span><i class="bi bi-exclamation-circle me-1"></i>Due Amount</span>
+                    <span>Rs.{{ number_format($this->dueAmount, 2) }}</span>
+                </div>
+                @endif
             </div>
-        </div>
-    </div>
 
-    {{-- Create Sale Button --}}
-    <div class="col-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body text-center bg-light py-4">
-                <button class="btn btn-lg px-5 rounded-0 fw-bold text-white" style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%); border-color:#3b5b0c;" wire:click="validateAndCreateSale"
-                    {{ count($cart) == 0 ? 'disabled' : '' }}>
-                    <i class="bi bi-cart-check me-2"></i>Complete Sale
+            {{-- Actions Column --}}
+            <div class="pos-footer-actions">
+                <button type="button"
+                    class="btn pos-btn-complete w-100"
+                    wire:click="validateAndCreateSale"
+                    wire:loading.attr="disabled"
+                    @if(count($cart)==0) disabled @endif>
+                    <span wire:loading.remove wire:target="validateAndCreateSale">
+                        <i class="bi bi-check2-circle me-2"></i>Complete Sale
+                    </span>
+                    <span wire:loading wire:target="validateAndCreateSale">
+                        <span class="spinner-border spinner-border-sm me-2"></span>Processing...
+                    </span>
                 </button>
+
+                @if(count($cart) > 0)
+                <button type="button" class="btn pos-btn-clear w-100 mt-2" wire:click="clearCart">
+                    <i class="bi bi-x-circle me-1"></i>Clear Cart
+                </button>
+                @endif
             </div>
+
         </div>
     </div>
 
-
-    {{-- Add Customer Modal --}}
+    {{-- ════════════════════════════════════════════
+         ADD CUSTOMER MODAL
+    ════════════════════════════════════════════ --}}
     @if($showCustomerModal)
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content rounded-0">
-                <div class="modal-header text-white rounded-0" style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);">
-                    <h5 class="modal-title fw-bold">
-                        <i class="bi bi-person-plus me-2"></i>Add New Customer
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" wire:click="closeCustomerModal"></button>
+    <div class="pos-overlay">
+        <div class="pos-modal-card" style="max-width:620px;">
+            <div class="pos-modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="pos-icon-badge">
+                        <i class="bi bi-person-plus"></i>
+                    </div>
+                    <h5 class="mb-0 fw-bold">Add New Customer</h5>
                 </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Name *</label>
-                            <input type="text" class="form-control rounded-0" wire:model="customerName" placeholder="Enter customer name">
-                            @error('customerName') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Phone *</label>
-                            <input type="text" class="form-control rounded-0" wire:model="customerPhone" placeholder="Enter phone number">
-                            @error('customerPhone') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Email</label>
-                            <input type="email" class="form-control rounded-0" wire:model="customerEmail" placeholder="Enter email address">
-                            @error('customerEmail') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Customer Type *</label>
-                            <select class="form-select rounded-0" wire:model="customerType">
-                                <option value="retail">Retail</option>
-                                <option value="wholesale">Wholesale</option>
-
-                            </select>
-                            @error('customerType') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Business Name</label>
-                            <input type="text" class="form-control rounded-0" wire:model="businessName" placeholder="Enter business name">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label fw-semibold" style="color:#3b5b0c;">Address *</label>
-                            <textarea class="form-control rounded-0" wire:model="customerAddress" rows="3" placeholder="Enter address"></textarea>
-                            @error('customerAddress') <span class="text-danger small">{{ $message }}</span> @enderror
-                        </div>
+                <button type="button" class="btn pos-btn-close" wire:click="closeCustomerModal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="pos-modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="pos-label">Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control pos-input" wire:model="customerName" placeholder="Customer name">
+                        @error('customerName') <div class="pos-field-error">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="pos-label">Phone <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control pos-input" wire:model="customerPhone" placeholder="Phone number">
+                        @error('customerPhone') <div class="pos-field-error">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="pos-label">Email</label>
+                        <input type="email" class="form-control pos-input" wire:model="customerEmail" placeholder="Email address">
+                        @error('customerEmail') <div class="pos-field-error">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="pos-label">Customer Type <span class="text-danger">*</span></label>
+                        <select class="form-select pos-input" wire:model="customerType">
+                            <option value="retail">Retail</option>
+                            <option value="wholesale">Wholesale</option>
+                        </select>
+                        @error('customerType') <div class="pos-field-error">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="pos-label">Business Name</label>
+                        <input type="text" class="form-control pos-input" wire:model="businessName" placeholder="Business name">
+                    </div>
+                    <div class="col-12">
+                        <label class="pos-label">Address <span class="text-danger">*</span></label>
+                        <textarea class="form-control pos-input" wire:model="customerAddress" rows="2" placeholder="Address"></textarea>
+                        @error('customerAddress') <div class="pos-field-error">{{ $message }}</div> @enderror
                     </div>
                 </div>
-                <div class="modal-footer rounded-0">
-                    <button type="button" class="btn btn-secondary rounded-0" style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);" wire:click="closeCustomerModal">
-                        <i class="bi bi-x-circle me-2"></i>Cancel
-                    </button>
-                    <button type="button" class="btn rounded-0 text-white" style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%); border-color:#3b5b0c;" wire:click="createCustomer">
-                        <i class="bi bi-check-circle me-2"></i>Create Customer
-                    </button>
-                </div>
+            </div>
+            <div class="pos-modal-footer">
+                <button type="button" class="btn pos-btn-secondary" wire:click="closeCustomerModal">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn pos-btn-gradient" wire:click="createCustomer">
+                    <i class="bi bi-check-circle me-1"></i>Create Customer
+                </button>
             </div>
         </div>
     </div>
     @endif
 
-    {{-- Payment Confirmation Modal --}}
+    {{-- ════════════════════════════════════════════
+         PARTIAL PAYMENT CONFIRMATION MODAL
+    ════════════════════════════════════════════ --}}
     @if($showPaymentConfirmModal)
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.7);">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-0">
-                <div class="modal-header text-white rounded-0" style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);">
-                    <h5 class="modal-title fw-bold">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Partial Payment Confirmation
-                    </h5>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-warning mb-3 rounded-0">
-                        <h6 class="alert-heading">Payment Amount Less Than Grand Total</h6>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-2">
-                            <strong>Grand Total:</strong>
-                            <span>Rs.{{ number_format($grandTotal, 2) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <strong>Paid Amount:</strong>
-                            <span class="text-success">Rs.{{ number_format($totalPaidAmount, 2) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <strong>Due Amount:</strong>
-                            <span class="text-danger">Rs.{{ number_format($pendingDueAmount, 2) }}</span>
-                        </div>
+    <div class="pos-overlay">
+        <div class="pos-modal-card" style="max-width:440px;">
+            <div class="pos-modal-header pos-modal-warning">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="pos-icon-badge warning">
+                        <i class="bi bi-exclamation-triangle"></i>
                     </div>
-                    <p class="mb-0">
-                        The due amount of <strong class="text-danger">Rs.{{ number_format($pendingDueAmount, 2) }}</strong>
-                        will be added to the customer's account. Do you want to proceed?
-                    </p>
+                    <h5 class="mb-0 fw-bold">Partial Payment</h5>
                 </div>
-                <div class="modal-footer rounded-0">
-                    <button type="button" class="btn btn-secondary rounded-0" style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);" wire:click="cancelSaleConfirmation">
-                        <i class="bi bi-x-circle me-2"></i>Cancel
-                    </button>
-                    <button type="button" class="btn rounded-0 text-white" style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%); border-color:#3b5b0c;" wire:click="confirmSaleWithDue">
-                        <i class="bi bi-check-circle me-2"></i>Yes, Proceed with Due
-                    </button>
+            </div>
+            <div class="pos-modal-body">
+                <p class="text-muted mb-3">Payment amount is less than the grand total. The due amount will be added to the customer's account.</p>
+                <div class="pos-summary-table">
+                    <div class="pos-summary-row">
+                        <span>Grand Total</span>
+                        <span class="fw-semibold">Rs.{{ number_format($grandTotal, 2) }}</span>
+                    </div>
+                    <div class="pos-summary-row">
+                        <span>Paid Amount</span>
+                        <span class="fw-semibold pos-success-text">Rs.{{ number_format($totalPaidAmount, 2) }}</span>
+                    </div>
+                    <div class="pos-summary-row pos-summary-due">
+                        <span>Due Amount</span>
+                        <span class="fw-bold">Rs.{{ number_format($pendingDueAmount, 2) }}</span>
+                    </div>
                 </div>
+            </div>
+            <div class="pos-modal-footer">
+                <button type="button" class="btn pos-btn-secondary" wire:click="cancelSaleConfirmation">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn pos-btn-gradient" wire:click="confirmSaleWithDue">
+                    <i class="bi bi-check-circle me-1"></i>Proceed with Due
+                </button>
             </div>
         </div>
     </div>
     @endif
 
-    {{-- Sale Preview Modal --}}
+    {{-- ════════════════════════════════════════════
+         SALE RECEIPT MODAL
+    ════════════════════════════════════════════ --}}
     @if($showSaleModal && $createdSale)
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content rounded-0">
-                <div class="modal-header text-white rounded-0" style="background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);">
-                    <h5 class="modal-title fw-bold">
-                        <i class="bi bi-cart-check me-2"></i>
-                        Sale Completed Successfully! - {{ $createdSale->invoice_number }}
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" wire:click="createNewSale"></button>
+    <div class="pos-overlay" style="align-items:flex-start; padding: 20px; overflow-y:auto;">
+        <div class="pos-modal-card" style="max-width:800px; width:100%;">
+            <div class="pos-modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="pos-icon-badge success">
+                        <i class="bi bi-cart-check"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold">Sale Completed!</h5>
+                        <small class="opacity-75">{{ $createdSale->invoice_number }}</small>
+                    </div>
                 </div>
+                <button type="button" class="btn pos-btn-close" wire:click="createNewSale">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
 
-                <div class="modal-body p-0">
-                    <div class="sale-preview p-4" id="saleReceiptPrintContent">
-                        {{-- Screen Only Header (visible on screen, hidden on print) --}}
-                        <div class="screen-only-header pb-4">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div>
-                                    <img src="{{ asset('images/logo.png') }}" alt="{{ config('shop.name') }}" class="img-fluid" style="height: 72px; width: auto;">
-                                </div>
-                            </div>
-                            <hr class="my-2" style="border-top: 2px solid #000;">
-                        </div>
+            <div class="pos-modal-body p-0" id="saleReceiptPrintContent">
+                <div class="inv-wrap">
 
-                        {{-- Customer & Sale Details Side by Side --}}
-                        <div class="row mb-3 invoice-info-row">
-                            <div class="col-6">
-                                <p class="mb-1"><strong>Invoice to :</strong></p>
-                                <p class="mb-0"><strong>{{ $createdSale->customer->name }}</strong></p>
-                                <p class="mb-0">{{ $createdSale->customer->address }}</p>
-                                <p class="mb-0"><strong>Tel:</strong> {{ $createdSale->customer->phone }}</p>
-                            </div>
-                            <div class="col-6 text">
-                                <table class="table-borderless ms-auto" style="width: auto; display: inline-table;">
+                    {{-- ══ HEADER ══ --}}
+                    <table class="inv-hdr-tbl" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td class="inv-company-td">
+                                <table cellpadding="0" cellspacing="0" class="inv-company-inner">
                                     <tr>
-                                        <td class="pe-3"><strong>Invoice #</strong></td>
-                                        <td>{{ $createdSale->invoice_number }}</td>
+                                        <td rowspan="4" class="inv-logo-td">
+                                            <img src="{{ asset('images/logo.png') }}" alt="" class="inv-logo">
+                                        </td>
+                                        <td class="inv-shop-name">{{ config('shop.name') }}</td>
                                     </tr>
                                     <tr>
-                                        <td style="padding-right: 15px;"><strong>Date</strong></td>
-                                        <td>{{ $createdSale->created_at->format('d/m/Y H:i') }}</td>
+                                        <td class="inv-shop-tag">{{ config('shop.tagline') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="inv-shop-addr">{{ config('shop.address') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="inv-shop-contact">Tele: {{ config('shop.phone') }} &nbsp;&nbsp; Email: {{ config('shop.email') }}</td>
                                     </tr>
                                 </table>
-                            </div>
-                        </div>
-
-                        {{-- Items Table --}}
-                        <div class="table-responsive mb-3">
-                            <table class="table table-bordered invoice-table">
-                                <thead>
+                            </td>
+                            <td class="inv-infobox-td">
+                                <table class="inv-ib-tbl" cellpadding="0" cellspacing="0">
                                     <tr>
-                                        <th width="40" class="text-center">#</th>
-                                        <th>ITEM CODE</th>
-                                        <th>DESCRIPTION</th>
-                                        <th width="80" class="text-center">QTY</th>
-                                        <th width="120" class="text-end">UNIT PRICE</th>
-                                        <th width="120" class="text-end">UNIT DISCOUNT</th>
-                                        <th width="120" class="text-end">SUBTOTAL</th>
+                                        <td class="inv-ib-lbl">Date</td>
+                                        <td class="inv-ib-val">{{ $createdSale->created_at->format('d/m/Y') }}</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($createdSale->items as $index => $item)
                                     <tr>
-                                        <td class="text-center">{{ $index + 1 }}</td>
-                                        <td>{{ $item->product_code }}</td>
-                                        <td>{{ $item->product_name }}</td>
-                                        <td class="text-center">{{ $item->quantity }}</td>
-                                        <td class="text-end">Rs.{{ number_format($item->unit_price, 2) }}</td>
-                                        <td class="text-end">
-                                            @if($item->discount_per_unit > 0)
-                                                - Rs.{{ number_format($item->discount_per_unit, 2) }}
-                                            @else
-                                                - Rs.0.00
-                                            @endif
-                                        </td>
-                                        <td class="text-end">Rs.{{ number_format(($item->unit_price - $item->discount_per_unit) * $item->quantity, 2) }}</td>
+                                        <td class="inv-ib-lbl">Time</td>
+                                        <td class="inv-ib-val">{{ $createdSale->created_at->format('H:i') }}</td>
                                     </tr>
-                                    @endforeach
-                                </tbody>
-                                <tfoot>
-                                    <tr class="totals-row">
-                                        <td colspan="6" class="text-end"><strong>Subtotal</strong></td>
-                                        <td class="text-end"><strong>Rs.{{ number_format($createdSale->subtotal, 2) }}</strong></td>
+                                    <tr>
+                                        <td class="inv-ib-lbl">Invoice No.</td>
+                                        <td class="inv-ib-val">{{ $createdSale->invoice_number }}</td>
                                     </tr>
-                                    @if($createdSale->discount_amount > 0)
-                                    <tr class="totals-row">
-                                        <td colspan="6" class="text-end"><strong>Discount</strong></td>
-                                        <td class="text-end"><strong>-Rs.{{ number_format($createdSale->discount_amount, 2) }}</strong></td>
+                                    <tr>
+                                        <td class="inv-ib-lbl">Sales Rep.</td>
+                                        <td class="inv-ib-val">{{ auth()->user()->name ?? '-' }}</td>
                                     </tr>
-                                    @endif
-                                    <tr class="totals-row grand-total">
-                                        <td colspan="6" class="text-end"><strong>Grand Total</strong></td>
-                                        <td class="text-end"><strong>Rs.{{ number_format($createdSale->total_amount, 2) }}</strong></td>
+                                    <tr>
+                                        <td class="inv-ib-lbl">Payment</td>
+                                        <td class="inv-ib-val">{{ ucfirst(str_replace('_', ' ', $createdSale->payments->first()?->payment_method ?? 'Cash')) }}</td>
                                     </tr>
-                                    @if($createdSale->payments->count() > 0)
-                                    <tr class="totals-row">
-                                        <td colspan="6" class="text-end"><strong>Paid Amount</strong></td>
-                                        <td class="text-end"><strong>Rs.{{ number_format($createdSale->payments->sum('amount'), 2) }}</strong></td>
-                                    </tr>
-                                    @endif
-                                    @if($createdSale->due_amount > 0)
-                                    <tr class="totals-row">
-                                        <td colspan="6" class="text-end"><strong>Due Amount</strong></td>
-                                        <td class="text-end"><strong>Rs.{{ number_format($createdSale->due_amount, 2) }}</strong></td>
-                                    </tr>
-                                    @endif
-                                </tfoot>
-                            </table>
-                        </div>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
 
-                        {{-- Footer Note --}}
-                        <div class="invoice-footer mt-4">
-                            <div class="row text-center mb-3">
-                                <div class="col-4">
-                                    <p class=""><strong>.............................</strong></p>
-                                    <p class="mb-2"><strong>Checked By</strong></p>
-                                </div>
-                                <div class="col-4">
-                                    <p class=""><strong>.............................</strong></p>
-                                    <p class="mb-2"><strong>Authorized Officer</strong></p>
-                                </div>
-                                <div class="col-4">
-                                    <p class=""><strong>.............................</strong></p>
-                                    <p class="mb-2"><strong>Customer Stamp</strong></p>
-                                </div>
-                            </div>
-                            <div class="border-top pt-3">
-                                <p class="text-center"><strong>ADDRESS :</strong> {{ config('shop.address') }}</p>
-                                <p class="text-center"><strong>TEL :</strong> {{ config('shop.phone') }}, <strong>EMAIL :</strong> {{ config('shop.email') }}</p>
-                                <p class="text-center mt-2" style="font-size: 11px;"><strong>Goods return will be accepted within 10 days only. Electrical and body parts non-returnable.</strong></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    {{-- ══ BILL TO ══ --}}
+                    <table class="inv-bto-tbl" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td class="inv-bto-td">
+                                <strong>Bill To:</strong>&nbsp;
+                                {{ $createdSale->customer->name }}
+                                @if($createdSale->customer->address)
+                                &nbsp;|&nbsp; {{ $createdSale->customer->address }}
+                                @endif
+                                @if($createdSale->customer->phone)
+                                &nbsp;&nbsp; <strong>Tel:</strong> {{ $createdSale->customer->phone }}
+                                @endif
+                            </td>
+                        </tr>
+                    </table>
 
-                {{-- Footer Buttons --}}
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-outline-secondary me-2" wire:click="createNewSale">
-                        <i class="bi bi-x-circle me-2"></i>Close
-                    </button>
-                    <button type="button" class="btn btn-outline-primary me-2" wire:click="printSaleReceipt">
-                        <i class="bi bi-printer me-2"></i>Print
-                    </button>
-                    <button type="button" class="btn btn-success" wire:click="downloadInvoice">
-                        <i class="bi bi-download me-2"></i>Download Invoice
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    {{-- Close Register Modal --}}
-    @if($showCloseRegisterModal)
-    <div class="modal fade show d-block" id="closeRegisterModal" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" >
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #3b5b0c 0%, #8eb922 100%); color: white;">
-                    <h5 class="modal-title fw-bold" id="closeRegisterModalLabel">
-                        <i class="bi bi-x-circle me-2"></i>CLOSE REGISTER ({{ date('d/m/Y H:i') }})
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" wire:click="cancelCloseRegister" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body" id="closeRegisterPrintContent">
-                    {{-- Print Header (hidden on screen, shown on print) --}}
-                    <div class="print-header text-center mb-4">
-                        <div class="w-100 d-flex justify-content-center">
-                            <img src="{{ asset('images/logo.png') }}" alt="{{ config('shop.name') }}" class="img-fluid" style="max-height:100px;">
-                        </div>
-                        <p>{{ config('shop.address') }}</p>
-                        <p><strong>TEL:</strong> {{ config('shop.phone') }} | <strong>EMAIL:</strong> {{ config('shop.email') }}</p>
-
-                    </div>
-
-                    <p class="text-muted mb-3 no-print">Please review the details below as <strong>paid (total)</strong></p>
-
-                    {{-- Summary Table --}}
-                    <table class="table table-sm print-table">
+                    {{-- ══ ITEMS TABLE ══ --}}
+                    <table class="inv-items-tbl" cellpadding="0" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th class="inv-c-code">Code</th>
+                                <th class="inv-c-desc">Description</th>
+                                <th class="inv-c-qty">Qty</th>
+                                <th class="inv-c-price">Unit Price</th>
+                                <th class="inv-c-disc">Discount</th>
+                                <th class="inv-c-amt">Amount</th>
+                            </tr>
+                        </thead>
                         <tbody>
+                            @foreach($createdSale->items as $item)
                             <tr>
-                                <td>Cash in hand:</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['opening_cash'] ?? 0, 2) }}</td>
+                                <td class="inv-c-code">{{ $item->product_code }}</td>
+                                <td class="inv-c-desc">{{ $item->product_name }}</td>
+                                <td class="inv-c-qty inv-tc">{{ $item->quantity }}</td>
+                                <td class="inv-c-price inv-tr">Rs.{{ number_format($item->unit_price, 2) }}</td>
+                                <td class="inv-c-disc inv-tr">
+                                    @if($item->discount_per_unit > 0)-Rs.{{ number_format($item->discount_per_unit, 2) }}@else&nbsp;-@endif
+                                </td>
+                                <td class="inv-c-amt inv-tr">Rs.{{ number_format(($item->unit_price - $item->discount_per_unit) * $item->quantity, 2) }}</td>
                             </tr>
-                            <tr>
-                                <td>Cash Sales (POS):</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['pos_cash_sales'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Cheque Payment (POS):</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['pos_cheque_payment'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Bank / Online Transfer (POS):</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['pos_bank_transfer'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr class="table-warning">
-                                <td class="fw-semibold">Admin Payments - Total:</td>
-                                <td class="text-end fw-semibold">Rs.{{ number_format($sessionSummary['total_admin_payment'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="ps-4">└ Cash:</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['total_admin_cash_payment'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="ps-4">└ Cheque:</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['total_admin_cheque_payment'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="ps-4">└ Bank Transfer:</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['total_admin_bank_transfer'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr class="table-info">
-                                <td class="fw-semibold">Total Cash Amount (POS + Admin):</td>
-                                <td class="text-end fw-semibold">Rs.{{ number_format($sessionSummary['total_cash_from_sales'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr class="table-light">
-                                <td class="fw-semibold">Total POS Sales:</td>
-                                <td class="text-end fw-bold">Rs.{{ number_format($sessionSummary['total_pos_sales'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr class="table-light">
-                                <td class="fw-semibold">Total Admin Sales:</td>
-                                <td class="text-end fw-bold">Rs.{{ number_format($sessionSummary['total_admin_sales'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr class="table-primary">
-                                <td class="fw-semibold">Total Cash Payment Today:</td>
-                                <td class="text-end fw-bold">Rs.{{ number_format($sessionSummary['total_cash_payment_today'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Expenses:</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['expenses'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Refunds:</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['refunds'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Cash Deposit - Bank:</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['cash_deposit_bank'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Supplier Payments:</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['supplier_payment'] ?? 0, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Supplier Cash Payments:</td>
-                                <td class="text-end">Rs.{{ number_format($sessionSummary['supplier_cash_payment'] ?? 0, 2) }}</td>
-                            </tr>
-
-                            <tr class="table-success">
-                                <td class="fw-bold">Total Cash in Hand:</td>
-                                <td class="text-end fw-bold">Rs.{{ number_format($sessionSummary['expected_cash'] ?? 0, 2) }}</td>
-                            </tr>
+                            @endforeach
+                            @php $invFiller = max(0, 8 - count($createdSale->items)); @endphp
+                            @for($f = 0; $f < $invFiller; $f++)
+                                <tr class="inv-filler">
+                                <td>&nbsp;</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                </tr>
+                                @endfor
                         </tbody>
                     </table>
 
-                    <hr>
+                    {{-- ══ BOTTOM: OUTSTANDINGS + TOTALS ══ --}}
+                    <table class="inv-bot-tbl" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td class="inv-bot-left">
+                                <div class="inv-out-lbl">OUT STANDINGS:-</div>
+                                <div class="inv-out-val">
+                                    @if($createdSale->due_amount > 0)
+                                    Rs.{{ number_format($createdSale->due_amount, 2) }}
+                                    @else
+                                    None
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="inv-bot-right">
+                                <table class="inv-tot-tbl" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td class="inv-tot-lbl">Net Total</td>
+                                        <td class="inv-tot-val">Rs.{{ number_format($createdSale->total_amount, 2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="inv-tot-lbl">Paid</td>
+                                        <td class="inv-tot-val">Rs.{{ number_format($createdSale->payments->sum('amount'), 2) }}</td>
+                                    </tr>
+                                    <tr class="inv-bal-row">
+                                        <td class="inv-tot-lbl">Balance</td>
+                                        <td class="inv-tot-val">Rs.{{ number_format($createdSale->due_amount, 2) }}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
 
-                    {{-- Notes --}}
-                    <div class="mb-3">
-                        <label class="form-label"><strong>Note:</strong></label>
-                        <textarea class="form-control" rows="2" wire:model="closeRegisterNotes" placeholder="Add any notes...">{{ $closeRegisterNotes ?? '' }}</textarea>
-                    </div>
+                    {{-- ══ SIGNATURE ROW ══ --}}
+                    <table class="inv-sig-tbl" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td class="inv-sig-td">
+                                <div class="inv-sig-line"></div>
+                                <div class="inv-sig-lbl">Customer Signature</div>
+                            </td>
+                            <td class="inv-note-td">
+                                Goods Received in good condition. &lsquo;Warranty covers only manufacturing defects.&rsquo;
+                            </td>
+                            <td class="inv-sig-td">
+                                <div class="inv-sig-line"></div>
+                                <div class="inv-sig-lbl">Authorised Signature</div>
+                            </td>
+                        </tr>
+                    </table>
 
-                    {{-- Cash Difference Alert --}}
-                    @if($closeRegisterCash > 0)
-                    @php
-                    $difference = $closeRegisterCash - ($sessionSummary['expected_cash'] ?? 0);
-                    @endphp
-                    @if($difference != 0)
-                    <div class="alert alert-{{ $difference > 0 ? 'warning' : 'danger' }}">
-                        <strong>Cash Difference:</strong> Rs.{{ number_format(abs($difference), 2) }} ({{ $difference > 0 ? 'Excess' : 'Short' }})
-                    </div>
-                    @else
-
-                    @endif
-                    @endif
-
-                    {{-- Print Footer (hidden on screen) --}}
-                    <div class="register-print-footer">
-                        <p><strong>Date:</strong> {{ date('d/m/Y') }} | <strong>Time:</strong> {{ date('H:i') }}</p>
-                    </div>
                 </div>
+            </div>
 
-                <div class="modal-footer">
-                    <button type="button"
-                        class="btn btn-secondary"
-                        wire:click="closeRegisterAndRedirect"
-                        wire:loading.attr="disabled"
-                        wire:loading.class="disabled">
-                        <span wire:loading.remove wire:target="closeRegisterAndRedirect">
-                            <i class="bi bi-x-circle me-1"></i>Close Register
-                        </span>
-                        <span wire:loading wire:target="closeRegisterAndRedirect">
-                            <span class="spinner-border spinner-border-sm me-1"></span>
-                            Closing Register...
-                        </span>
-                    </button>
-                    <button type="button" class="btn btn-info" wire:click="downloadCloseRegisterReport">
-                        <i class="bi bi-download me-1"></i>Download
-                    </button>
-                </div>
+            <div class="pos-modal-footer justify-content-center gap-2">
+                <button type="button" class="btn pos-btn-secondary" wire:click="createNewSale">
+                    <i class="bi bi-x-circle me-1"></i>Close
+                </button>
+                <button type="button" class="btn pos-btn-outline" wire:click="printSaleReceipt">
+                    <i class="bi bi-printer me-1"></i>Print
+                </button>
+                <button type="button" class="btn pos-btn-gradient" wire:click="downloadInvoice">
+                    <i class="bi bi-download me-1"></i>Download Invoice
+                </button>
             </div>
         </div>
     </div>
     @endif
+
+    {{-- ════════════════════════════════════════════
+         CLOSE REGISTER MODAL
+    ════════════════════════════════════════════ --}}
+    @if($showCloseRegisterModal)
+    <div class="pos-overlay" style="align-items:flex-start; padding:20px; overflow-y:auto;">
+        <div class="pos-modal-card" style="max-width:640px; width:100%;">
+            <div class="pos-modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="pos-icon-badge">
+                        <i class="bi bi-x-circle"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold">Close Register</h5>
+                        <small class="opacity-75">{{ date('d/m/Y H:i') }}</small>
+                    </div>
+                </div>
+                <button type="button" class="btn pos-btn-close" wire:click="cancelCloseRegister">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="pos-modal-body" id="closeRegisterPrintContent">
+                <div class="print-header text-center mb-4">
+                    <img src="{{ asset('images/logo.png') }}" alt="{{ config('shop.name') }}" style="max-height:80px;">
+                    <p class="mb-0 mt-2">{{ config('shop.address') }}</p>
+                    <p><strong>TEL:</strong> {{ config('shop.phone') }} | <strong>EMAIL:</strong> {{ config('shop.email') }}</p>
+                </div>
+
+                <p class="text-muted small mb-3 no-print">Review the session summary below before closing the register.</p>
+
+                <div class="pos-register-table">
+                    <div class="pos-reg-row">
+                        <span>Cash in Hand (Opening)</span>
+                        <span>Rs.{{ number_format($sessionSummary['opening_cash'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row">
+                        <span>Cash Sales (POS)</span>
+                        <span>Rs.{{ number_format($sessionSummary['pos_cash_sales'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row">
+                        <span>Cheque Payment (POS)</span>
+                        <span>Rs.{{ number_format($sessionSummary['pos_cheque_payment'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row">
+                        <span>Bank / Online Transfer (POS)</span>
+                        <span>Rs.{{ number_format($sessionSummary['pos_bank_transfer'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row highlight">
+                        <span class="fw-semibold">Admin Payments - Total</span>
+                        <span class="fw-semibold">Rs.{{ number_format($sessionSummary['total_admin_payment'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row sub">
+                        <span class="ps-3">└ Cash</span>
+                        <span>Rs.{{ number_format($sessionSummary['total_admin_cash_payment'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row sub">
+                        <span class="ps-3">└ Cheque</span>
+                        <span>Rs.{{ number_format($sessionSummary['total_admin_cheque_payment'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row sub">
+                        <span class="ps-3">└ Bank Transfer</span>
+                        <span>Rs.{{ number_format($sessionSummary['total_admin_bank_transfer'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row highlight">
+                        <span class="fw-semibold">Total Cash (POS + Admin)</span>
+                        <span class="fw-semibold">Rs.{{ number_format($sessionSummary['total_cash_from_sales'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row">
+                        <span>Total POS Sales</span>
+                        <span>Rs.{{ number_format($sessionSummary['total_pos_sales'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row">
+                        <span>Total Admin Sales</span>
+                        <span>Rs.{{ number_format($sessionSummary['total_admin_sales'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row highlight">
+                        <span class="fw-semibold">Total Cash Payment Today</span>
+                        <span class="fw-semibold">Rs.{{ number_format($sessionSummary['total_cash_payment_today'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row">
+                        <span>Expenses</span>
+                        <span>Rs.{{ number_format($sessionSummary['expenses'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row">
+                        <span>Refunds</span>
+                        <span>Rs.{{ number_format($sessionSummary['refunds'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row">
+                        <span>Cash Deposit - Bank</span>
+                        <span>Rs.{{ number_format($sessionSummary['cash_deposit_bank'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row">
+                        <span>Supplier Payments</span>
+                        <span>Rs.{{ number_format($sessionSummary['supplier_payment'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row">
+                        <span>Supplier Cash Payments</span>
+                        <span>Rs.{{ number_format($sessionSummary['supplier_cash_payment'] ?? 0, 2) }}</span>
+                    </div>
+                    <div class="pos-reg-row total">
+                        <span class="fw-bold">Total Cash in Hand</span>
+                        <span class="fw-bold">Rs.{{ number_format($sessionSummary['expected_cash'] ?? 0, 2) }}</span>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="mb-3">
+                    <label class="pos-label">Notes</label>
+                    <textarea class="form-control pos-input" rows="2" wire:model="closeRegisterNotes" placeholder="Add any notes...">{{ $closeRegisterNotes ?? '' }}</textarea>
+                </div>
+
+                @if($closeRegisterCash > 0)
+                @php $difference = $closeRegisterCash - ($sessionSummary['expected_cash'] ?? 0); @endphp
+                @if($difference != 0)
+                <div class="pos-alert {{ $difference > 0 ? 'pos-alert-warning' : 'pos-alert-danger' }}">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Cash Difference:</strong> Rs.{{ number_format(abs($difference), 2) }} ({{ $difference > 0 ? 'Excess' : 'Short' }})
+                </div>
+                @endif
+                @endif
+
+                <div class="register-print-footer">
+                    <p><strong>Date:</strong> {{ date('d/m/Y') }} | <strong>Time:</strong> {{ date('H:i') }}</p>
+                </div>
+            </div>
+
+            <div class="pos-modal-footer">
+                <button type="button" class="btn pos-btn-secondary"
+                    wire:click="closeRegisterAndRedirect"
+                    wire:loading.attr="disabled">
+                    <span wire:loading.remove wire:target="closeRegisterAndRedirect">
+                        <i class="bi bi-x-circle me-1"></i>Close Register
+                    </span>
+                    <span wire:loading wire:target="closeRegisterAndRedirect">
+                        <span class="spinner-border spinner-border-sm me-1"></span>Closing...
+                    </span>
+                </button>
+                <button type="button" class="btn pos-btn-gradient" wire:click="downloadCloseRegisterReport">
+                    <i class="bi bi-download me-1"></i>Download Report
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>
 
 @push('styles')
 <style>
+    /* ═══════════════════════════════════════════
+   POS THEME - Admin Gold/Cream Palette
+   ═══════════════════════════════════════════ */
     :root {
-        --phoenix-black: #050505;
-        --phoenix-gold: #d4a63d;
-        --phoenix-gold-dark: #8a6114;
-        --phoenix-bg-soft: #fffaf0;
+        --pos-dark: #050505;
+        --pos-dark-2: #1a1a1a;
+        --pos-gold: #d4a63d;
+        --pos-gold-dark: #8a6114;
+        --pos-gold-hover: #c49430;
+        --pos-gold-light: #f7e7bf;
+        --pos-gold-bg: #fff8ea;
+        --pos-bg: #fffaf0;
+        --pos-surface: #ffffff;
+        --pos-border: #eadfca;
+        --pos-text: #111827;
+        --pos-muted: #6b7280;
+        --pos-success: #16a34a;
+        --pos-danger: #dc2626;
+        --pos-warning: #d97706;
+        --pos-gradient: linear-gradient(135deg, #8a6114, #d4a63d);
+        --pos-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
+        --pos-shadow-lg: 0 16px 40px rgba(17, 24, 39, 0.10);
+        --pos-radius: 10px;
     }
 
-    .container-fluid {
-        background-color: var(--phoenix-bg-soft) !important;
+    /* ── Wrapper ── */
+    .pos-wrapper {
+        background: var(--pos-bg);
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
     }
 
-    .header-section {
-        border-bottom: 1px solid #e9ecef;
+    /* ── Layout Grid ── */
+    .pos-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        flex: 1;
+        overflow: hidden;
     }
 
-    .company-logo {
-        width: 50px;
-        height: 50px;
+    /* ═══ LEFT PANEL: Cart ═══ */
+    .pos-cart-panel {
+        background: var(--pos-surface);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        border-right: 2px solid var(--pos-border);
+        box-shadow: 4px 0 20px rgba(138, 97, 20, 0.05);
+        overflow: hidden;
+    }
+
+    .pos-cart-header {
+        background: var(--pos-dark);
+        color: #ffffff;
+        padding: 16px 18px;
+        flex-shrink: 0;
+    }
+
+    .pos-header-icon {
+        width: 32px;
+        height: 32px;
         border-radius: 8px;
+        background: var(--pos-gradient);
         display: flex;
         align-items: center;
         justify-content: center;
+        color: #fff;
+        font-size: 0.95rem;
     }
 
-    /* Hide print headers on screen */
+    .pos-accent {
+        color: var(--pos-gold) !important;
+    }
+
+    .pos-muted {
+        color: var(--pos-muted);
+    }
+
+    /* Cart Body */
+    .pos-cart-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 12px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--pos-gold) var(--pos-bg);
+    }
+
+    .pos-cart-body::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .pos-cart-body::-webkit-scrollbar-thumb {
+        background: var(--pos-gold);
+        border-radius: 4px;
+    }
+
+    /* ═══ Cart Table ═══ */
+    .pos-cart-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 5px;
+        table-layout: fixed;
+    }
+
+    /* Column widths */
+    .pos-ct-name {
+        width: auto;
+    }
+
+    .pos-ct-qty {
+        width: 126px;
+    }
+
+    .pos-ct-price {
+        width: 84px;
+    }
+
+    .pos-ct-disc {
+        width: 74px;
+    }
+
+    .pos-ct-total {
+        width: 86px;
+    }
+
+    .pos-ct-rm {
+        width: 34px;
+    }
+
+    /* Header cells */
+    .pos-ct-th {
+        font-size: 0.63rem;
+        font-weight: 700;
+        color: var(--pos-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 2px 4px 7px;
+        border-bottom: 1px solid var(--pos-border);
+        white-space: nowrap;
+        vertical-align: bottom;
+    }
+
+    .pos-ct-th.pos-ct-name {
+        padding-left: 2px;
+    }
+
+    .pos-ct-th.pos-ct-qty {
+        text-align: center;
+    }
+
+    .pos-ct-th.pos-ct-price,
+    .pos-ct-th.pos-ct-disc,
+    .pos-ct-th.pos-ct-total {
+        text-align: right;
+    }
+
+    /* Data rows */
+    .pos-ct-row td {
+        background: var(--pos-surface);
+        padding: 8px 4px;
+        vertical-align: middle;
+        border-top: 1px solid var(--pos-border);
+        border-bottom: 1px solid var(--pos-border);
+        transition: background .15s, border-color .15s;
+    }
+
+    .pos-ct-row td:first-child {
+        border-left: 1px solid var(--pos-border);
+        border-radius: 8px 0 0 8px;
+        padding-left: 10px;
+    }
+
+    .pos-ct-row td:last-child {
+        border-right: 1px solid var(--pos-border);
+        border-radius: 0 8px 8px 0;
+        padding-right: 4px;
+    }
+
+    .pos-ct-row:hover td {
+        background: var(--pos-gold-bg);
+        border-color: var(--pos-gold);
+    }
+
+    /* Data cell text alignment */
+    .pos-ct-td.pos-ct-qty {
+        text-align: center;
+    }
+
+    .pos-ct-td.pos-ct-price,
+    .pos-ct-td.pos-ct-disc,
+    .pos-ct-td.pos-ct-total {
+        text-align: right;
+    }
+
+    .pos-ct-td.pos-ct-rm {
+        text-align: center;
+    }
+
+    .pos-disc-val {
+        font-size: 0.76rem;
+        font-weight: 500;
+        color: var(--pos-danger);
+    }
+
+    .pos-muted-val {
+        color: var(--pos-muted);
+    }
+
+    .pos-item-name {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--pos-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pos-item-code {
+        font-size: 0.68rem;
+        color: var(--pos-muted);
+        margin-top: 1px;
+    }
+
+    .pos-item-total {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--pos-gold-dark);
+    }
+
+    .pos-item-unit {
+        font-size: 0.72rem;
+        color: var(--pos-muted);
+    }
+
+    .pos-item-discount {
+        font-size: 0.72rem;
+        color: var(--pos-danger);
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px dashed var(--pos-border);
+    }
+
+    /* Quantity Control */
+    .pos-qty-control {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        justify-content: center;
+    }
+
+    .pos-qty-btn {
+        background: var(--pos-gold-bg);
+        border: 1px solid var(--pos-border);
+        border-radius: 6px;
+        width: 26px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.8rem;
+        color: var(--pos-gold-dark);
+        transition: all .15s;
+        flex-shrink: 0;
+    }
+
+    .pos-qty-btn:hover {
+        background: var(--pos-gold);
+        border-color: var(--pos-gold);
+        color: #fff;
+    }
+
+    .pos-qty-input {
+        width: 52px;
+        height: 28px;
+        border: 1px solid var(--pos-border);
+        border-radius: 6px;
+        text-align: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        outline: none;
+        padding: 0;
+        color: var(--pos-text);
+        background: var(--pos-surface);
+        flex-shrink: 0;
+    }
+
+    .pos-qty-input:focus {
+        border-color: var(--pos-gold);
+        box-shadow: 0 0 0 2px rgba(212, 166, 61, 0.15);
+    }
+
+    /* Editable Price Input */
+    .pos-price-input {
+        width: 80px;
+        height: 28px;
+        border: 1px solid var(--pos-border);
+        border-radius: 6px;
+        text-align: right;
+        font-size: 0.78rem;
+        font-weight: 600;
+        outline: none;
+        padding: 0 6px;
+        color: var(--pos-text);
+        background: var(--pos-surface);
+        transition: border-color .15s, box-shadow .15s;
+    }
+
+    .pos-price-input:focus {
+        border-color: var(--pos-gold);
+        box-shadow: 0 0 0 2px rgba(212, 166, 61, 0.15);
+    }
+
+    /* hide number input spin arrows */
+    .pos-price-input::-webkit-outer-spin-button,
+    .pos-price-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .pos-price-input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .pos-btn-remove {
+        background: none;
+        border: none;
+        color: var(--pos-muted);
+        padding: 3px 6px;
+        font-size: 0.72rem;
+        border-radius: 6px;
+        transition: all .15s;
+        line-height: 1;
+    }
+
+    .pos-btn-remove:hover {
+        background: #fef2f2;
+        color: var(--pos-danger);
+    }
+
+    /* Empty Cart */
+    .pos-empty-cart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 20px;
+        color: var(--pos-muted);
+        text-align: center;
+    }
+
+    .pos-empty-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: var(--pos-gold-bg);
+        border: 2px dashed var(--pos-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .pos-empty-icon i {
+        font-size: 2rem;
+        color: var(--pos-gold);
+        opacity: .6;
+    }
+
+    .pos-empty-cart p {
+        font-size: 0.88rem;
+        margin: 0;
+        color: var(--pos-text);
+    }
+
+    .pos-empty-cart small {
+        font-size: 0.78rem;
+    }
+
+    /* ═══ Cart Footer ═══ */
+    .pos-cart-footer {
+        border-top: 2px solid var(--pos-border);
+        padding: 12px 20px;
+        background: var(--pos-gold-bg);
+        flex-shrink: 0;
+        width: 100%;
+    }
+
+    .pos-footer-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr 220px;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .pos-footer-totals {
+        border-right: 1px solid var(--pos-border);
+        padding-right: 20px;
+    }
+
+    .pos-footer-payment {
+        border-right: 1px solid var(--pos-border);
+        padding-right: 20px;
+    }
+
+    .pos-footer-actions {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .pos-totals {
+        margin-bottom: 0;
+    }
+
+    .pos-total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.82rem;
+        color: var(--pos-text);
+        padding: 3px 0;
+    }
+
+    .pos-discount-row {
+        color: var(--pos-danger);
+    }
+
+    .pos-extra-discount-row {
+        margin: 4px 0;
+    }
+
+    .pos-grand-total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--pos-text);
+        border-top: 2px solid var(--pos-border);
+        margin-top: 6px;
+        padding-top: 10px;
+    }
+
+    .pos-grand-total-row span:last-child {
+        color: var(--pos-gold-dark);
+    }
+
+    .pos-discount-input {
+        width: 70px;
+        height: 28px;
+        border: 1px solid var(--pos-border);
+        border-radius: 6px 0 0 6px;
+        padding: 0 8px;
+        font-size: 0.8rem;
+        outline: none;
+        background: var(--pos-surface);
+    }
+
+    .pos-discount-input:focus {
+        border-color: var(--pos-gold);
+    }
+
+    .pos-discount-toggle {
+        background: var(--pos-gradient);
+        color: #fff;
+        border: none;
+        border-radius: 0 6px 6px 0;
+        height: 28px;
+        padding: 0 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .15s;
+    }
+
+    .pos-discount-toggle:hover {
+        opacity: .85;
+    }
+
+    /* Payment Methods */
+    .pos-payment-methods {
+        margin-bottom: 10px;
+    }
+
+    .pos-pm-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+    }
+
+    .pos-pm-radio {
+        display: none;
+    }
+
+    .pos-pm-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        padding: 8px 4px;
+        border: 1px solid var(--pos-border);
+        border-radius: 8px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--pos-muted);
+        cursor: pointer;
+        transition: all .2s;
+        background: var(--pos-surface);
+    }
+
+    .pos-pm-label i {
+        font-size: 1.05rem;
+    }
+
+    .pos-pm-label:hover {
+        border-color: var(--pos-gold);
+        color: var(--pos-text);
+    }
+
+    .pos-pm-radio:checked+.pos-pm-label {
+        background: var(--pos-gradient);
+        border-color: var(--pos-gold-dark);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(138, 97, 20, 0.25);
+    }
+
+    /* Payment Inputs */
+    .pos-payment-inputs {
+        margin-bottom: 10px;
+    }
+
+    .pos-input-group {
+        margin-bottom: 8px;
+    }
+
+    .pos-input-prefix-sm {
+        background: var(--pos-surface);
+        border-color: var(--pos-border);
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 0 !important;
+        color: var(--pos-gold-dark);
+    }
+
+    .pos-due-notice {
+        background: var(--pos-gold-bg);
+        border: 1px solid var(--pos-gold-light);
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.78rem;
+        color: var(--pos-warning);
+    }
+
+    /* Overpayment warning */
+    .pos-overpay-warn {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--pos-danger);
+        margin-top: 4px;
+    }
+
+    /* Cheque list */
+    .pos-cheque-list {
+        background: var(--pos-gold-bg);
+        border: 1px solid var(--pos-border);
+        border-radius: 8px;
+        padding: 6px 8px;
+        margin-bottom: 8px;
+        max-height: 130px;
+        overflow-y: auto;
+    }
+
+    .pos-cheque-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 2px;
+        border-bottom: 1px dashed var(--pos-border);
+        font-size: 0.78rem;
+    }
+
+    .pos-cheque-item:last-of-type {
+        border-bottom: none;
+    }
+
+    .pos-cheque-info {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+
+    .pos-cheque-meta {
+        font-size: 0.68rem;
+        color: var(--pos-muted);
+    }
+
+    .pos-cheque-amt {
+        font-weight: 700;
+        color: var(--pos-gold-dark);
+        font-size: 0.82rem;
+    }
+
+    .pos-cheque-del {
+        background: none;
+        border: none;
+        color: var(--pos-danger);
+        font-size: 0.9rem;
+        padding: 0 3px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .pos-cheque-del:hover {
+        opacity: 0.7;
+    }
+
+    .pos-cheque-total {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 2px 0;
+        font-size: 0.78rem;
+        color: var(--pos-text);
+        border-top: 1px solid var(--pos-border);
+        margin-top: 3px;
+    }
+
+    /* Add cheque mini form */
+    .pos-add-cheque .pos-input-sm,
+    .pos-add-cheque .input-group .form-control {
+        font-size: 0.78rem;
+        padding: 4px 8px;
+        height: 30px;
+    }
+
+    .pos-add-cheque .input-group-text {
+        font-size: 0.78rem;
+        padding: 4px 8px;
+        height: 30px;
+    }
+
+    .pos-btn-add-cheque {
+        background: var(--pos-gold-bg);
+        border: 1px solid var(--pos-gold);
+        color: var(--pos-gold-dark);
+        font-size: 0.78rem;
+        font-weight: 600;
+        border-radius: 7px;
+        padding: 5px 10px;
+        transition: all .15s;
+    }
+
+    .pos-btn-add-cheque:hover {
+        background: var(--pos-gold);
+        color: #fff;
+    }
+
+    .pos-due-amount {
+        display: flex;
+        justify-content: space-between;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--pos-danger);
+        margin-bottom: 10px;
+    }
+
+    /* Complete / Clear Buttons */
+    .pos-btn-complete {
+        background: var(--pos-gradient);
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        font-size: 0.92rem;
+        border-radius: 10px !important;
+        padding: 13px;
+        transition: all .2s;
+        box-shadow: 0 4px 16px rgba(138, 97, 20, 0.25);
+        letter-spacing: 0.02em;
+    }
+
+    .pos-btn-complete:hover:not(:disabled) {
+        background: linear-gradient(135deg, #d4a63d, #8a6114);
+        color: #fff;
+        box-shadow: 0 6px 20px rgba(138, 97, 20, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .pos-btn-complete:disabled {
+        opacity: .45;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .pos-btn-clear {
+        background: none;
+        color: var(--pos-danger);
+        border: 1px solid #fecaca;
+        font-size: 0.82rem;
+        border-radius: 8px !important;
+        padding: 8px;
+        transition: all .15s;
+    }
+
+    .pos-btn-clear:hover {
+        background: #fef2f2;
+        color: var(--pos-danger);
+    }
+
+    /* Header Buttons */
+    .pos-btn-ghost-sm {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--pos-gold);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.75rem;
+        padding: 5px 12px;
+        border-radius: 7px !important;
+        transition: all .15s;
+        font-weight: 600;
+    }
+
+    .pos-btn-ghost-sm:hover {
+        background: var(--pos-gold);
+        color: var(--pos-dark);
+        border-color: var(--pos-gold);
+    }
+
+    .pos-btn-icon {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--pos-gold);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 5px 10px;
+        border-radius: 7px !important;
+        transition: all .15s;
+    }
+
+    .pos-btn-icon:hover {
+        background: var(--pos-gold);
+        color: var(--pos-dark);
+    }
+
+    .pos-select {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        color: #fff;
+        font-size: 0.82rem;
+        padding: 6px 10px;
+        border-radius: 7px !important;
+    }
+
+    .pos-select:focus {
+        border-color: var(--pos-gold);
+        box-shadow: none;
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+    }
+
+    .pos-select option {
+        background: var(--pos-dark);
+        color: #fff;
+    }
+
+
+    /* ═══ RIGHT PANEL: Products ═══ */
+    .pos-products-panel {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: var(--pos-bg);
+        overflow: hidden;
+    }
+
+    /* Top Bar */
+    .pos-top-bar {
+        background: var(--pos-surface);
+        border-bottom: 2px solid var(--pos-border);
+        padding: 14px 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+        width: 100%;
+    }
+
+    .pos-top-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--pos-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.1rem;
+    }
+
+    .pos-shop-name {
+        font-size: 1.05rem;
+        color: var(--pos-dark);
+        letter-spacing: 0.04em;
+    }
+
+    .pos-clock {
+        font-size: 1rem;
+        color: var(--pos-gold-dark);
+        font-weight: 700;
+    }
+
+    .pos-session-badge {
+        background: #dcfce7;
+        border: 1px solid #86efac;
+        color: #15803d;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+
+    /* Search */
+    .pos-search-wrap {
+        background: var(--pos-surface);
+        border-bottom: 1px solid var(--pos-border);
+        padding: 12px 18px;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .pos-search-box {
+        display: flex;
+        align-items: center;
+        border: 2px solid var(--pos-border);
+        border-radius: 10px;
+        background: var(--pos-bg);
+        padding: 0 14px;
+        transition: border-color .2s;
+    }
+
+    .pos-search-box:focus-within {
+        border-color: var(--pos-gold);
+        background: var(--pos-surface);
+        box-shadow: 0 0 0 3px rgba(212, 166, 61, 0.1);
+    }
+
+    .pos-search-icon {
+        color: var(--pos-muted);
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+    .pos-search-input {
+        flex: 1;
+        border: none;
+        background: none;
+        padding: 11px 10px;
+        font-size: 0.86rem;
+        outline: none;
+        color: var(--pos-text);
+    }
+
+    .pos-search-input::placeholder {
+        color: var(--pos-muted);
+    }
+
+    .pos-search-clear {
+        background: none;
+        border: none;
+        color: var(--pos-muted);
+        padding: 4px;
+        cursor: pointer;
+        font-size: 0.78rem;
+    }
+
+    .pos-search-clear:hover {
+        color: var(--pos-danger);
+    }
+
+    .pos-search-dropdown {
+        position: absolute;
+        top: calc(100% - 2px);
+        left: 18px;
+        right: 18px;
+        background: var(--pos-surface);
+        border: 2px solid var(--pos-gold);
+        border-radius: 0 0 10px 10px;
+        box-shadow: var(--pos-shadow-lg);
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .pos-search-result {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 11px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--pos-border);
+        font-size: 0.84rem;
+        transition: background .15s;
+    }
+
+    .pos-search-result:last-child {
+        border-bottom: none;
+    }
+
+    .pos-search-result:hover {
+        background: var(--pos-gold-bg);
+    }
+
+    .pos-search-price {
+        font-weight: 700;
+        color: var(--pos-gold-dark);
+    }
+
+    /* Categories */
+    .pos-categories {
+        background: var(--pos-surface);
+        border-bottom: 1px solid var(--pos-border);
+        padding: 10px 18px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: nowrap;
+        flex-shrink: 0;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--pos-gold) transparent;
+    }
+
+    .pos-categories::-webkit-scrollbar {
+        height: 3px;
+    }
+
+    .pos-categories::-webkit-scrollbar-thumb {
+        background: var(--pos-gold);
+        border-radius: 4px;
+    }
+
+    .pos-cat-btn {
+        background: none;
+        border: 1px solid var(--pos-border);
+        border-radius: 20px;
+        padding: 5px 16px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--pos-muted);
+        cursor: pointer;
+        transition: all .15s;
+        white-space: nowrap;
+    }
+
+    .pos-cat-btn:hover {
+        border-color: var(--pos-gold);
+        color: var(--pos-gold-dark);
+        background: var(--pos-gold-bg);
+    }
+
+    .pos-cat-btn.active {
+        background: var(--pos-gradient);
+        border-color: var(--pos-gold-dark);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(138, 97, 20, 0.2);
+    }
+
+    /* Products Scroll & Grid */
+    .pos-products-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 16px 18px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--pos-gold) var(--pos-bg);
+    }
+
+    .pos-products-scroll::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .pos-products-scroll::-webkit-scrollbar-thumb {
+        background: var(--pos-gold);
+        border-radius: 4px;
+    }
+
+    .pos-products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+        gap: 12px;
+    }
+
+    /* Product Card */
+    .pos-product-card {
+        background: var(--pos-surface);
+        border: 1px solid var(--pos-border);
+        border-radius: var(--pos-radius);
+        cursor: pointer;
+        overflow: hidden;
+        transition: all .25s ease;
+    }
+
+    .pos-product-card:hover {
+        border-color: var(--pos-gold);
+        box-shadow: 0 8px 24px rgba(138, 97, 20, 0.15);
+        transform: translateY(-3px);
+    }
+
+    .pos-product-card:active {
+        transform: scale(0.97);
+    }
+
+    .pos-product-img {
+        position: relative;
+        height: 100px;
+        background: linear-gradient(135deg, #fdf8ee, var(--pos-bg));
+        overflow: hidden;
+    }
+
+    .pos-product-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .pos-product-noimg {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--pos-gold);
+        font-size: 2rem;
+        opacity: .35;
+    }
+
+    .pos-stock-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 12px;
+    }
+
+    .pos-stock-badge.in-stock {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .pos-stock-badge.out-stock {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .pos-product-info {
+        padding: 10px 12px;
+    }
+
+    .pos-product-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--pos-text);
+        height: 32px;
+        overflow: hidden;
+        line-height: 1.35;
+        margin-bottom: 3px;
+    }
+
+    .pos-product-code {
+        font-size: 0.7rem;
+        color: var(--pos-muted);
+        margin-bottom: 5px;
+    }
+
+    .pos-product-price {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--pos-gold-dark);
+        background: var(--pos-gold-bg);
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 6px;
+    }
+
+    .pos-no-products {
+        grid-column: 1 / -1;
+        padding: 60px 0;
+        text-align: center;
+        color: var(--pos-muted);
+    }
+
+    .pos-no-products i {
+        font-size: 3rem;
+        opacity: .3;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+
+    /* ═══════════════════════════════════════════
+   MODALS
+   ═══════════════════════════════════════════ */
+    .pos-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1500;
+        padding: 20px;
+    }
+
+    .pos-modal-card {
+        background: var(--pos-surface);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+        width: 100%;
+        border: 1px solid var(--pos-border);
+    }
+
+    .pos-modal-header {
+        background: var(--pos-gradient);
+        color: #ffffff;
+        padding: 18px 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .pos-modal-warning {
+        background: linear-gradient(135deg, #92400e, #d97706);
+    }
+
+    .pos-icon-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.05rem;
+        flex-shrink: 0;
+    }
+
+    .pos-icon-badge.warning {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .pos-icon-badge.success {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .pos-modal-body {
+        padding: 22px;
+        max-height: 65vh;
+        overflow-y: auto;
+    }
+
+    .pos-modal-footer {
+        padding: 14px 22px;
+        border-top: 1px solid var(--pos-border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        background: var(--pos-gold-bg);
+    }
+
+    .pos-btn-close {
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        border: none;
+        border-radius: 8px !important;
+        padding: 5px 10px;
+        font-size: 0.78rem;
+        transition: all .15s;
+    }
+
+    .pos-btn-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: #fff;
+    }
+
+    /* Button Styles */
+    .pos-btn-gradient {
+        background: var(--pos-gradient);
+        color: #fff;
+        border: none;
+        border-radius: 8px !important;
+        font-weight: 600;
+        font-size: 0.84rem;
+        padding: 8px 18px;
+        transition: all .2s;
+        box-shadow: 0 2px 8px rgba(138, 97, 20, 0.2);
+    }
+
+    .pos-btn-gradient:hover {
+        background: linear-gradient(135deg, #d4a63d, #8a6114);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(138, 97, 20, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .pos-btn-secondary {
+        background: var(--pos-surface);
+        color: var(--pos-text);
+        border: 1px solid var(--pos-border);
+        border-radius: 8px !important;
+        font-size: 0.84rem;
+        font-weight: 500;
+        padding: 8px 18px;
+        transition: all .15s;
+    }
+
+    .pos-btn-secondary:hover {
+        border-color: var(--pos-gold);
+        color: var(--pos-gold-dark);
+    }
+
+    .pos-btn-outline {
+        background: none;
+        color: var(--pos-text);
+        border: 1px solid var(--pos-border);
+        border-radius: 8px !important;
+        font-size: 0.84rem;
+        padding: 8px 18px;
+        transition: all .15s;
+    }
+
+    .pos-btn-outline:hover {
+        border-color: var(--pos-gold);
+        color: var(--pos-gold-dark);
+    }
+
+
+    /* ═══ Form Elements ═══ */
+    .pos-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--pos-text);
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .pos-input {
+        font-size: 0.82rem !important;
+        border: 1px solid var(--pos-border) !important;
+        border-radius: 8px !important;
+        color: var(--pos-text) !important;
+        padding: 8px 12px !important;
+        background: var(--pos-surface) !important;
+        width: 100%;
+    }
+
+    .pos-input:focus {
+        border-color: var(--pos-gold) !important;
+        box-shadow: 0 0 0 3px rgba(212, 166, 61, 0.12) !important;
+    }
+
+    .pos-input-lg {
+        font-size: 1.5rem !important;
+        border: 2px solid var(--pos-border) !important;
+        border-radius: 0 10px 10px 0 !important;
+        font-weight: 700 !important;
+        text-align: center;
+        padding: 12px !important;
+    }
+
+    .pos-input-lg:focus {
+        border-color: var(--pos-gold) !important;
+        box-shadow: 0 0 0 3px rgba(212, 166, 61, 0.12) !important;
+    }
+
+    .pos-input-prefix {
+        background: var(--pos-gradient);
+        color: #fff;
+        font-weight: 700;
+        border: none;
+        border-radius: 10px 0 0 10px !important;
+        font-size: 0.95rem;
+        padding: 12px 16px;
+    }
+
+    /* Opening Cash Modal */
+    .pos-cash-icon-wrap {
+        width: 72px;
+        height: 72px;
+        border-radius: 18px;
+        background: var(--pos-gold-bg);
+        border: 2px solid var(--pos-gold-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.2rem;
+        color: var(--pos-gold);
+    }
+
+    .pos-info-box {
+        background: var(--pos-gold-bg);
+        border: 1px solid var(--pos-gold-light);
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 0.8rem;
+        color: #92400e;
+    }
+
+    .pos-field-error {
+        font-size: 0.75rem;
+        color: var(--pos-danger);
+        margin-top: 4px;
+    }
+
+
+    /* ═══ Summary / Register Tables ═══ */
+    .pos-summary-table {
+        border: 1px solid var(--pos-border);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .pos-summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 16px;
+        font-size: 0.84rem;
+        border-bottom: 1px solid var(--pos-border);
+    }
+
+    .pos-summary-row:last-child {
+        border-bottom: none;
+    }
+
+    .pos-summary-due {
+        background: #fef2f2;
+        color: var(--pos-danger);
+        font-weight: 600;
+    }
+
+    .pos-success-text {
+        color: var(--pos-success);
+    }
+
+    .pos-register-table {
+        border: 1px solid var(--pos-border);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .pos-reg-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 16px;
+        font-size: 0.82rem;
+        border-bottom: 1px solid var(--pos-border);
+        color: var(--pos-text);
+    }
+
+    .pos-reg-row:last-child {
+        border-bottom: none;
+    }
+
+    .pos-reg-row.highlight {
+        background: var(--pos-gold-bg);
+    }
+
+    .pos-reg-row.sub {
+        background: #fafafa;
+        color: var(--pos-muted);
+        font-size: 0.78rem;
+    }
+
+    .pos-reg-row.total {
+        background: var(--pos-gradient);
+        color: #fff;
+        font-size: 0.9rem;
+        padding: 10px 16px;
+    }
+
+    .pos-alert {
+        border-radius: 10px;
+        padding: 11px 16px;
+        font-size: 0.82rem;
+        margin-top: 10px;
+    }
+
+    .pos-alert-warning {
+        background: #fffbeb;
+        border: 1px solid #fcd34d;
+        color: #92400e;
+    }
+
+    .pos-alert-danger {
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        color: #7f1d1d;
+    }
+
+
+
+
+    .pos-invoice-label {
+        font-size: 0.72rem;
+        color: var(--pos-muted);
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        margin-bottom: 2px;
+    }
+
+    .pos-sig-line {
+        border-bottom: 2px solid var(--pos-border);
+        margin-bottom: 6px;
+        height: 30px;
+    }
+
+    .pos-invoice-footer-note {
+        background: var(--pos-gold-bg);
+        border: 1px solid var(--pos-border);
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-size: 0.8rem;
+        text-align: center;
+    }
+
     .print-only-header,
     .print-header,
     .print-footer,
@@ -1037,65 +2361,298 @@
         display: none;
     }
 
-    .form-control,
-    .form-select,
-    .input-group-text,
-    .btn {
-        border-radius: 0 !important;
+
+    /* ═══ Responsive ═══ */
+    @media (max-width: 1200px) {
+        .pos-layout {
+            grid-template-columns: 340px 1fr;
+        }
     }
 
-    .search-results {
-        max-height: 400px;
-        overflow-y: auto;
-        border: 2px solid var(--phoenix-gold) !important;
-        border-radius: 0;
-        position: relative;
-        z-index: 10;
-        background-color: white;
+    @media (max-width: 992px) {
+        .pos-wrapper {
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
+        }
+
+        .pos-layout {
+            grid-template-columns: 1fr;
+            flex: none;
+            overflow: visible;
+        }
+
+        .pos-cart-panel,
+        .pos-products-panel {
+            height: auto;
+            min-height: 50vh;
+        }
     }
 
-    .search-results::-webkit-scrollbar {
-        width: 8px;
+
+    /* ═══ Invoice Print Layout (screen + print) ═══ */
+    #saleReceiptPrintContent {
+        padding: 8px;
+        background: #fff;
     }
 
-    .search-results::-webkit-scrollbar-track {
-        background: #f1f1f1;
+    .inv-wrap {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 8.5pt;
+        color: #000;
+        background: #fff;
+        line-height: 1.3;
     }
 
-    .search-results::-webkit-scrollbar-thumb {
-        background: var(--phoenix-gold);
-        border-radius: 4px;
+    /* ── Header ── */
+    .inv-hdr-tbl {
+        width: 100%;
+        border-collapse: collapse;
     }
 
-    .search-results::-webkit-scrollbar-thumb:hover {
-        background: var(--phoenix-gold-dark);
+    .inv-company-td {
+        width: 66%;
+        border: 1px solid #000;
+        border-right: none;
+        padding: 5px 8px;
+        vertical-align: middle;
     }
 
-    /* Theme adapters for existing inline styles in this legacy file */
-    [style*="#3b5b0c"],
-    [style*="#3B5B0C"] {
-        color: var(--phoenix-gold-dark) !important;
-        border-color: var(--phoenix-gold-dark) !important;
+    .inv-company-inner {
+        width: 100%;
+        border-collapse: collapse;
     }
 
-    [style*="#8eb922"],
-    [style*="#8EB922"] {
-        color: var(--phoenix-gold) !important;
-        border-color: var(--phoenix-gold) !important;
+    .inv-logo-td {
+        width: 52px;
+        padding-right: 8px;
+        vertical-align: middle;
     }
 
-    [style*="rgba(59, 91, 12, 1)"],
-    [style*="rgba(142, 185, 34, 1)"],
-    [style*="#3b5b0c 0%, #8eb922 100%"] {
-        background: linear-gradient(135deg, var(--phoenix-gold-dark), var(--phoenix-gold)) !important;
-        border-color: var(--phoenix-gold-dark) !important;
+    .inv-logo {
+        height: 44px;
+        width: auto;
+        display: block;
     }
 
-    .search-item:last-child {
-        border-bottom: none !important;
+    .inv-shop-name {
+        font-size: 13pt;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        padding-bottom: 1px;
     }
 
-    /* Print styles for sale receipt */
+    .inv-shop-tag {
+        font-size: 7.5pt;
+        font-style: italic;
+        color: #444;
+        padding-bottom: 1px;
+    }
+
+    .inv-shop-addr,
+    .inv-shop-contact {
+        font-size: 7.5pt;
+    }
+
+    .inv-infobox-td {
+        width: 34%;
+        border: 1px solid #000;
+        padding: 0;
+        vertical-align: top;
+    }
+
+    .inv-ib-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        height: 100%;
+    }
+
+    .inv-ib-lbl {
+        border: 1px solid #000;
+        padding: 2px 5px;
+        font-size: 7.5pt;
+        font-weight: bold;
+        white-space: nowrap;
+        width: 42%;
+        background: #1a5276;
+        color: #fff;
+    }
+
+    .inv-ib-val {
+        border: 1px solid #000;
+        border-left: none;
+        padding: 2px 5px;
+        font-size: 7.5pt;
+    }
+
+    /* ── Bill To ── */
+    .inv-bto-tbl {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .inv-bto-td {
+        border: 1px solid #000;
+        border-top: none;
+        padding: 4px 8px;
+        font-size: 8pt;
+    }
+
+    /* ── Items Table ── */
+    .inv-items-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        border-top: none;
+    }
+
+    .inv-items-tbl th {
+        background: #1a5276;
+        color: #fff;
+        border: 1px solid #000;
+        padding: 3px 5px;
+        font-size: 8pt;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    .inv-items-tbl td {
+        border: 1px solid #000;
+        padding: 2px 5px;
+        font-size: 8pt;
+    }
+
+    .inv-filler td {
+        height: 14px;
+    }
+
+    .inv-c-code {
+        width: 11%;
+    }
+
+    .inv-c-qty {
+        width: 7%;
+    }
+
+    .inv-c-price {
+        width: 14%;
+    }
+
+    .inv-c-disc {
+        width: 13%;
+    }
+
+    .inv-c-amt {
+        width: 14%;
+    }
+
+    .inv-tc {
+        text-align: center;
+    }
+
+    .inv-tr {
+        text-align: right;
+    }
+
+    /* ── Bottom Row ── */
+    .inv-bot-tbl {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .inv-bot-left {
+        border: 1px solid #000;
+        border-top: none;
+        padding: 5px 8px;
+        vertical-align: top;
+    }
+
+    .inv-out-lbl {
+        font-weight: bold;
+        font-size: 8pt;
+        margin-bottom: 2px;
+    }
+
+    .inv-out-val {
+        font-size: 8.5pt;
+    }
+
+    .inv-bot-right {
+        width: 36%;
+        border: 1px solid #000;
+        border-top: none;
+        border-left: none;
+        padding: 0;
+        vertical-align: top;
+    }
+
+    .inv-tot-tbl {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .inv-tot-lbl {
+        border: 1px solid #000;
+        padding: 2px 6px;
+        font-size: 8pt;
+        font-weight: bold;
+        width: 48%;
+        background: #1a5276;
+        color: #fff;
+    }
+
+    .inv-tot-val {
+        border: 1px solid #000;
+        border-left: none;
+        padding: 2px 6px;
+        font-size: 8pt;
+        text-align: right;
+    }
+
+    .inv-bal-row .inv-tot-lbl,
+    .inv-bal-row .inv-tot-val {
+        border-top: 2px solid #000;
+        font-size: 9pt;
+    }
+
+    /* ── Signature Row ── */
+    .inv-sig-tbl {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .inv-sig-td {
+        width: 27%;
+        border: 1px solid #000;
+        border-top: none;
+        padding: 6px 8px 4px;
+        vertical-align: bottom;
+    }
+
+    .inv-note-td {
+        border: 1px solid #000;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        padding: 6px 8px;
+        font-size: 7.5pt;
+        text-align: center;
+        vertical-align: middle;
+        font-style: italic;
+    }
+
+    .inv-sig-line {
+        border-bottom: 1px solid #000;
+        height: 22px;
+        margin-bottom: 3px;
+    }
+
+    .inv-sig-lbl {
+        font-size: 7.5pt;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    /* ═══ Print Styles — A5 Landscape Dot Matrix ═══ */
     @media print {
         body * {
             visibility: hidden;
@@ -1108,78 +2665,41 @@
 
         #saleReceiptPrintContent {
             position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
+            inset: 0 !important;
+            padding: 0 !important;
             margin: 0 !important;
-            padding: 15mm !important;
             background: white !important;
-            color: black !important;
         }
 
-        /* Hide screen elements */
         .modal-header,
         .modal-footer,
         .btn,
         .badge,
-        .screen-only-header {
+        .screen-only-header,
+        .no-print {
             display: none !important;
-            visibility: hidden !important;
         }
 
-        /* Show print header */
         .print-only-header {
             display: block !important;
             visibility: visible !important;
-            text-align: center !important;
-            margin-bottom: 20px !important;
-            border-bottom: 2px solid #000 !important;
-            padding-bottom: 10px !important;
         }
 
-        /* Invoice table styles */
-        .invoice-table {
-            width: 100% !important;
-            border-collapse: collapse !important;
-            margin: 15px 0 !important;
-            font-size: 12px !important;
+        /* Dot matrix: strip colour fills so they print as plain borders */
+        .inv-ib-lbl,
+        .inv-items-tbl th,
+        .inv-tot-lbl {
+            background: none !important;
+            color: #000 !important;
         }
 
-        .invoice-table th {
-            background-color: #f8f9fa !important;
-            border: 1px solid #000 !important;
-            padding: 8px !important;
-            font-weight: bold !important;
-            text-align: center !important;
+        .inv-wrap {
+            font-family: 'Courier New', Courier, monospace !important;
         }
 
-        .invoice-table td {
-            border: 1px solid #000 !important;
-            padding: 6px 8px !important;
-        }
-
-        .invoice-table .totals-row td {
-            border-top: 2px solid #000 !important;
-            font-weight: bold !important;
-            padding: 8px !important;
-        }
-
-        .invoice-table .grand-total td {
-            border-top: 3px double #000 !important;
-            font-size: 14px !important;
-            background-color: #f0f0f0 !important;
-        }
-
-        /* Page setup */
         @page {
-            size: A4 portrait;
-            margin: 15mm;
-        }
-
-        body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
+            size: A5 landscape;
+            margin: 5mm;
         }
     }
 
@@ -1193,83 +2713,157 @@
 
 @push('scripts')
 <script>
-    // Auto-close alerts after 5 seconds
+    // ── POS Toast Helper ──────────────────────────────────────────
+    function posShowToast(type, message) {
+        const container = document.getElementById('posToastContainer');
+        if (!container) return;
+        const icons = {
+            success: 'bi-check-circle-fill',
+            error: 'bi-x-circle-fill',
+            warning: 'bi-exclamation-triangle-fill',
+            info: 'bi-info-circle-fill'
+        };
+        const colors = {
+            success: '#2d7a3a',
+            error: '#c0392b',
+            warning: '#b7760d',
+            info: '#1a5f9e'
+        };
+        const toast = document.createElement('div');
+        toast.className = 'pos-toast pos-toast-' + type;
+        toast.innerHTML = `<i class="bi ${icons[type] || icons.info} me-2"></i><span>${message}</span><button class="pos-toast-close" onclick="this.parentElement.remove()">&times;</button>`;
+        container.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('pos-toast-show'));
+        setTimeout(() => {
+            toast.classList.remove('pos-toast-show');
+            setTimeout(() => toast.remove(), 350);
+        }, 3500);
+    }
+
     document.addEventListener('livewire:initialized', () => {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
-            setTimeout(() => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            }, 5000);
+        // Live clock
+        function updateClock() {
+            const el = document.getElementById('posLiveClock');
+            if (el) {
+                el.textContent = new Date().toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+        }
+        setInterval(updateClock, 30000);
+
+        Livewire.on('toast', (event) => {
+            const data = Array.isArray(event) ? event[0] : event;
+            posShowToast(data.type || 'info', data.message || '');
         });
 
-        // Listen for modal show event
         Livewire.on('showModal', (event) => {
             const modalId = Array.isArray(event) ? event[0] : event;
-            console.log('Show modal event received:', modalId);
-
             setTimeout(() => {
-                const modalElement = document.getElementById(modalId);
-                if (modalElement) {
-                    const existingModal = bootstrap.Modal.getInstance(modalElement);
-                    if (existingModal) {
-                        existingModal.dispose();
-                    }
-                    const modal = new bootstrap.Modal(modalElement, {
+                const el = document.getElementById(modalId);
+                if (el) {
+                    const existing = bootstrap.Modal.getInstance(el);
+                    if (existing) existing.dispose();
+                    new bootstrap.Modal(el, {
                         backdrop: 'static',
                         keyboard: false
-                    });
-                    modal.show();
+                    }).show();
                 }
             }, 200);
         });
     });
-
-    // Auto-hide success alert after 3 seconds
-    setTimeout(() => {
-        const alert = document.getElementById('successAlert');
-        if (alert) {
-            alert.classList.remove('show');
-            setTimeout(() => alert.remove(), 500);
-        }
-    }, 3000);
-
-    // Prevent form submission on enter key in search
-    document.addEventListener('keydown', function(e) {
-        if (e.target.type === 'text' && e.target.getAttribute('wire:model') === 'search') {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-            }
-        }
-    });
-
-    // Handle modal cleanup when hidden
-    document.addEventListener('DOMContentLoaded', function() {
-        const closeRegisterModal = document.getElementById('closeRegisterModal');
-        if (closeRegisterModal) {
-            closeRegisterModal.addEventListener('hidden.bs.modal', function() {
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) {
-                    backdrop.remove();
-                }
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-            });
-        }
-
-        // Watch for sale modal changes
-        Livewire.on('saleSaved', function() {
-            setTimeout(() => {
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) {
-                    backdrop.remove();
-                }
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-            }, 100);
-        });
-    });
 </script>
+@endpush
+
+@push('styles')
+<style>
+    /* POS Toast Notifications */
+    .pos-toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        pointer-events: none;
+    }
+
+    .pos-toast {
+        display: flex;
+        align-items: center;
+        min-width: 280px;
+        max-width: 420px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        background: #fff;
+        color: #1a1a1a;
+        font-size: 0.84rem;
+        font-weight: 500;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+        border-left: 4px solid #ccc;
+        opacity: 0;
+        transform: translateX(30px);
+        transition: opacity .3s ease, transform .3s ease;
+        pointer-events: all;
+    }
+
+    .pos-toast.pos-toast-show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .pos-toast-success {
+        border-left-color: #2d7a3a;
+    }
+
+    .pos-toast-success i {
+        color: #2d7a3a;
+    }
+
+    .pos-toast-error {
+        border-left-color: #c0392b;
+    }
+
+    .pos-toast-error i {
+        color: #c0392b;
+    }
+
+    .pos-toast-warning {
+        border-left-color: #b7760d;
+    }
+
+    .pos-toast-warning i {
+        color: #b7760d;
+    }
+
+    .pos-toast-info {
+        border-left-color: #1a5f9e;
+    }
+
+    .pos-toast-info i {
+        color: #1a5f9e;
+    }
+
+    .pos-toast span {
+        flex: 1;
+    }
+
+    .pos-toast-close {
+        background: none;
+        border: none;
+        font-size: 1.1rem;
+        line-height: 1;
+        color: #888;
+        cursor: pointer;
+        padding: 0 0 0 10px;
+        margin-left: auto;
+    }
+
+    .pos-toast-close:hover {
+        color: #333;
+    }
+</style>
 @endpush

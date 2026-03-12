@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Customer;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Exception;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -12,7 +13,7 @@ use App\Livewire\Concerns\WithDynamicLayout;
 #[Title('Manage Customer')]
 class ManageCustomer extends Component
 {
-    use WithDynamicLayout;
+    use WithDynamicLayout, WithPagination;
 
     public $name;
     public $contactNumber;
@@ -35,16 +36,16 @@ class ManageCustomer extends Component
     public $showDeleteModal = false;
     public $showViewModal = false;
     public $viewCustomerDetail = [];
-    public $perPage= 10;
+    public $perPage = 10;
 
-     public function updatedPerPage()
+    public function updatedPerPage()
     {
         $this->resetPage();
     }
 
     public function render()
     {
-        $customers = Customer::latest()->paginate($this->perPage);
+        $customers = Customer::orderBy('name', 'asc')->paginate($this->perPage);
         return view('livewire.admin.manage-customer', [
             'customers' => $customers,
         ])->layout($this->layout);
@@ -62,9 +63,19 @@ class ManageCustomer extends Component
     public function resetForm()
     {
         $this->reset([
-            'name', 'contactNumber', 'address', 'email', 'customerType', 'businessName',
-            'editCustomerId', 'editName', 'editContactNumber', 'editAddress', 
-            'editEmail', 'editCustomerType', 'editBusinessName'
+            'name',
+            'contactNumber',
+            'address',
+            'email',
+            'customerType',
+            'businessName',
+            'editCustomerId',
+            'editName',
+            'editContactNumber',
+            'editAddress',
+            'editEmail',
+            'editCustomerType',
+            'editBusinessName'
         ]);
         $this->resetErrorBag();
     }
@@ -88,7 +99,7 @@ class ManageCustomer extends Component
             $this->js("Swal.fire('Error!', 'Customer Not Found', 'error')");
             return;
         }
-        
+
         $this->viewCustomerDetail = [
             'name' => $customer->name,
             'business_name' => $customer->business_name,
@@ -99,7 +110,7 @@ class ManageCustomer extends Component
             'created_at' => $customer->created_at,
             'updated_at' => $customer->updated_at,
         ];
-        
+
         $this->showViewModal = true;
     }
 
@@ -127,7 +138,7 @@ class ManageCustomer extends Component
             $this->js("Swal.fire('Success!', 'Customer Created Successfully', 'success')");
             $this->closeModal();
         } catch (Exception $e) {
-            $this->js("Swal.fire('Error!', '".$e->getMessage()."', 'error')");
+            $this->js("Swal.fire('Error!', '" . $e->getMessage() . "', 'error')");
         }
     }
 
@@ -184,7 +195,7 @@ class ManageCustomer extends Component
             $this->js("Swal.fire('Success!', 'Customer Updated Successfully', 'success')");
             $this->closeModal();
         } catch (Exception $e) {
-            $this->js("Swal.fire('Error!', '".$e->getMessage()."', 'error')");
+            $this->js("Swal.fire('Error!', '" . $e->getMessage() . "', 'error')");
         }
     }
 
@@ -208,11 +219,10 @@ class ManageCustomer extends Component
         try {
             Customer::where('id', $this->deleteId)->delete();
             $this->js("Swal.fire('Success!', 'Customer deleted successfully.', 'success')");
-             $this->dispatch('refreshPage');
+            $this->dispatch('refreshPage');
             $this->cancelDelete();
-           
         } catch (Exception $e) {
-            $this->js("Swal.fire('Error!', '".$e->getMessage()."', 'error')");
+            $this->js("Swal.fire('Error!', '" . $e->getMessage() . "', 'error')");
         }
     }
 }

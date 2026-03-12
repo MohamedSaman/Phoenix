@@ -211,7 +211,7 @@ class Products extends Component
             'brand' => 'required|exists:brand_lists,id',
             'category' => 'required|exists:category_lists,id',
             'supplier' => 'nullable|exists:product_suppliers,id',
-            'image' => 'nullable|url',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'description' => 'nullable|string|max:1000',
             'barcode' => 'nullable|string|max:255|unique:product_details,barcode',
             'supplier_price' => 'required|numeric|min:0',
@@ -247,7 +247,12 @@ class Products extends Component
             'available_stock.min' => 'Available stock cannot be negative.',
             'damage_stock.integer' => 'Damage stock must be a whole number.',
             'damage_stock.min' => 'Damage stock cannot be negative.',
-            'image.url' => 'Please provide a valid image URL.',
+            'image.image' => 'The file must be an image.',
+            'image.mimes' => 'Accepted formats: jpeg, png, jpg, gif, webp.',
+            'image.max' => 'Image size must not exceed 2MB.',
+            'editImage.image' => 'The file must be an image.',
+            'editImage.mimes' => 'Accepted formats: jpeg, png, jpg, gif, webp.',
+            'editImage.max' => 'Image size must not exceed 2MB.',
             'barcode.unique' => 'This barcode already exists.',
         ];
     }
@@ -274,11 +279,31 @@ class Products extends Component
             // Generate product code if not provided
             $productCode = $this->code ?: 'PROD-' . strtoupper(Str::random(8));
 
+            // Handle image upload
+            $imagePath = null;
+            if ($this->image) {
+                $filename = uniqid() . '_' . time() . '.' . $this->image->getClientOriginalExtension();
+                // Store in storage/app/public/images/ProductImages, then copy to public folder
+                $storedPath = $this->image->storeAs('images/ProductImages', $filename, 'public');
+
+                // Also copy file to public/storage path for direct access
+                $sourcePath = storage_path('app/public/' . $storedPath);
+                $destDir = public_path('storage/images/ProductImages');
+                if (!file_exists($destDir)) {
+                    mkdir($destDir, 0755, true);
+                }
+                if (file_exists($sourcePath)) {
+                    copy($sourcePath, $destDir . '/' . $filename);
+                }
+
+                $imagePath = 'storage/images/ProductImages/' . $filename;
+            }
+
             $product = ProductDetail::create([
                 'code' => $productCode,
                 'name' => $this->name,
                 'model' => $this->model,
-                'image' => $this->image,
+                'image' => $imagePath,
                 'description' => $this->description,
                 'barcode' => $this->barcode,
                 'status' => 'active',
@@ -311,6 +336,7 @@ class Products extends Component
 
             $this->dispatch('refreshPage');
         } catch (\Exception $e) {
+            Log::error("Create product failed: " . $e->getMessage());
             $this->js("Swal.fire('Error!', 'Failed to create product. Please try again.', 'error')");
         }
     }
@@ -411,6 +437,8 @@ class Products extends Component
             'brand',
             'category',
             'image',
+            'editImage',
+            'existingImage',
             'description',
             'barcode',
             'status',
@@ -463,7 +491,7 @@ class Products extends Component
             'editModel' => 'nullable|string|max:255',
             'editBrand' => 'required|exists:brand_lists,id',
             'editCategory' => 'required|exists:category_lists,id',
-            'editImage' => 'nullable|url',
+            'editImage' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'editDescription' => 'nullable|string|max:1000',
             'editBarcode' => 'nullable|string|max:255|unique:product_details,barcode,' . $this->editId,
             'editStatus' => 'required|in:active,inactive',
@@ -483,27 +511,60 @@ class Products extends Component
         try {
             $product = ProductDetail::findOrFail($this->editId);
 
+            // Handle image upload
+            $imagePath = $this->existingImage;
+            if ($this->editImage) {
+                // Delete old image file if it was a locally stored file
+                if ($this->existingImage && str_starts_with($this->existingImage, 'storage/images/ProductImages/')) {
+                    $oldFile = public_path($this->existingImage);
+                    if (file_exists($oldFile)) {
+                        unlink($oldFile);
+                    }
+                }
+                $filename = uniqid() . '_' . time() . '.' . $this->editImage->getClientOriginalExtension();
+                // Store in storage/app/public/images/ProductImages, then copy to public folder
+                $storedPath = $this->editImage->storeAs('images/ProductImages', $filename, 'public');
+
+                // Also copy file to public/storage path for direct access
+                $sourcePath = storage_path('app/public/' . $storedPath);
+                $destDir = public_path('storage/images/ProductImages');
+                if (!file_exists($destDir)) {
+                    mkdir($destDir, 0755, true);
+                }
+                if (file_exists($sourcePath)) {
+                    copy($sourcePath, $destDir . '/' . $filename);
+                }
+
+                $imagePath = 'storage/images/ProductImages/' . $filename;
+            }
+
             $product->update([
                 'code' => $this->editCode,
                 'name' => $this->editName,
                 'model' => $this->editModel,
                 'brand_id' => $this->editBrand,
                 'category_id' => $this->editCategory,
-                'image' => $this->editImage,
+                'image' => $imagePath,
                 'description' => $this->editDescription,
                 'barcode' => $this->editBarcode,
                 'status' => $this->editStatus,
             ]);
 
-            $product->price()->updateOrCreate([], [
-                'supplier_price' => $this->editSupplierPrice,
-                'selling_price' => $this->editSellingPrice,
-                'discount_price' => $this->editDiscountPrice,
-            ]);
+            $product->price()->updateOrCreate(
+                ['product_id' => $product->id],
+                [
+                    'supplier_price' => $this->editSupplierPrice,
+                    'selling_price' => $this->editSellingPrice,
+                    'discount_price' => $this->editDiscountPrice,
+                ]
+            );
 
-            $product->stock()->updateOrCreate([], [
-                'damage_stock' => $this->editDamageStock,
-            ]);
+            $product->stock()->updateOrCreate(
+                ['product_id' => $product->id],
+                [
+                    'damage_stock' => $this->editDamageStock,
+                ]
+            );
 
             // Clear cache for client-side refresh
             ProductApiController::clearCache();
@@ -512,6 +573,7 @@ class Products extends Component
             $this->js("Swal.fire('Success!', 'Product updated successfully!', 'success')");
             $this->dispatch('refreshPage');
         } catch (\Exception $e) {
+            Log::error("Update product failed: " . $e->getMessage());
             $this->js("Swal.fire('Error!', 'Failed to update product. Please try again.', 'error')");
         }
     }
@@ -555,8 +617,11 @@ class Products extends Component
             ProductStock::where('product_id', $id)->delete();
 
             // Delete image if exists
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+            if ($product->image && str_starts_with($product->image, 'storage/images/ProductImages/')) {
+                $imageFile = public_path($product->image);
+                if (file_exists($imageFile)) {
+                    unlink($imageFile);
+                }
             }
 
             // Delete the product

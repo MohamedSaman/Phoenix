@@ -72,8 +72,7 @@
             border-top: none;
             font-weight: 600;
             color: #ffffff;
-            background: #3B5B0C;
-            background: linear-gradient(0deg, rgba(59, 91, 12, 1) 0%, rgba(142, 185, 34, 1) 100%);
+
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -86,14 +85,16 @@
 
         /* Highlight selected product row */
         tr.product-selected td {
-            background: linear-gradient(90deg, rgba(67,97,238,0.12), rgba(67,97,238,0.06));
+            background: linear-gradient(90deg, rgba(67, 97, 238, 0.12), rgba(67, 97, 238, 0.06));
             color: #1536c7;
         }
+
         tr.product-selected td .fw-medium,
         tr.product-selected td span.fw-medium {
             color: #1536c7;
             font-weight: 700;
         }
+
         /* Modern action buttons */
         .action-btns {
             display: flex;
@@ -567,11 +568,11 @@
                                             <th class="ps-4">No</th>
                                             <th>Code</th>
                                             <th>Product Name</th>
-                                            
+
                                             <th>Brand</th>
                                             <th>Model</th>
                                             <th>Stock</th>
-                                            <th>Supplier Price</th>
+                                            <th>Cost</th>
                                             <th>Selling Price</th>
                                             <th>Status</th>
                                             <th class="text-end pe-5">Actions</th>
@@ -739,7 +740,7 @@
 
         <!-- View Product Modal -->
         <div wire:ignore.self class="modal fade" id="viewProductModal" tabindex="-1"
-            aria-labelledby="viewProductModalLabel" aria-hidden="true" >
+            aria-labelledby="viewProductModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl">
                 <div class="modal-content border-0 shadow-lg">
                     <div class="modal-header border-0 bg-gradient-primary text-white position-relative"
@@ -758,8 +759,9 @@
                             <div class="col-lg-4 bg-light border-end">
                                 <div class="p-4 text-center">
                                     <div class="product-image-container mb-4 position-relative">
-                                        <img src="{{ $viewProduct->image ? asset( $viewProduct->image) : asset('images/product.jpg') }}"
+                                        <img src="{{ $viewProduct->image ? (str_starts_with($viewProduct->image, 'http') ? $viewProduct->image : asset($viewProduct->image)) : asset('images/product.jpg') }}"
                                             alt="Product Image" class="img-fluid rounded-3 shadow-sm product-image"
+                                            onerror="this.onerror=null;this.src='{{ asset('images/product.jpg') }}';"
                                             style="width: 100%; max-width: 280px; height: 280px; object-fit: cover; border: 3px solid #fff;">
 
                                         <div class="position-absolute top-0 end-0 m-3">
@@ -885,7 +887,7 @@
                                         <div class="row g-3">
                                             <div class="col-md-4">
                                                 <div class="price-card text-center p-3 border rounded-3 h-100">
-                                                    <small class="text-muted d-block mb-2">Supplier Price</small>
+                                                    <small class="text-muted d-block mb-2">Cost</small>
                                                     <h4 class="fw-bold text-secondary mb-0">
                                                         Rs.{{ number_format($viewProduct->price->supplier_price ?? 0, 2)
                                                         }}
@@ -963,7 +965,7 @@
                                                     <strong class="text-dark">{{ $viewProduct->currentBatchInfo['remaining_quantity'] }} units</strong>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <small class="text-muted d-block">Batch Supplier Price</small>
+                                                    <small class="text-muted d-block">Batch Cost</small>
                                                     <strong class="text-success">Rs. {{ number_format($viewProduct->currentBatchInfo['supplier_price'], 2) }}</strong>
                                                 </div>
                                                 <div class="col-md-4">
@@ -982,7 +984,7 @@
                                                         <tr>
                                                             <th>Batch #</th>
                                                             <th>Qty</th>
-                                                            <th>Supplier Price</th>
+                                                            <th>Cost</th>
                                                             <th>Selling Price</th>
                                                             <th>Received Date</th>
                                                         </tr>
@@ -1169,13 +1171,23 @@
                             </div>
                             <div class="card-body p-4">
                                 <div class="row">
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="image" class="form-label fw-semibold">Image:</label>
-                                            <input type="text" class="form-control" id="image" wire:model="image">
+                                            <label for="image" class="form-label fw-semibold">Product Image:</label>
+                                            <input type="file" class="form-control" id="image"
+                                                wire:model="image" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
+                                            <div wire:loading wire:target="image" class="text-muted small mt-1">
+                                                <i class="spinner-border spinner-border-sm me-1"></i> Uploading...
+                                            </div>
                                             @error('image')
                                             <span class="text-danger small">* {{ $message }}</span>
                                             @enderror
+                                            @if($image)
+                                            <div class="mt-2">
+                                                <img src="{{ $image->temporaryUrl() }}" alt="Preview"
+                                                    class="img-thumbnail rounded" style="max-height:120px;">
+                                            </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -1204,7 +1216,7 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="supplier_price" class="form-label fw-semibold">Supplier
+                                            <label for="supplier_price" class="form-label fw-semibold">Cost
                                                 Price:</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">Rs.</span>
@@ -1519,14 +1531,34 @@
                             </div>
                             <div class="card-body p-4">
                                 <div class="row">
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="editImage" class="form-label fw-semibold">Image:</label>
-                                            <input type="text" class="form-control" id="editImage"
-                                                wire:model="editImage">
+                                            <label for="editImage" class="form-label fw-semibold">Product Image:</label>
+                                            @if($existingImage)
+                                            <div class="mb-2 d-flex align-items-center gap-2">
+                                                <img src="{{ str_starts_with($existingImage, 'http') ? $existingImage : asset($existingImage) }}" alt="Current Image"
+                                                    class="img-thumbnail rounded" style="max-height:80px;"
+                                                    onerror="this.onerror=null;this.src='{{ asset('images/product.jpg') }}';">
+                                                <small class="text-muted">Current image</small>
+                                            </div>
+                                            @endif
+                                            <input type="file" class="form-control" id="editImage"
+                                                wire:model="editImage" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
+                                            <div wire:loading wire:target="editImage" class="text-muted small mt-1">
+                                                <i class="spinner-border spinner-border-sm me-1"></i> Uploading...
+                                            </div>
+                                            @if($existingImage)
+                                            <small class="text-muted">Leave empty to keep the current image.</small>
+                                            @endif
                                             @error('editImage')
                                             <span class="text-danger small">* {{ $message }}</span>
                                             @enderror
+                                            @if($editImage)
+                                            <div class="mt-2">
+                                                <img src="{{ $editImage->temporaryUrl() }}" alt="New Preview"
+                                                    class="img-thumbnail rounded" style="max-height:120px;">
+                                            </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -1556,7 +1588,7 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="editSupplierPrice" class="form-label fw-semibold">Supplier
+                                            <label for="editSupplierPrice" class="form-label fw-semibold">Cost
                                                 Price:</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">Rs.</span>
