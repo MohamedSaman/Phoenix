@@ -20,6 +20,16 @@ class ChequeList extends Component
     public $perPage = 10;
     public $search = '';
     public $statusFilter = 'all';
+    public $dateFrom = '';
+    public $dateTo = '';
+
+    // Edit modal
+    public $showEditModal = false;
+    public $editId = null;
+    public $editChequeNumber = '';
+    public $editBankName = '';
+    public $editChequeDate = '';
+    public $editChequeAmount = 0;
 
     public function updatedPerPage()
     {
@@ -48,6 +58,13 @@ class ChequeList extends Component
         if (!empty($this->statusFilter) && $this->statusFilter !== 'all') {
             $query->where('status', $this->statusFilter);
         }
+        // Apply date range filter
+        if (!empty($this->dateFrom)) {
+            $query->whereDate('cheque_date', '>=', $this->dateFrom);
+        }
+        if (!empty($this->dateTo)) {
+            $query->whereDate('cheque_date', '<=', $this->dateTo);
+        }
 
         return $query->paginate($this->perPage);
     }
@@ -59,6 +76,23 @@ class ChequeList extends Component
 
     public function updatedStatusFilter()
     {
+        $this->resetPage();
+    }
+
+    public function updatedDateFrom()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedDateTo()
+    {
+        $this->resetPage();
+    }
+
+    public function clearDateFilter()
+    {
+        $this->dateFrom = '';
+        $this->dateTo = '';
         $this->resetPage();
     }
 
@@ -77,41 +111,79 @@ class ChequeList extends Component
         return Cheque::where('status', 'overdue')->count();
     }
 
+    public function openEditModal($id)
+    {
+        $cheque = Cheque::find($id);
+        if (!$cheque) {
+            $this->dispatch('toast', type: 'error', message: 'Cheque not found!');
+            return;
+        }
+        $this->editId = $id;
+        $this->editChequeNumber = $cheque->cheque_number;
+        $this->editBankName = $cheque->bank_name;
+        $this->editChequeDate = $cheque->cheque_date;
+        $this->editChequeAmount = $cheque->cheque_amount;
+        $this->showEditModal = true;
+    }
+
+    public function updateCheque()
+    {
+        $this->validate([
+            'editChequeNumber' => 'required|string|max:100',
+            'editBankName'     => 'required|string|max:100',
+            'editChequeDate'   => 'required|date',
+        ], [
+            'editChequeNumber.required' => 'Cheque number is required.',
+            'editBankName.required'     => 'Bank name is required.',
+            'editChequeDate.required'   => 'Cheque date is required.',
+        ]);
+
+        try {
+            $cheque = Cheque::find($this->editId);
+            if (!$cheque) {
+                $this->dispatch('toast', type: 'error', message: 'Cheque not found!');
+                return;
+            }
+
+            $cheque->update([
+                'cheque_number' => $this->editChequeNumber,
+                'bank_name'     => $this->editBankName,
+                'cheque_date'   => $this->editChequeDate,
+            ]);
+
+            $this->showEditModal = false;
+            $this->dispatch('toast', type: 'success', message: 'Cheque updated successfully!');
+        } catch (\Exception $e) {
+            Log::error('Error updating cheque: ' . $e->getMessage());
+            $this->dispatch('toast', type: 'error', message: 'Failed to update cheque!');
+        }
+    }
+
+    public function closeEditModal()
+    {
+        $this->showEditModal = false;
+        $this->editId = null;
+        $this->editChequeNumber = '';
+        $this->editBankName = '';
+        $this->editChequeDate = '';
+        $this->editChequeAmount = 0;
+    }
+
     public function confirmComplete($id)
     {
         $this->js("
-            Swal.fire({
-                title: 'Mark as Complete?',
-                text: 'Are you sure you want to mark this cheque as complete?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#198754',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, mark as complete!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    \$wire.completeCheque({$id});
-                }
-            });
+            if (confirm('Mark this cheque as complete?')) {
+                \$wire.completeCheque({$id});
+            }
         ");
     }
 
     public function confirmReturn($id)
     {
         $this->js("
-            Swal.fire({
-                title: 'Return Cheque?',
-                text: 'Are you sure you want to return this cheque?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, return cheque!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    \$wire.returnCheque({$id});
-                }
-            });
+            if (confirm('Return this cheque?')) {
+                \$wire.returnCheque({$id});
+            }
         ");
     }
 
@@ -119,30 +191,16 @@ class ChequeList extends Component
     {
         try {
             $cheque = Cheque::find($id);
-
             if (!$cheque) {
-                $this->js("Swal.fire('Error', 'Cheque not found!', 'error');");
+                $this->dispatch('toast', type: 'error', message: 'Cheque not found!');
                 return;
             }
-
             $cheque->status = 'complete';
             $cheque->save();
-
-            // Refresh the data
-
-
-            $this->js("
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Cheque marked as complete successfully!',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            ");
+            $this->dispatch('toast', type: 'success', message: 'Cheque marked as complete successfully!');
         } catch (\Exception $e) {
             Log::error("Error completing cheque: " . $e->getMessage());
-            $this->js("Swal.fire('Error', 'Failed to mark cheque as complete!', 'error');");
+            $this->dispatch('toast', type: 'error', message: 'Failed to mark cheque as complete!');
         }
     }
 
@@ -150,30 +208,16 @@ class ChequeList extends Component
     {
         try {
             $cheque = Cheque::find($id);
-
             if (!$cheque) {
-                $this->js("Swal.fire('Error', 'Cheque not found!', 'error');");
+                $this->dispatch('toast', type: 'error', message: 'Cheque not found!');
                 return;
             }
-
             $cheque->status = 'return';
             $cheque->save();
-
-            // Refresh the data
-
-
-            $this->js("
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Cheque returned successfully!',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            ");
+            $this->dispatch('toast', type: 'success', message: 'Cheque returned successfully!');
         } catch (\Exception $e) {
             Log::error("Error returning cheque: " . $e->getMessage());
-            $this->js("Swal.fire('Error', 'Failed to return cheque!', 'error');");
+            $this->dispatch('toast', type: 'error', message: 'Failed to return cheque!');
         }
     }
 

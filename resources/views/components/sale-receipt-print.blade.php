@@ -446,6 +446,12 @@
                             <td class="inv-tot-lbl">Balance</td>
                             <td class="inv-tot-val">Rs.{{ number_format($sale->due_amount, 2) }}</td>
                         </tr>
+                        @if($sale->due_amount > 0 && $sale->due_date)
+                        <tr>
+                            <td class="inv-tot-lbl">Due Date</td>
+                            <td class="inv-tot-val">{{ \Carbon\Carbon::parse($sale->due_date)->format('d/m/Y') }}</td>
+                        </tr>
+                        @endif
                     </table>
                 </td>
             </tr>

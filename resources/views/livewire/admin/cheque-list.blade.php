@@ -55,26 +55,41 @@
 
     {{-- Cheque Table --}}
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
                 <h5 class="fw-bold mb-0">
                     <i class="bi bi-list-ul text-primary me-2"></i> Cheque List
                 </h5>
                 <span class="badge bg-primary">{{ $cheques->total() ?? 0 }} records</span>
-
             </div>
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3" style="width: 60%; margin: auto">
-                <!-- 🔍 Search Bar -->
-                <div class="search-bar flex-grow-1">
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0">
-                            <i class="bi bi-search text-muted"></i>
-                        </span>
-                        <input type="text" class="form-control border-start-0" wire:model.live="search"
-                            placeholder="Search by cheque number or customer name...">
-                    </div>
+
+            {{-- Search --}}
+            <div class="flex-grow-1" style="max-width: 280px;">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" wire:model.live="search"
+                        placeholder="Search cheque / customer...">
                 </div>
             </div>
+
+            {{-- Date Range Filter --}}
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <label class="text-sm text-muted fw-medium mb-0">Date:</label>
+                <input type="date" class="form-control form-control-sm" wire:model.live="dateFrom"
+                    style="width: 145px;" title="From date">
+                <span class="text-muted">–</span>
+                <input type="date" class="form-control form-control-sm" wire:model.live="dateTo"
+                    style="width: 145px;" title="To date">
+                @if($dateFrom || $dateTo)
+                <button class="btn btn-sm btn-outline-secondary" wire:click="clearDateFilter" title="Clear date filter">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                @endif
+            </div>
+
+            {{-- Status & Per Page --}}
             <div class="d-flex align-items-center gap-2">
                 <label class="text-sm text-muted fw-medium">Filter</label>
                 <select wire:model.live="statusFilter" class="form-select form-select-sm" style="width: 130px;">
@@ -84,7 +99,6 @@
                     <option value="overdue">Overdue</option>
                     <option value="return">Return</option>
                 </select>
-
                 <label class="text-sm text-muted fw-medium">Show</label>
                 <select wire:model.live="perPage" class="form-select form-select-sm" style="width: 80px;">
                     <option value="10">10</option>
@@ -140,6 +154,15 @@
                                         <i class="bi bi-gear-fill"></i> Actions
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
+                                        <!-- Edit Cheque -->
+                                        <li>
+                                            <button class="dropdown-item"
+                                                wire:click="openEditModal({{ $cheque->id }})">
+                                                <i class="bi bi-pencil-square text-primary me-2"></i>
+                                                Edit
+                                            </button>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
                                         <!-- Mark as Complete -->
                                         <li>
                                             <button class="dropdown-item"
@@ -185,6 +208,63 @@
             @endif
         </div>
     </div>
+
+    {{-- Edit Cheque Modal --}}
+    @if($showEditModal)
+    <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5);" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-pencil-square text-primary me-2"></i> Edit Cheque
+                    </h5>
+                    <button type="button" class="btn-close" wire:click="closeEditModal"></button>
+                </div>
+                <div class="modal-body">
+                    {{-- Amount (read-only) --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Cheque Amount <span class="text-muted">(not editable)</span></label>
+                        <input type="text" class="form-control bg-light" value="Rs. {{ number_format($editChequeAmount, 2) }}" readonly disabled>
+                    </div>
+
+                    {{-- Cheque Number --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Cheque Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('editChequeNumber') is-invalid @enderror"
+                            wire:model.live="editChequeNumber" placeholder="Enter cheque number">
+                        @error('editChequeNumber')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+
+                    {{-- Bank Name --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Bank Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('editBankName') is-invalid @enderror"
+                            wire:model.live="editBankName" placeholder="Enter bank name">
+                        @error('editBankName')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+
+                    {{-- Cheque Date --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Cheque Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control @error('editChequeDate') is-invalid @enderror"
+                            wire:model.live="editChequeDate">
+                        @error('editChequeDate')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" wire:click="closeEditModal">
+                        <i class="bi bi-x-lg me-1"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" wire:click="updateCheque" wire:loading.attr="disabled">
+                        <span wire:loading wire:target="updateCheque" class="spinner-border spinner-border-sm me-1"></span>
+                        <i class="bi bi-check2 me-1" wire:loading.remove wire:target="updateCheque"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 @push('styles')
@@ -237,5 +317,19 @@
             toggleRowHighlight(checkbox);
         });
     }
+
+    // Toast notifications
+    document.addEventListener('livewire:init', function () {
+        Livewire.on('toast', (data) => {
+            const type = data.type || 'info';
+            const message = data.message || '';
+            const colors = { success: '#198754', error: '#dc3545', warning: '#ffc107', info: '#0dcaf0' };
+            const toast = document.createElement('div');
+            toast.style.cssText = `position:fixed;top:20px;right:20px;z-index:99999;padding:12px 20px;border-radius:6px;color:#fff;background:${colors[type]||colors.info};font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:opacity .5s;`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
+        });
+    });
 </script>
 @endpush

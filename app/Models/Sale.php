@@ -23,8 +23,9 @@ class Sale extends Model
         'status',
         'notes',
         'due_amount',
+        'due_date',
         'user_id',
-        'sale_type', 
+        'sale_type',
     ];
 
     public function customer()
@@ -90,5 +91,5 @@ class Sale extends Model
     public function returns()
     {
         return $this->hasMany(ReturnsProduct::class, 'sale_id');
-    }   
+    }
 }

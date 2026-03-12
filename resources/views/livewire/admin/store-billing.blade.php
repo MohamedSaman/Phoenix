@@ -420,8 +420,13 @@
                     <div class="pos-overpay-warn mt-1"><i class="bi bi-exclamation-triangle me-1"></i>Total exceeds grand total. Max: Rs.{{ number_format($this->grandTotal, 2) }}</div>
                     @endif
                     @elseif($paymentMethod === 'due')
-                    <div class="pos-due-notice mb-0">
+                    <div class="pos-due-notice mb-2">
                         <i class="bi bi-info-circle me-2"></i>Full amount will be credited to the customer's account.
+                    </div>
+                    <div class="mb-0">
+                        <label class="pos-label"><i class="bi bi-calendar-event me-1"></i>Due Date</label>
+                        <input type="date" class="form-control pos-input" wire:model.live="dueDate" min="{{ now()->format('Y-m-d') }}">
+                        <small class="text-muted" style="font-size: 0.7rem;">Default: 7 days from today</small>
                     </div>
                     @endif
                 </div>
@@ -723,6 +728,12 @@
                                         <td class="inv-tot-lbl">Balance</td>
                                         <td class="inv-tot-val">Rs.{{ number_format($createdSale->due_amount, 2) }}</td>
                                     </tr>
+                                    @if($createdSale->due_amount > 0 && $createdSale->due_date)
+                                    <tr>
+                                        <td class="inv-tot-lbl">Due Date</td>
+                                        <td class="inv-tot-val">{{ \Carbon\Carbon::parse($createdSale->due_date)->format('d/m/Y') }}</td>
+                                    </tr>
+                                    @endif
                                 </table>
                             </td>
                         </tr>

@@ -103,6 +103,9 @@ class StoreBilling extends Component
     public $createdSale = null;
     public $pendingDueAmount = 0;
 
+    // Due Date
+    public $dueDate = '';
+
     public function mount()
     {
         // Check for yesterday's open session - auto-close it
@@ -172,22 +175,21 @@ class StoreBilling extends Component
         // Check for open session
         $this->currentSession = POSSession::getTodaySession(Auth::id());
 
-        // If no session exists OR session is closed, show opening cash modal
-        // This ensures modal shows on:
+        // If no session exists OR session is closed, auto-open with 0 opening cash
+        // This ensures:
         // 1. First time opening POS each day (no session exists)
         // 2. After closing and reopening POS (session exists but is closed)
         if (!$this->currentSession || $this->currentSession->isClosed()) {
 
-            // Check if there's an existing session for today (closed or open)
-            $todaySession = POSSession::where('user_id', Auth::id())
-                ->whereDate('session_date', now()->toDateString())
-                ->first();
-
             // Always set opening cash to 0 (auto-add 0 every day)
             $this->openingCashAmount = 0;
 
-            // Show opening cash modal
-            $this->showOpeningCashModal = true;
+            // Auto-submit opening cash without showing modal
+            try {
+                $this->submitOpeningCash();
+            } catch (\Exception $e) {
+                Log::error('Failed to auto-open POS session on mount: ' . $e->getMessage());
+            }
         }
 
         $this->loadCustomers();
@@ -195,6 +197,7 @@ class StoreBilling extends Component
         $this->loadProducts();
         $this->setDefaultCustomer();
         $this->tempChequeDate = now()->format('Y-m-d');
+        $this->dueDate = now()->addDays(7)->format('Y-m-d');
     }
 
     /**
@@ -448,6 +451,9 @@ class StoreBilling extends Component
             $this->chequeAmount = 0;
         } elseif ($value === 'bank_transfer') {
             $this->bankTransferAmount = $this->grandTotal;
+        } elseif ($value === 'due') {
+            // Set default due date to 7 days from today
+            $this->dueDate = now()->addDays(7)->format('Y-m-d');
         }
         // 'due' payment method - no amounts needed (full credit)
     }
@@ -942,6 +948,7 @@ class StoreBilling extends Component
                 'payment_type' => $this->databasePaymentType,
                 'payment_status' => $this->paymentStatus,
                 'due_amount' => $this->dueAmount,
+                'due_date' => $this->dueAmount > 0 ? $this->dueDate : null,
                 'notes' => $this->notes,
                 'user_id' => Auth::id(),
                 'status' => 'confirm',
@@ -1163,6 +1170,7 @@ class StoreBilling extends Component
             $this->additionalDiscountType = 'fixed';
             $this->resetPaymentFields();
             $this->notes = '';
+            $this->dueDate = now()->addDays(7)->format('Y-m-d');
 
             // Reset to walking customer
             $this->setDefaultCustomer();
