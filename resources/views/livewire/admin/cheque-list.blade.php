@@ -162,7 +162,9 @@
                                                 Edit
                                             </button>
                                         </li>
-                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
                                         <!-- Mark as Complete -->
                                         <li>
                                             <button class="dropdown-item"
@@ -319,16 +321,24 @@
     }
 
     // Toast notifications
-    document.addEventListener('livewire:init', function () {
+    document.addEventListener('livewire:init', function() {
         Livewire.on('toast', (data) => {
             const type = data.type || 'info';
             const message = data.message || '';
-            const colors = { success: '#198754', error: '#dc3545', warning: '#ffc107', info: '#0dcaf0' };
+            const colors = {
+                success: '#198754',
+                error: '#dc3545',
+                warning: '#ffc107',
+                info: '#0dcaf0'
+            };
             const toast = document.createElement('div');
             toast.style.cssText = `position:fixed;top:20px;right:20px;z-index:99999;padding:12px 20px;border-radius:6px;color:#fff;background:${colors[type]||colors.info};font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:opacity .5s;`;
             toast.textContent = message;
             document.body.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
         });
     });
 </script>
