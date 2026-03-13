@@ -74,25 +74,25 @@ class StoreBilling extends Component
     public $paidAmount = 0;
 
     // Cash Payment
-    public $cashAmount = 0;
+    public $cashAmount = null;
 
     // Simple Cheque Amount (for quick entry without details)
-    public $chequeAmount = 0;
+    public $chequeAmount = null;
 
     // Detailed Cheque Payment (optional - can add details later)
     public $cheques = [];
     public $tempChequeNumber = '';
     public $tempBankName = '';
     public $tempChequeDate = '';
-    public $tempChequeAmount = 0;
+    public $tempChequeAmount = null;
 
     // Bank Transfer Payment
-    public $bankTransferAmount = 0;
+    public $bankTransferAmount = null;
     public $bankTransferBankName = '';
     public $bankTransferReferenceNumber = '';
 
     // Discount Properties
-    public $additionalDiscount = 0;
+    public $additionalDiscount = null;
     public $additionalDiscountType = 'fixed'; // 'fixed' or 'percentage'
 
     // Modals
@@ -174,7 +174,7 @@ class StoreBilling extends Component
 
         // Check for open session
         $this->currentSession = POSSession::getTodaySession(Auth::id());
-       // If no session exists OR session is closed, auto-open with 0 opening cash
+        // If no session exists OR session is closed, auto-open with 0 opening cash
         // This ensures:
         // 1. First time opening POS each day (no session exists)
         // 2. After closing and reopening POS (session exists but is closed)
@@ -342,15 +342,17 @@ class StoreBilling extends Component
 
     public function getAdditionalDiscountAmountProperty()
     {
-        if (empty($this->additionalDiscount) || $this->additionalDiscount <= 0) {
+        $additionalDiscount = (float)($this->additionalDiscount ?? 0);
+
+        if ($additionalDiscount <= 0) {
             return 0;
         }
 
         if ($this->additionalDiscountType === 'percentage') {
-            return ($this->subtotalAfterItemDiscounts * $this->additionalDiscount) / 100;
+            return ($this->subtotalAfterItemDiscounts * $additionalDiscount) / 100;
         }
 
-        return min($this->additionalDiscount, $this->subtotalAfterItemDiscounts);
+        return min($additionalDiscount, $this->subtotalAfterItemDiscounts);
     }
 
     public function getGrandTotalProperty()
@@ -361,18 +363,21 @@ class StoreBilling extends Component
     public function getTotalPaidAmountProperty()
     {
         $total = 0;
+        $cashAmount = (float)($this->cashAmount ?? 0);
+        $chequeAmount = (float)($this->chequeAmount ?? 0);
+        $bankTransferAmount = (float)($this->bankTransferAmount ?? 0);
 
         if ($this->paymentMethod === 'cash') {
-            $total = min($this->cashAmount, $this->grandTotal);
+            $total = min($cashAmount, $this->grandTotal);
         } elseif ($this->paymentMethod === 'cheque') {
             // Always use the detailed cheques array sum
             $total = collect($this->cheques)->sum('amount');
         } elseif ($this->paymentMethod === 'multiple') {
             // Multiple payment: combine cash and cheque amounts, capped at grand total
-            $chequeTotal = $this->chequeAmount > 0 ? $this->chequeAmount : collect($this->cheques)->sum('amount');
-            $total = min($this->cashAmount + $chequeTotal, $this->grandTotal);
+            $chequeTotal = $chequeAmount > 0 ? $chequeAmount : collect($this->cheques)->sum('amount');
+            $total = min($cashAmount + $chequeTotal, $this->grandTotal);
         } elseif ($this->paymentMethod === 'bank_transfer') {
-            $total = min($this->bankTransferAmount, $this->grandTotal);
+            $total = min($bankTransferAmount, $this->grandTotal);
         }
         // 'due' payment method returns 0 (full credit)
 
@@ -429,10 +434,10 @@ class StoreBilling extends Component
     public function updatedPaymentMethod($value)
     {
         // Reset all payment fields
-        $this->cashAmount = 0;
-        $this->chequeAmount = 0;
+        $this->cashAmount = null;
+        $this->chequeAmount = null;
         $this->cheques = [];
-        $this->bankTransferAmount = 0;
+        $this->bankTransferAmount = null;
         $this->bankTransferBankName = '';
         $this->bankTransferReferenceNumber = '';
 
@@ -443,11 +448,11 @@ class StoreBilling extends Component
             $this->tempChequeNumber = '';
             $this->tempBankName = '';
             $this->tempChequeDate = now()->format('Y-m-d');
-            $this->tempChequeAmount = 0;
+            $this->tempChequeAmount = null;
         } elseif ($value === 'multiple') {
             // For multiple, user will input both cash and cheque amounts manually
-            $this->cashAmount = 0;
-            $this->chequeAmount = 0;
+            $this->cashAmount = null;
+            $this->chequeAmount = null;
         } elseif ($value === 'bank_transfer') {
             $this->bankTransferAmount = $this->grandTotal;
         } elseif ($value === 'due') {
@@ -487,7 +492,7 @@ class StoreBilling extends Component
 
         // Check overpayment
         $currentTotal = collect($this->cheques)->sum('amount');
-        if (($currentTotal + $this->tempChequeAmount) > $this->grandTotal) {
+        if (($currentTotal + (float)$this->tempChequeAmount) > $this->grandTotal) {
             $this->dispatch('toast', type: 'error', message: 'Cheques total would exceed grand total of Rs.' . number_format($this->grandTotal, 2));
             return;
         }
@@ -496,10 +501,10 @@ class StoreBilling extends Component
             'number' => 'CHQ-' . now()->format('YmdHis') . '-' . (count($this->cheques) + 1),
             'bank_name' => 'Pending',
             'date' => now()->format('Y-m-d'),
-            'amount' => $this->tempChequeAmount,
+            'amount' => (float)$this->tempChequeAmount,
         ];
 
-        $this->tempChequeAmount = 0;
+        $this->tempChequeAmount = null;
 
         $this->dispatch('toast', type: 'success', message: 'Cheque added successfully!');
     }
@@ -616,33 +621,48 @@ class StoreBilling extends Component
     // Prevent overpayment: cap cash
     public function updatedCashAmount($value)
     {
+        if ($value === '' || $value === null) {
+            $this->cashAmount = null;
+            return;
+        }
+
         if ($value > $this->grandTotal) {
             $this->cashAmount = $this->grandTotal;
         }
         if ($value < 0) {
-            $this->cashAmount = 0;
+            $this->cashAmount = null;
         }
     }
 
     // Prevent overpayment: cap chequeAmount (simple)
     public function updatedChequeAmount($value)
     {
+        if ($value === '' || $value === null) {
+            $this->chequeAmount = null;
+            return;
+        }
+
         if ($value > $this->grandTotal) {
             $this->chequeAmount = $this->grandTotal;
         }
         if ($value < 0) {
-            $this->chequeAmount = 0;
+            $this->chequeAmount = null;
         }
     }
 
     // Prevent overpayment: cap bank transfer
     public function updatedBankTransferAmount($value)
     {
+        if ($value === '' || $value === null) {
+            $this->bankTransferAmount = null;
+            return;
+        }
+
         if ($value > $this->grandTotal) {
             $this->bankTransferAmount = $this->grandTotal;
         }
         if ($value < 0) {
-            $this->bankTransferAmount = 0;
+            $this->bankTransferAmount = null;
         }
     }
 
@@ -788,7 +808,7 @@ class StoreBilling extends Component
     public function clearCart()
     {
         $this->cart = [];
-        $this->additionalDiscount = 0;
+        $this->additionalDiscount = null;
         $this->additionalDiscountType = 'fixed';
         $this->resetPaymentFields();
         $this->dispatch('toast', type: 'success', message: 'Cart cleared!');
@@ -797,10 +817,10 @@ class StoreBilling extends Component
     // Reset payment fields
     public function resetPaymentFields()
     {
-        $this->cashAmount = 0;
-        $this->chequeAmount = 0;
+        $this->cashAmount = null;
+        $this->chequeAmount = null;
         $this->cheques = [];
-        $this->bankTransferAmount = 0;
+        $this->bankTransferAmount = null;
         $this->bankTransferBankName = '';
         $this->bankTransferReferenceNumber = '';
         $this->paymentMethod = 'cash';
@@ -810,12 +830,12 @@ class StoreBilling extends Component
     public function updatedAdditionalDiscount($value)
     {
         if ($value === '') {
-            $this->additionalDiscount = 0;
+            $this->additionalDiscount = null;
             return;
         }
 
         if ($value < 0) {
-            $this->additionalDiscount = 0;
+            $this->additionalDiscount = null;
             return;
         }
 
@@ -835,13 +855,13 @@ class StoreBilling extends Component
     public function toggleDiscountType()
     {
         $this->additionalDiscountType = $this->additionalDiscountType === 'percentage' ? 'fixed' : 'percentage';
-        $this->additionalDiscount = 0;
+        $this->additionalDiscount = null;
         $this->syncPaymentToTotal();
     }
 
     public function removeAdditionalDiscount()
     {
-        $this->additionalDiscount = 0;
+        $this->additionalDiscount = null;
         $this->dispatch('toast', type: 'success', message: 'Additional discount removed!');
         $this->syncPaymentToTotal();
     }
@@ -1165,7 +1185,7 @@ class StoreBilling extends Component
 
             // Clear cart and reset payment fields after successful sale
             $this->cart = [];
-            $this->additionalDiscount = 0;
+            $this->additionalDiscount = null;
             $this->additionalDiscountType = 'fixed';
             $this->resetPaymentFields();
             $this->notes = '';
@@ -1189,7 +1209,7 @@ class StoreBilling extends Component
             return;
         }
 
-        $sale = Sale::with(['customer', 'items', 'returns' => function ($q) {
+        $sale = Sale::with(['customer', 'items', 'payments', 'returns' => function ($q) {
             $q->with('product');
         }])->find($this->lastSaleId);
 
@@ -1199,8 +1219,8 @@ class StoreBilling extends Component
         }
 
         $pdf = PDF::loadView('admin.sales.invoice', compact('sale'));
-        $pdf->setPaper('a4', 'portrait');
-        $pdf->setOption('dpi', 150);
+        $pdf->setPaper('a4', 'landscape');
+        $pdf->setOption('dpi', 96);
         $pdf->setOption('defaultFont', 'sans-serif');
 
         return response()->streamDownload(

@@ -17,8 +17,13 @@
             font-size: 8.5pt;
             color: #000;
             background: #fff;
-            line-height: 1.3;
-            padding: 8px;
+            line-height: 1.2;
+            padding: 2px;
+        }
+
+        @page {
+            size: A4 landscape;
+            margin: 4mm;
         }
 
         /* ── Header ── */
@@ -81,7 +86,14 @@
         .inv-ib-tbl {
             width: 100%;
             border-collapse: collapse;
-            height: 100%;
+        }
+
+        .inv-hdr-tbl,
+        .inv-bto-tbl,
+        .inv-items-tbl,
+        .inv-bot-tbl,
+        .inv-sig-tbl {
+            page-break-inside: avoid;
         }
 
         .inv-ib-lbl {
@@ -139,7 +151,7 @@
         }
 
         .inv-filler td {
-            height: 14px;
+            height: 9px;
         }
 
         .inv-c-code {
@@ -269,35 +281,11 @@
             text-align: center;
         }
 
-        /* ═══ Print Styles — A5 Landscape Dot Matrix ═══ */
+        /* ═══ Print Styles ═══ */
         @media print {
-            body * {
-                visibility: hidden;
-            }
-
-            .inv-wrap,
-            .inv-wrap * {
-                visibility: visible !important;
-            }
-
-            .inv-wrap {
-                position: absolute !important;
-                inset: 0 !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-
-            /* Dot matrix: strip colour fills so they print as plain borders */
-            .inv-ib-lbl,
-            .inv-items-tbl th,
-            .inv-tot-lbl {
-                background: none !important;
-                color: #000 !important;
-            }
-
             @page {
-                size: A5 landscape;
-                margin: 5mm;
+                size: A4 landscape;
+                margin: 4mm;
             }
         }
     </style>
@@ -348,7 +336,33 @@
                         </tr>
                         <tr>
                             <td class="inv-ib-lbl">Payment</td>
-                            <td class="inv-ib-val">{{ ucfirst(str_replace('_', ' ', $sale->payment_status ?? 'Cash')) }}</td>
+                            @php
+                            $paymentMethodLabels = [
+                            'cash' => 'Cash',
+                            'cheque' => 'Cheque',
+                            'bank_transfer' => 'Bank Transfer',
+                            'credit_card' => 'Credit Card',
+                            ];
+
+                            $paymentMethods = $sale->payments
+                            ->pluck('payment_method')
+                            ->filter()
+                            ->unique()
+                            ->values();
+
+                            if ($paymentMethods->count() > 1) {
+                            $methodText = $paymentMethods
+                            ->map(fn ($method) => $paymentMethodLabels[$method] ?? ucwords(str_replace('_', ' ', $method)))
+                            ->implode(' + ');
+                            $paymentLabel = 'Multiple (' . $methodText . ')';
+                            } elseif ($paymentMethods->count() === 1) {
+                            $singleMethod = $paymentMethods->first();
+                            $paymentLabel = $paymentMethodLabels[$singleMethod] ?? ucwords(str_replace('_', ' ', $singleMethod));
+                            } else {
+                            $paymentLabel = ($sale->due_amount ?? 0) > 0 ? 'Due' : 'Cash';
+                            }
+                            @endphp
+                            <td class="inv-ib-val">{{ $paymentLabel }}</td>
                         </tr>
                     </table>
                 </td>
@@ -396,7 +410,7 @@
                     <td class="inv-c-amt inv-tr">Rs.{{ number_format(($item->unit_price - $item->discount_per_unit) * $item->quantity, 2) }}</td>
                 </tr>
                 @endforeach
-                @php $invFiller = max(0, 8 - count($sale->items)); @endphp
+                @php $invFiller = max(0, 3 - count($sale->items)); @endphp
                 @for($f = 0; $f < $invFiller; $f++)
                     <tr class="inv-filler">
                     <td>&nbsp;</td>

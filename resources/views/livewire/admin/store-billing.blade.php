@@ -649,7 +649,33 @@
                                     </tr>
                                     <tr>
                                         <td class="inv-ib-lbl">Payment</td>
-                                        <td class="inv-ib-val">{{ ucfirst(str_replace('_', ' ', $createdSale->payments->first()?->payment_method ?? 'Cash')) }}</td>
+                                        @php
+                                        $paymentMethodLabels = [
+                                        'cash' => 'Cash',
+                                        'cheque' => 'Cheque',
+                                        'bank_transfer' => 'Bank Transfer',
+                                        'credit_card' => 'Credit Card',
+                                        ];
+
+                                        $paymentMethods = $createdSale->payments
+                                        ->pluck('payment_method')
+                                        ->filter()
+                                        ->unique()
+                                        ->values();
+
+                                        if ($paymentMethods->count() > 1) {
+                                        $methodText = $paymentMethods
+                                        ->map(fn ($method) => $paymentMethodLabels[$method] ?? ucwords(str_replace('_', ' ', $method)))
+                                        ->implode(' + ');
+                                        $paymentLabel = 'Multiple (' . $methodText . ')';
+                                        } elseif ($paymentMethods->count() === 1) {
+                                        $singleMethod = $paymentMethods->first();
+                                        $paymentLabel = $paymentMethodLabels[$singleMethod] ?? ucwords(str_replace('_', ' ', $singleMethod));
+                                        } else {
+                                        $paymentLabel = ($createdSale->due_amount ?? 0) > 0 ? 'Due' : 'Cash';
+                                        }
+                                        @endphp
+                                        <td class="inv-ib-val">{{ $paymentLabel }}</td>
                                     </tr>
                                 </table>
                             </td>
