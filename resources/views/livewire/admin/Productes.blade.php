@@ -759,7 +759,20 @@
                             <div class="col-lg-4 bg-light border-end">
                                 <div class="p-4 text-center">
                                     <div class="product-image-container mb-4 position-relative">
-                                        <img src="{{ $viewProduct->image ? (str_starts_with($viewProduct->image, 'http') ? $viewProduct->image : asset($viewProduct->image)) : asset('images/product.jpg') }}"
+                                        @php
+                                            $viewProductImageUrl = asset('images/product.jpg');
+                                            if (!empty($viewProduct->image)) {
+                                                $viewProductImage = str_replace('\\', '/', $viewProduct->image);
+                                                if (preg_match('/^https?:\/\//i', $viewProductImage)) {
+                                                    $viewProductImageUrl = $viewProductImage;
+                                                } elseif (str_starts_with($viewProductImage, 'storage/') || str_starts_with($viewProductImage, '/storage/')) {
+                                                    $viewProductImageUrl = '/' . ltrim($viewProductImage, '/');
+                                                } else {
+                                                    $viewProductImageUrl = '/storage/' . ltrim($viewProductImage, '/');
+                                                }
+                                            }
+                                        @endphp
+                                        <img src="{{ $viewProductImageUrl }}"
                                             alt="Product Image" class="img-fluid rounded-3 shadow-sm product-image"
                                             onerror="this.onerror=null;this.src='{{ asset('images/product.jpg') }}';"
                                             style="width: 100%; max-width: 280px; height: 280px; object-fit: cover; border: 3px solid #fff;">
@@ -1535,8 +1548,18 @@
                                         <div class="mb-3">
                                             <label for="editImage" class="form-label fw-semibold">Product Image:</label>
                                             @if($existingImage)
+                                            @php
+                                                $existingImagePath = str_replace('\\', '/', $existingImage);
+                                                if (preg_match('/^https?:\/\//i', $existingImagePath)) {
+                                                    $existingImageUrl = $existingImagePath;
+                                                } elseif (str_starts_with($existingImagePath, 'storage/') || str_starts_with($existingImagePath, '/storage/')) {
+                                                    $existingImageUrl = '/' . ltrim($existingImagePath, '/');
+                                                } else {
+                                                    $existingImageUrl = '/storage/' . ltrim($existingImagePath, '/');
+                                                }
+                                            @endphp
                                             <div class="mb-2 d-flex align-items-center gap-2">
-                                                <img src="{{ str_starts_with($existingImage, 'http') ? $existingImage : asset($existingImage) }}" alt="Current Image"
+                                                <img src="{{ $existingImageUrl }}" alt="Current Image"
                                                     class="img-thumbnail rounded" style="max-height:80px;"
                                                     onerror="this.onerror=null;this.src='{{ asset('images/product.jpg') }}';">
                                                 <small class="text-muted">Current image</small>

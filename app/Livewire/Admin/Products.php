@@ -201,6 +201,78 @@ class Products extends Component
         $this->resetPage();
     }
 
+    /**
+     * Store product image on public disk while keeping existing URL structure.
+     */
+    private function storeProductImage($uploadedImage)
+    {
+        $extension = strtolower($uploadedImage->getClientOriginalExtension() ?: 'jpg');
+        $filename = uniqid() . '_' . time() . '.' . $extension;
+
+        $storedPath = $uploadedImage->storeAs('images/ProductImages', $filename, 'public');
+
+        if (!$storedPath) {
+            throw new \Exception('Image upload failed. Please check storage permissions.');
+        }
+
+        // If public/storage is a real folder (not symlink), keep a synced copy for direct web access.
+        $this->syncImageToPublicStorage($storedPath);
+
+        // Keep saved DB path unchanged: storage/images/ProductImages/filename.ext
+        return 'storage/' . ltrim($storedPath, '/');
+    }
+
+    /**
+     * Sync file to public/storage for servers where storage symlink is unavailable.
+     */
+    private function syncImageToPublicStorage(string $storedPath): void
+    {
+        try {
+            $publicStoragePath = public_path('storage');
+
+            // When symlink exists, disk('public') files are already web-accessible.
+            if (is_link($publicStoragePath)) {
+                return;
+            }
+
+            $relativePath = ltrim(str_replace('\\', '/', $storedPath), '/');
+            $source = Storage::disk('public')->path($relativePath);
+            $destination = $publicStoragePath . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath);
+            $destinationDir = dirname($destination);
+
+            if (!is_dir($destinationDir)) {
+                mkdir($destinationDir, 0755, true);
+            }
+
+            if (is_file($source)) {
+                copy($source, $destination);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Image public sync skipped: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete image from public disk when path belongs to local storage.
+     */
+    private function deleteProductImageIfExists($imagePath)
+    {
+        if (!$imagePath || !str_starts_with($imagePath, 'storage/')) {
+            return;
+        }
+
+        $diskPath = ltrim(Str::after($imagePath, 'storage/'), '/');
+        if ($diskPath !== '') {
+            Storage::disk('public')->delete($diskPath);
+
+            // Also clean up non-symlink public/storage fallback copy if present.
+            $publicCopy = public_path('storage/' . str_replace('/', DIRECTORY_SEPARATOR, $diskPath));
+            if (is_file($publicCopy)) {
+                @unlink($publicCopy);
+            }
+        }
+    }
+
     // 🔹 Validation Rules for Create
     protected function rules()
     {
@@ -282,21 +354,7 @@ class Products extends Component
             // Handle image upload
             $imagePath = null;
             if ($this->image) {
-                $filename = uniqid() . '_' . time() . '.' . $this->image->getClientOriginalExtension();
-                // Store in storage/app/public/images/ProductImages, then copy to public folder
-                $storedPath = $this->image->storeAs('images/ProductImages', $filename, 'public');
-
-                // Also copy file to public/storage path for direct access
-                $sourcePath = storage_path('app/public/' . $storedPath);
-                $destDir = public_path('storage/images/ProductImages');
-                if (!file_exists($destDir)) {
-                    mkdir($destDir, 0755, true);
-                }
-                if (file_exists($sourcePath)) {
-                    copy($sourcePath, $destDir . '/' . $filename);
-                }
-
-                $imagePath = 'storage/images/ProductImages/' . $filename;
+                $imagePath = $this->storeProductImage($this->image);
             }
 
             $product = ProductDetail::create([
@@ -336,7 +394,9 @@ class Products extends Component
 
             $this->dispatch('refreshPage');
         } catch (\Exception $e) {
-            Log::error("Create product failed: " . $e->getMessage());
+            Log::error("Create product failed: " . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
             $this->js("Swal.fire('Error!', 'Failed to create product. Please try again.', 'error')");
         }
     }
@@ -514,28 +574,8 @@ class Products extends Component
             // Handle image upload
             $imagePath = $this->existingImage;
             if ($this->editImage) {
-                // Delete old image file if it was a locally stored file
-                if ($this->existingImage && str_starts_with($this->existingImage, 'storage/images/ProductImages/')) {
-                    $oldFile = public_path($this->existingImage);
-                    if (file_exists($oldFile)) {
-                        unlink($oldFile);
-                    }
-                }
-                $filename = uniqid() . '_' . time() . '.' . $this->editImage->getClientOriginalExtension();
-                // Store in storage/app/public/images/ProductImages, then copy to public folder
-                $storedPath = $this->editImage->storeAs('images/ProductImages', $filename, 'public');
-
-                // Also copy file to public/storage path for direct access
-                $sourcePath = storage_path('app/public/' . $storedPath);
-                $destDir = public_path('storage/images/ProductImages');
-                if (!file_exists($destDir)) {
-                    mkdir($destDir, 0755, true);
-                }
-                if (file_exists($sourcePath)) {
-                    copy($sourcePath, $destDir . '/' . $filename);
-                }
-
-                $imagePath = 'storage/images/ProductImages/' . $filename;
+                $this->deleteProductImageIfExists($this->existingImage);
+                $imagePath = $this->storeProductImage($this->editImage);
             }
 
             $product->update([
@@ -573,7 +613,9 @@ class Products extends Component
             $this->js("Swal.fire('Success!', 'Product updated successfully!', 'success')");
             $this->dispatch('refreshPage');
         } catch (\Exception $e) {
-            Log::error("Update product failed: " . $e->getMessage());
+            Log::error("Update product failed: " . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
             $this->js("Swal.fire('Error!', 'Failed to update product. Please try again.', 'error')");
         }
     }
@@ -617,12 +659,7 @@ class Products extends Component
             ProductStock::where('product_id', $id)->delete();
 
             // Delete image if exists
-            if ($product->image && str_starts_with($product->image, 'storage/images/ProductImages/')) {
-                $imageFile = public_path($product->image);
-                if (file_exists($imageFile)) {
-                    unlink($imageFile);
-                }
-            }
+            $this->deleteProductImageIfExists($product->image);
 
             // Delete the product
             $product->delete();

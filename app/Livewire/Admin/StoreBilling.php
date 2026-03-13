@@ -174,8 +174,7 @@ class StoreBilling extends Component
 
         // Check for open session
         $this->currentSession = POSSession::getTodaySession(Auth::id());
-
-        // If no session exists OR session is closed, auto-open with 0 opening cash
+       // If no session exists OR session is closed, auto-open with 0 opening cash
         // This ensures:
         // 1. First time opening POS each day (no session exists)
         // 2. After closing and reopening POS (session exists but is closed)

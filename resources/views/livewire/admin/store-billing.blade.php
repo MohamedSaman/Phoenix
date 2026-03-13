@@ -150,7 +150,17 @@
                         wire:click="addToCart({{ json_encode($product) }})">
                         <div class="pos-product-img">
                             @if($product['image'])
-                            <img src="{{ str_starts_with($product['image'], 'http') ? $product['image'] : asset($product['image']) }}"
+                            @php
+                                $productImage = str_replace('\\', '/', $product['image']);
+                                if (preg_match('/^https?:\/\//i', $productImage)) {
+                                    $productImageUrl = $productImage;
+                                } elseif (str_starts_with($productImage, 'storage/') || str_starts_with($productImage, '/storage/')) {
+                                    $productImageUrl = '/' . ltrim($productImage, '/');
+                                } else {
+                                    $productImageUrl = '/storage/' . ltrim($productImage, '/');
+                                }
+                            @endphp
+                            <img src="{{ $productImageUrl }}"
                                 alt="{{ $product['name'] }}"
                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                             <div class="pos-product-noimg" style="display:none;">
