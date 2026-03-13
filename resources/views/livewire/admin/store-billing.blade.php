@@ -238,7 +238,7 @@
                     </thead>
                     <tbody>
                         @foreach($cart as $index => $item)
-                        <tr class="pos-ct-row">
+                        <tr class="pos-ct-row" wire:key="cart-item-{{ $item['key'] ?? $index }}">
                             <td class="pos-ct-td pos-ct-name">
                                 <div class="fw-semibold pos-item-name">{{ Str::limit($item['name'], 24) }}</div>
                                 <div class="pos-item-code">{{ $item['code'] }}</div>
@@ -292,187 +292,72 @@
                 </div>
                 @endif
             </div>
-        </aside>
-    </div>
-
-    {{-- ════════════════════════════════════════════
-         FULL-WIDTH PAYMENT FOOTER
-    ════════════════════════════════════════════ --}}
-    <div class="pos-cart-footer">
-        <div class="pos-footer-grid">
-
-            {{-- Totals Column --}}
-            <div class="pos-footer-totals">
-                <div class="pos-totals">
-                    <div class="pos-total-row">
-                        <span>Subtotal</span>
-                        <span>Rs.{{ number_format($this->subtotal, 2) }}</span>
-                    </div>
-                    @if($this->totalDiscount > 0)
-                    <div class="pos-total-row pos-discount-row">
-                        <span><i class="bi bi-tag me-1"></i>Item Discount</span>
-                        <span>-Rs.{{ number_format($this->totalDiscount, 2) }}</span>
-                    </div>
-                    @endif
-                    <div class="pos-total-row pos-extra-discount-row">
-                        <span>Extra Discount</span>
-                        <div class="d-flex align-items-center gap-1">
-                            <input type="number" class="pos-discount-input"
-                                wire:model.live="additionalDiscount" min="0" placeholder="0">
-                            <button type="button" class="pos-discount-toggle" wire:click="toggleDiscountType">
-                                {{ $additionalDiscountType === 'percentage' ? '%' : 'Rs' }}
-                            </button>
+            {{-- Cart Footer (Moved inside panel) --}}
+            <div class="pos-cart-footer">
+                <div class="pos-footer-totals">
+                    <div class="pos-totals">
+                        <div class="pos-total-row">
+                            <span>Subtotal</span>
+                            <span>Rs.{{ number_format($this->subtotal, 2) }}</span>
                         </div>
-                    </div>
-                    <div class="pos-grand-total-row">
-                        <span>Grand Total</span>
-                        <span>Rs.{{ number_format($this->grandTotal, 2) }}</span>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Payment Methods + Inputs Column --}}
-            <div class="pos-footer-payment">
-                <div class="pos-payment-methods">
-                    <div class="pos-pm-grid">
-                        <input type="radio" class="pos-pm-radio" name="paymentMethod" id="pmCash" value="cash" wire:model.live="paymentMethod">
-                        <label class="pos-pm-label" for="pmCash">
-                            <i class="bi bi-cash"></i>
-                            <span>Cash</span>
-                        </label>
-
-                        <input type="radio" class="pos-pm-radio" name="paymentMethod" id="pmCheque" value="cheque" wire:model.live="paymentMethod">
-                        <label class="pos-pm-label" for="pmCheque">
-                            <i class="bi bi-bank"></i>
-                            <span>Cheque</span>
-                        </label>
-
-                        <input type="radio" class="pos-pm-radio" name="paymentMethod" id="pmMultiple" value="multiple" wire:model.live="paymentMethod">
-                        <label class="pos-pm-label" for="pmMultiple">
-                            <i class="bi bi-layers"></i>
-                            <span>Multiple</span>
-                        </label>
-
-                        <input type="radio" class="pos-pm-radio" name="paymentMethod" id="pmDue" value="due" wire:model.live="paymentMethod">
-                        <label class="pos-pm-label" for="pmDue">
-                            <i class="bi bi-clock-history"></i>
-                            <span>Due</span>
-                        </label>
-                    </div>
-                </div>
-
-                {{-- Payment Amount Inputs --}}
-                <div class="pos-payment-inputs mb-0">
-                    @if($paymentMethod === 'cash')
-                    <div class="pos-input-group mb-0">
-                        <label class="pos-label">Cash Amount</label>
-                        <div class="input-group">
-                            <span class="input-group-text pos-input-prefix-sm">Rs.</span>
-                            <input type="number" class="form-control pos-input" wire:model.live="cashAmount" placeholder="0.00" min="0" max="{{ $this->grandTotal }}">
+                        @if($this->totalDiscount > 0)
+                        <div class="pos-total-row pos-discount-row">
+                            <span><i class="bi bi-tag me-1"></i>Item Disc.</span>
+                            <span>-Rs.{{ number_format($this->totalDiscount, 2) }}</span>
                         </div>
-                        @if($cashAmount > $this->grandTotal)
-                        <div class="pos-overpay-warn"><i class="bi bi-exclamation-triangle me-1"></i>Amount exceeds grand total. Max: Rs.{{ number_format($this->grandTotal, 2) }}</div>
                         @endif
-                    </div>
-                    @elseif($paymentMethod === 'cheque')
-                    {{-- Cheque List --}}
-                    @if(count($cheques) > 0)
-                    <div class="pos-cheque-list">
-                        @foreach($cheques as $ci => $cheque)
-                        <div class="pos-cheque-item">
-                            <span class="pos-cheque-meta">Cheque {{ $ci + 1 }}</span>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="pos-cheque-amt">Rs.{{ number_format($cheque['amount'], 2) }}</span>
-                                <button type="button" class="pos-cheque-del" wire:click="removeCheque({{ $ci }})">
-                                    <i class="bi bi-x"></i>
+                        <div class="pos-total-row pos-extra-discount-row">
+                            <span>Extra Discount</span>
+                            <div class="d-flex align-items-center gap-1">
+                                <input type="number" class="pos-discount-input"
+                                    wire:model.live="additionalDiscount" min="0" placeholder="0">
+                                <button type="button" class="pos-discount-toggle" wire:click="toggleDiscountType">
+                                    {{ $additionalDiscountType === 'percentage' ? '%' : 'Rs' }}
                                 </button>
                             </div>
                         </div>
-                        @endforeach
-                        <div class="pos-cheque-total">
-                            <span>Cheques Total</span>
-                            <span class="fw-bold">Rs.{{ number_format(collect($cheques)->sum('amount'), 2) }}</span>
-                        </div>
-                        @if(collect($cheques)->sum('amount') > $this->grandTotal)
-                        <div class="pos-overpay-warn"><i class="bi bi-exclamation-triangle me-1"></i>Cheques total exceeds grand total. Max: Rs.{{ number_format($this->grandTotal, 2) }}</div>
-                        @endif
-                    </div>
-                    @endif
-                    {{-- Add Cheque Form (amount only) --}}
-                    <div class="pos-add-cheque">
-                        <div class="input-group mb-1">
-                            <span class="input-group-text pos-input-prefix-sm">Rs.</span>
-                            <input type="number" class="form-control pos-input-sm" wire:model="tempChequeAmount" placeholder="Cheque Amount" min="0.01">
-                        </div>
-                        @error('tempChequeAmount')<div class="pos-field-error">{{ $message }}</div>@enderror
-                        <button type="button" class="btn pos-btn-add-cheque w-100" wire:click="addCheque">
-                            <i class="bi bi-plus-circle me-1"></i>Add Cheque
-                        </button>
-                    </div>
-                    @elseif($paymentMethod === 'multiple')
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <label class="pos-label">Cash</label>
-                            <div class="input-group">
-                                <span class="input-group-text pos-input-prefix-sm">Rs.</span>
-                                <input type="number" class="form-control pos-input" wire:model.live="cashAmount" placeholder="0.00" min="0">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <label class="pos-label">Cheque</label>
-                            <div class="input-group">
-                                <span class="input-group-text pos-input-prefix-sm">Rs.</span>
-                                <input type="number" class="form-control pos-input" wire:model.live="chequeAmount" placeholder="0.00" min="0">
-                            </div>
+                        <div class="pos-grand-total-row">
+                            <span>Grand Total</span>
+                            <span>Rs.{{ number_format($this->grandTotal, 2) }}</span>
                         </div>
                     </div>
-                    @if(($cashAmount + $chequeAmount) > $this->grandTotal)
-                    <div class="pos-overpay-warn mt-1"><i class="bi bi-exclamation-triangle me-1"></i>Total exceeds grand total. Max: Rs.{{ number_format($this->grandTotal, 2) }}</div>
-                    @endif
-                    @elseif($paymentMethod === 'due')
-                    <div class="pos-due-notice mb-2">
-                        <i class="bi bi-info-circle me-2"></i>Full amount will be credited to the customer's account.
-                    </div>
-                    <div class="mb-0">
-                        <label class="pos-label"><i class="bi bi-calendar-event me-1"></i>Due Date</label>
-                        <input type="date" class="form-control pos-input" wire:model.live="dueDate" min="{{ now()->format('Y-m-d') }}">
-                        <small class="text-muted" style="font-size: 0.7rem;">Default: 7 days from today</small>
-                    </div>
-                    @endif
                 </div>
 
-                {{-- Due Amount --}}
-                @if($paymentMethod !== 'due' && $this->dueAmount > 0)
-                <div class="pos-due-amount mt-1 mb-0">
-                    <span><i class="bi bi-exclamation-circle me-1"></i>Due Amount</span>
-                    <span>Rs.{{ number_format($this->dueAmount, 2) }}</span>
+                <!-- <div class="pos-footer-payment mt-3 mb-3">
+                    <div class="pos-info-box h-100 d-flex flex-column justify-content-center border-0 p-2" style="background: rgba(212, 166, 61, 0.05);">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted small">Items:</span>
+                            <span class="fw-bold small">{{ collect($cart)->sum('quantity') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted small">Customer:</span>
+                            <span class="fw-bold text-truncate small ms-2">{{ $selectedCustomer->name ?? 'None' }}</span>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="pos-footer-actions">
+                    <button type="button"
+                        class="btn pos-btn-complete py-3"
+                        wire:click="openPaymentModal"
+                        wire:loading.attr="disabled"
+                        @if(count($cart)==0) disabled @endif>
+                        <span wire:loading.remove wire:target="openPaymentModal">
+                            <i class="bi bi-wallet2 me-2"></i>Proceed to Payment
+                        </span>
+                        <span wire:loading wire:target="openPaymentModal">
+                            <span class="spinner-border spinner-border-sm me-2"></span>...
+                        </span>
+                    </button>
+
+                    @if(count($cart) > 0)
+                    <button type="button" class="btn pos-btn-clear" wire:click="clearCart">
+                        <i class="bi bi-x-circle me-1"></i>Clear Sale
+                    </button>
+                    @endif
                 </div>
-                @endif
             </div>
-
-            {{-- Actions Column --}}
-            <div class="pos-footer-actions">
-                <button type="button"
-                    class="btn pos-btn-complete w-100"
-                    wire:click="validateAndCreateSale"
-                    wire:loading.attr="disabled"
-                    @if(count($cart)==0) disabled @endif>
-                    <span wire:loading.remove wire:target="validateAndCreateSale">
-                        <i class="bi bi-check2-circle me-2"></i>Complete Sale
-                    </span>
-                    <span wire:loading wire:target="validateAndCreateSale">
-                        <span class="spinner-border spinner-border-sm me-2"></span>Processing...
-                    </span>
-                </button>
-
-                @if(count($cart) > 0)
-                <button type="button" class="btn pos-btn-clear w-100 mt-2" wire:click="clearCart">
-                    <i class="bi bi-x-circle me-1"></i>Clear Cart
-                </button>
-                @endif
-            </div>
-
-        </div>
+        </aside>
     </div>
 
     {{-- ════════════════════════════════════════════
@@ -534,6 +419,194 @@
                 </button>
                 <button type="button" class="btn pos-btn-gradient" wire:click="createCustomer">
                     <i class="bi bi-check-circle me-1"></i>Create Customer
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- ════════════════════════════════════════════
+         PAYMENT MODAL
+    ════════════════════════════════════════════ --}}
+    @if($showPaymentModal)
+    <div class="pos-overlay" style="z-index: 1600;">
+        <div class="pos-modal-card" style="max-width:550px;">
+            <div class="pos-modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="pos-icon-badge">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold">Payment Details</h5>
+                        <small class="opacity-75">Payable: Rs.{{ number_format($this->grandTotal, 2) }}</small>
+                    </div>
+                </div>
+                <button type="button" class="btn pos-btn-close" wire:click="$set('showPaymentModal', false)">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="pos-modal-body">
+                {{-- Tabs --}}
+                <div class="payment-tabs">
+                    <button type="button" class="payment-tab-btn {{ $activeTab === 'single' ? 'active' : '' }}" wire:click="$set('activeTab', 'single')">
+                        <i class="bi bi-person me-1"></i>Single Payment
+                    </button>
+                    <button type="button" class="payment-tab-btn {{ $activeTab === 'multiple' ? 'active' : '' }}" wire:click="$set('activeTab', 'multiple'); $set('paymentMethod', 'multiple')">
+                        <i class="bi bi-layers me-1"></i>Multiple Payment
+                    </button>
+                </div>
+
+                @if($activeTab === 'single')
+                {{-- Single Payment Content --}}
+                <div class="pos-payment-methods mb-4">
+                    <div class="pos-pm-grid">
+                        <input type="radio" class="pos-pm-radio" name="paymentMethod" id="pmCash" value="cash" wire:model.live="paymentMethod">
+                        <label class="pos-pm-label" for="pmCash">
+                            <i class="bi bi-cash"></i>
+                            <span>Cash</span>
+                        </label>
+
+                        <input type="radio" class="pos-pm-radio" name="paymentMethod" id="pmCheque" value="cheque" wire:model.live="paymentMethod">
+                        <label class="pos-pm-label" for="pmCheque">
+                            <i class="bi bi-bank"></i>
+                            <span>Cheque</span>
+                        </label>
+
+                        <input type="radio" class="pos-pm-radio" name="paymentMethod" id="pmDue" value="due" wire:model.live="paymentMethod">
+                        <label class="pos-pm-label" for="pmDue">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Due</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pos-payment-inputs">
+                    @if($paymentMethod === 'cash')
+                    <div class="pos-input-group">
+                        <label class="pos-label">Amount Received</label>
+                        <div class="input-group">
+                            <span class="input-group-text pos-input-prefix-sm">Rs.</span>
+                            <input type="number" class="form-control pos-input-lg py-3" wire:model.live="cashAmount" placeholder="0.00" autofocus>
+                        </div>
+                    </div>
+                    @elseif($paymentMethod === 'cheque')
+                    <div class="pos-cheque-section">
+                        @if(count($cheques) > 0)
+                        <div class="pos-cheque-list mb-3">
+                            @foreach($cheques as $ci => $cheque)
+                            <div class="pos-cheque-item">
+                                <div class="pos-cheque-info">
+                                    <span class="pos-cheque-meta">Cheque {{ $ci + 1 }}</span>
+                                    <span class="pos-cheque-amt">Rs.{{ number_format($cheque['amount'], 2) }}</span>
+                                </div>
+                                <button type="button" class="pos-cheque-del" wire:click="removeCheque({{ $ci }})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                            @endforeach
+                        </div>
+                        @endif
+
+                        <div class="pos-add-cheque p-3 border rounded bg-light">
+                            <label class="pos-label mb-2">Add Cheque Amount</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text pos-input-prefix-sm">Rs.</span>
+                                <input type="number" class="form-control pos-input" wire:model="tempChequeAmount" placeholder="Amount">
+                            </div>
+                            <button type="button" class="btn pos-btn-outline w-100 btn-sm" wire:click="addCheque">
+                                <i class="bi bi-plus-circle me-1"></i>Add to List
+                            </button>
+                        </div>
+                    </div>
+                    @elseif($paymentMethod === 'due')
+                    <div class="pos-due-notice mb-3">
+                        <i class="bi bi-info-circle me-2"></i>Full amount will be marked as outstanding.
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="pos-label">Due After (Days)</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control pos-input-sm" wire:model.live="dueDays" placeholder="No. of days">
+                                <span class="input-group-text py-0" style="font-size: 0.75rem;">Days</span>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="pos-label">Promise Date (Due Date)</label>
+                            <input type="date" class="form-control pos-input" wire:model.live="dueDate" min="{{ now()->format('Y-m-d') }}">
+                        </div>
+                    </div>
+                    @if($dueDays)
+                    <div class="pos-info-box mt-3 py-2">
+                        <i class="bi bi-clock-history me-2"></i>This payment is due in <strong>{{ $dueDays }} days</strong> ({{ \Carbon\Carbon::parse($dueDate)->format('M d, Y') }})
+                    </div>
+                    @endif
+                    @endif
+                </div>
+                @else
+                {{-- Multiple Payment Content --}}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="pos-label">Cash Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text pos-input-prefix-sm">Rs.</span>
+                            <input type="number" class="form-control pos-input" wire:model.live="cashAmount" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="pos-label">Add Cheque Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text pos-input-prefix-sm">Rs.</span>
+                            <input type="number" class="form-control pos-input" wire:model="tempChequeAmount" placeholder="Amount">
+                            <button type="button" class="btn pos-btn-outline" wire:click="addCheque">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                @if(count($cheques) > 0)
+                <div class="pos-cheque-list mt-3">
+                    @foreach($cheques as $ci => $cheque)
+                    <div class="pos-cheque-item">
+                        <div class="pos-cheque-info">
+                            <span class="pos-cheque-meta">Cheque {{ $ci + 1 }}</span>
+                            <span class="pos-cheque-amt">Rs.{{ number_format($cheque['amount'], 2) }}</span>
+                        </div>
+                        <button type="button" class="pos-cheque-del" wire:click="removeCheque({{ $ci }})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    @endforeach
+                </div>
+                @endif
+
+                <div class="pos-info-box mt-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Total Paid (Multiple):</span>
+                        <span class="fw-bold">Rs.{{ number_format($this->totalPaidAmount, 2) }}</span>
+                    </div>
+                </div>
+                @endif
+
+                {{-- Due Calculation --}}
+                @if($this->dueAmount > 0)
+                <div class="pos-due-amount mt-4 mb-0">
+                    <span><i class="bi bi-exclamation-triangle me-2"></i>Remaining Due</span>
+                    <span>Rs.{{ number_format($this->dueAmount, 2) }}</span>
+                </div>
+                @endif
+            </div>
+
+            <div class="pos-modal-footer">
+                <button type="button" class="btn pos-btn-secondary" wire:click="$set('showPaymentModal', false)">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn pos-btn-gradient px-4" wire:click="validateAndCreateSale" wire:loading.attr="disabled">
+                    <span wire:loading.remove wire:target="validateAndCreateSale">
+                        <i class="bi bi-check-circle me-1"></i>Confirm & Complete Sale
+                    </span>
+                    <span wire:loading wire:target="validateAndCreateSale">
+                        <span class="spinner-border spinner-border-sm me-1"></span>Processing...
+                    </span>
                 </button>
             </div>
         </div>
@@ -997,7 +1070,7 @@
     /* ── Layout Grid ── */
     .pos-layout {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         flex: 1;
         overflow: hidden;
     }
@@ -1008,8 +1081,11 @@
         display: flex;
         flex-direction: column;
         height: 100%;
-        border-right: 2px solid var(--pos-border);
-        box-shadow: 4px 0 20px rgba(138, 97, 20, 0.05);
+        /* Fill the grid cell */
+        min-height: 0;
+        /* Important: allow it to be smaller than content for internal scrolling */
+        border-left: 2px solid var(--pos-border);
+        box-shadow: -4px 0 20px rgba(138, 97, 20, 0.05);
         overflow: hidden;
     }
 
@@ -1073,23 +1149,23 @@
     }
 
     .pos-ct-qty {
-        width: 126px;
+        width: 100px;
     }
 
     .pos-ct-price {
-        width: 84px;
+        width: 75px;
     }
 
     .pos-ct-disc {
-        width: 74px;
+        width: 65px;
     }
 
     .pos-ct-total {
-        width: 86px;
+        width: 80px;
     }
 
     .pos-ct-rm {
-        width: 34px;
+        width: 32px;
     }
 
     /* Header cells */
@@ -1343,36 +1419,41 @@
     }
 
     /* ═══ Cart Footer ═══ */
+    /* ═══ Cart Footer (Sidebar Version) ═══ */
     .pos-cart-footer {
         border-top: 2px solid var(--pos-border);
-        padding: 12px 20px;
+        padding: 15px;
         background: var(--pos-gold-bg);
         flex-shrink: 0;
         width: 100%;
     }
 
     .pos-footer-grid {
-        display: grid;
-        grid-template-columns: 280px 1fr 220px;
-        gap: 20px;
-        align-items: start;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
     }
 
     .pos-footer-totals {
-        border-right: 1px solid var(--pos-border);
-        padding-right: 20px;
+        border-right: none;
+        padding-right: 0;
     }
 
     .pos-footer-payment {
-        border-right: 1px solid var(--pos-border);
-        padding-right: 20px;
+        border-right: none;
+        padding-right: 0;
     }
 
     .pos-footer-actions {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 100%;
+        flex-direction: row;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .pos-footer-actions .btn {
+        flex: 1 1 0;
+        margin-top: 0 !important;
     }
 
     .pos-totals {
@@ -1733,6 +1814,35 @@
     .pos-select option {
         background: var(--pos-dark);
         color: #fff;
+    }
+
+    /* ═══ Payment Modal Tabs ═══ */
+    .payment-tabs {
+        display: flex;
+        gap: 2px;
+        margin-bottom: 20px;
+        background: var(--pos-border);
+        padding: 4px;
+        border-radius: 10px;
+    }
+
+    .payment-tab-btn {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        background: none;
+        color: var(--pos-muted);
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .payment-tab-btn.active {
+        background: #fff;
+        color: var(--pos-gold-dark);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
 
@@ -2237,6 +2347,20 @@
         box-shadow: 0 0 0 3px rgba(212, 166, 61, 0.12) !important;
     }
 
+    .pos-input-sm {
+        font-size: 0.78rem !important;
+        border: 1px solid var(--pos-border) !important;
+        border-radius: 8px !important;
+        padding: 6px 10px !important;
+        background: var(--pos-surface) !important;
+        width: 100%;
+    }
+
+    .pos-input-sm:focus {
+        border-color: var(--pos-gold) !important;
+        outline: none;
+    }
+
     .pos-input-lg {
         font-size: 1.5rem !important;
         border: 2px solid var(--pos-border) !important;
@@ -2412,7 +2536,7 @@
     /* ═══ Responsive ═══ */
     @media (max-width: 1200px) {
         .pos-layout {
-            grid-template-columns: 340px 1fr;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         }
     }
 

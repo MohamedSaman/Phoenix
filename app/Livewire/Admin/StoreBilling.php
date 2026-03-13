@@ -105,6 +105,10 @@ class StoreBilling extends Component
 
     // Due Date
     public $dueDate = '';
+    public $dueDays = null;
+
+    public $showPaymentModal = false;
+    public $activeTab = 'single';
 
     public function mount()
     {
@@ -360,22 +364,46 @@ class StoreBilling extends Component
         return $this->subtotalAfterItemDiscounts - $this->additionalDiscountAmount;
     }
 
+    private function getChequeTotalAmount(): float
+    {
+        if (!empty($this->cheques)) {
+            return (float) collect($this->cheques)->sum('amount');
+        }
+
+        return (float) ($this->chequeAmount ?? 0);
+    }
+
+    private function getMultiplePaidAmount(): float
+    {
+        return (float) ($this->cashAmount ?? 0) + $this->getChequeTotalAmount();
+    }
+
+    private function isMultipleMode(): bool
+    {
+        return $this->paymentMethod === 'multiple' || $this->activeTab === 'multiple';
+    }
+
+    public function updatedActiveTab($value)
+    {
+        if ($value === 'multiple') {
+            $this->paymentMethod = 'multiple';
+        } elseif ($this->paymentMethod === 'multiple') {
+            $this->paymentMethod = 'cash';
+        }
+    }
+
     public function getTotalPaidAmountProperty()
     {
         $total = 0;
         $cashAmount = (float)($this->cashAmount ?? 0);
-        $chequeAmount = (float)($this->chequeAmount ?? 0);
         $bankTransferAmount = (float)($this->bankTransferAmount ?? 0);
 
-        if ($this->paymentMethod === 'cash') {
+        if ($this->isMultipleMode()) {
+            $total = min($this->getMultiplePaidAmount(), $this->grandTotal);
+        } elseif ($this->paymentMethod === 'cash') {
             $total = min($cashAmount, $this->grandTotal);
         } elseif ($this->paymentMethod === 'cheque') {
-            // Always use the detailed cheques array sum
-            $total = collect($this->cheques)->sum('amount');
-        } elseif ($this->paymentMethod === 'multiple') {
-            // Multiple payment: combine cash and cheque amounts, capped at grand total
-            $chequeTotal = $chequeAmount > 0 ? $chequeAmount : collect($this->cheques)->sum('amount');
-            $total = min($cashAmount + $chequeTotal, $this->grandTotal);
+            $total = $this->getChequeTotalAmount();
         } elseif ($this->paymentMethod === 'bank_transfer') {
             $total = min($bankTransferAmount, $this->grandTotal);
         }
@@ -490,18 +518,46 @@ class StoreBilling extends Component
             'tempChequeAmount.min' => 'Cheque amount must be greater than 0',
         ]);
 
-        // Check overpayment
-        $currentTotal = collect($this->cheques)->sum('amount');
-        if (($currentTotal + (float)$this->tempChequeAmount) > $this->grandTotal) {
-            $this->dispatch('toast', type: 'error', message: 'Cheques total would exceed grand total of Rs.' . number_format($this->grandTotal, 2));
-            return;
+        $currentChequeTotal = (float) collect($this->cheques)->sum('amount');
+        $newChequeAmount = (float) $this->tempChequeAmount;
+
+        if ($this->isMultipleMode()) {
+            $cashAmount = (float) ($this->cashAmount ?? 0);
+            $projectedTotal = $currentChequeTotal + $newChequeAmount + $cashAmount;
+
+            // In multiple mode, keep total exactly within grand total by reducing cash first.
+            if ($projectedTotal > (float) $this->grandTotal) {
+                $excess = $projectedTotal - (float) $this->grandTotal;
+
+                if ($cashAmount > 0) {
+                    $adjustedCash = max(0, $cashAmount - $excess);
+                    $remainingExcess = $excess - $cashAmount;
+
+                    if ($remainingExcess > 0.009) {
+                        $this->dispatch('toast', type: 'error', message: 'Cheque total would exceed grand total of Rs.' . number_format($this->grandTotal, 2));
+                        return;
+                    }
+
+                    $this->cashAmount = $adjustedCash;
+                    $this->dispatch('toast', type: 'warning', message: 'Cash amount adjusted to Rs.' . number_format($adjustedCash, 2) . ' to fit the new cheque.');
+                } else {
+                    $this->dispatch('toast', type: 'error', message: 'Cheque total would exceed grand total of Rs.' . number_format($this->grandTotal, 2));
+                    return;
+                }
+            }
+        } else {
+            // Single cheque mode: cheques cannot exceed grand total.
+            if (($currentChequeTotal + $newChequeAmount) > (float) $this->grandTotal) {
+                $this->dispatch('toast', type: 'error', message: 'Cheques total would exceed grand total of Rs.' . number_format($this->grandTotal, 2));
+                return;
+            }
         }
 
         $this->cheques[] = [
             'number' => 'CHQ-' . now()->format('YmdHis') . '-' . (count($this->cheques) + 1),
             'bank_name' => 'Pending',
             'date' => now()->format('Y-m-d'),
-            'amount' => (float)$this->tempChequeAmount,
+            'amount' => $newChequeAmount,
         ];
 
         $this->tempChequeAmount = null;
@@ -631,6 +687,16 @@ class StoreBilling extends Component
         }
         if ($value < 0) {
             $this->cashAmount = null;
+        }
+
+        if ($this->isMultipleMode() && $this->cashAmount !== null) {
+            $chequeTotal = (float) collect($this->cheques)->sum('amount');
+            $maxCashAmount = max(0, (float) $this->grandTotal - $chequeTotal);
+
+            if ((float) $this->cashAmount > $maxCashAmount) {
+                $this->cashAmount = $maxCashAmount;
+                $this->dispatch('toast', type: 'warning', message: 'Cash amount adjusted to keep total within grand total.');
+            }
         }
     }
 
@@ -824,6 +890,15 @@ class StoreBilling extends Component
         $this->bankTransferBankName = '';
         $this->bankTransferReferenceNumber = '';
         $this->paymentMethod = 'cash';
+        $this->dueDate = '';
+        $this->dueDays = null;
+    }
+
+    public function updatedDueDays($value)
+    {
+        if ($value !== null && $value !== '') {
+            $this->dueDate = now()->addDays((int)$value)->format('Y-m-d');
+        }
     }
 
     // Update additional discount
@@ -866,6 +941,22 @@ class StoreBilling extends Component
         $this->syncPaymentToTotal();
     }
 
+    public function openPaymentModal()
+    {
+        if (empty($this->cart)) {
+            $this->dispatch('toast', type: 'error', message: 'Please add at least one product to the sale.');
+            return;
+        }
+
+        if (!$this->customerId) {
+            $this->dispatch('toast', type: 'error', message: 'Please select a customer.');
+            return;
+        }
+
+        $this->showPaymentModal = true;
+        $this->syncPaymentToTotal();
+    }
+
     // Validate Payment Before Creating Sale
     public function validateAndCreateSale()
     {
@@ -882,7 +973,19 @@ class StoreBilling extends Component
         }
 
         // Validate payment method specific fields
-        if ($this->paymentMethod === 'cash') {
+        if ($this->isMultipleMode()) {
+            // Multiple payment validation
+            if ($this->cashAmount <= 0 && $this->chequeAmount <= 0 && empty($this->cheques)) {
+                $this->dispatch('toast', type: 'error', message: 'Please enter at least one payment amount (cash or cheque).');
+                return;
+            }
+
+            $multiplePaidAmount = $this->getMultiplePaidAmount();
+            if (abs($multiplePaidAmount - (float) $this->grandTotal) > 0.009) {
+                $this->dispatch('toast', type: 'error', message: 'For Multiple Payment, cash + cheque total must exactly match the grand total (Rs. ' . number_format($this->grandTotal, 2) . '). Current total: Rs. ' . number_format($multiplePaidAmount, 2));
+                return;
+            }
+        } elseif ($this->paymentMethod === 'cash') {
             if ($this->cashAmount < 0) {
                 $this->dispatch('toast', type: 'error', message: 'Please enter cash amount.');
                 return;
@@ -900,12 +1003,6 @@ class StoreBilling extends Component
                 $this->dispatch('toast', type: 'error', message: 'Total cheque amount (Rs. ' . number_format($totalChequeAmount, 2) . ') cannot be greater than the grand total (Rs. ' . number_format($this->grandTotal, 2) . ').');
                 return;
             }
-        } elseif ($this->paymentMethod === 'multiple') {
-            // Multiple payment validation
-            if ($this->cashAmount <= 0 && $this->chequeAmount <= 0 && empty($this->cheques)) {
-                $this->dispatch('toast', type: 'error', message: 'Please enter at least one payment amount (cash or cheque).');
-                return;
-            }
         } elseif ($this->paymentMethod === 'bank_transfer') {
             if ($this->bankTransferAmount <= 0) {
                 $this->dispatch('toast', type: 'error', message: 'Please enter bank transfer amount.');
@@ -915,15 +1012,16 @@ class StoreBilling extends Component
 
         // Check if payment amount matches grand total (except for credit/due)
         if ($this->paymentMethod !== 'credit' && $this->paymentMethod !== 'due') {
-            if ((int)$this->totalPaidAmount < $this->grandTotal) {
+            if (((float) $this->totalPaidAmount + 0.009) < (float) $this->grandTotal) {
                 // Show confirmation modal for due amount
-                $this->pendingDueAmount = $this->grandTotal - (int)$this->totalPaidAmount;
+                $this->pendingDueAmount = (float) $this->grandTotal - (float) $this->totalPaidAmount;
                 $this->showPaymentConfirmModal = true;
                 return;
             }
         }
 
         // Proceed to create sale
+        $this->showPaymentModal = false;
         $this->createSale();
     }
 
@@ -1036,7 +1134,7 @@ class StoreBilling extends Component
             // Create Payment Record
             if ($this->paymentMethod !== 'credit' && $this->paymentMethod !== 'due' && (int)$this->totalPaidAmount > 0) {
                 // For multiple payment, create separate payment records
-                if ($this->paymentMethod === 'multiple') {
+                if ($this->isMultipleMode()) {
                     // Cash payment
                     if ($this->cashAmount > 0) {
                         $cashPayment = Payment::create([
@@ -1054,7 +1152,7 @@ class StoreBilling extends Component
                     }
 
                     // Cheque payment
-                    $chequeTotal = $this->chequeAmount > 0 ? $this->chequeAmount : collect($this->cheques)->sum('amount');
+                    $chequeTotal = $this->getChequeTotalAmount();
                     if ($chequeTotal > 0) {
                         $chequePayment = Payment::create([
                             'customer_id' => $customer->id,
@@ -1064,13 +1162,13 @@ class StoreBilling extends Component
                             'payment_date' => now(),
                             'is_completed' => true,
                             'status' => 'paid',
-                            'payment_reference' => 'CHQ-' . now()->format('YmdHis'),
+                            'payment_reference' => $sale->invoice_number . '-CHQ-' . now()->format('YmdHis'),
                         ]);
 
                         // Create cheque record with simple amount if no detailed cheques
                         if ($this->chequeAmount > 0 && empty($this->cheques)) {
                             Cheque::create([
-                                'cheque_number' => 'CHQ-' . now()->format('YmdHis'),
+                                'cheque_number' => $sale->invoice_number . '-CHQ-' . now()->format('YmdHis'),
                                 'cheque_date' => now()->format('Y-m-d'),
                                 'bank_name' => 'Pending',
                                 'cheque_amount' => $this->chequeAmount,
@@ -1082,7 +1180,7 @@ class StoreBilling extends Component
                             // Create detailed cheque records
                             foreach ($this->cheques as $cheque) {
                                 Cheque::create([
-                                    'cheque_number' => $cheque['number'],
+                                    'cheque_number' => $sale->invoice_number . '-' . $cheque['number'],
                                     'cheque_date' => $cheque['date'],
                                     'bank_name' => $cheque['bank_name'],
                                     'cheque_amount' => $cheque['amount'],
@@ -1116,7 +1214,7 @@ class StoreBilling extends Component
                         // Create cheque record with simple amount if no detailed cheques
                         if ($this->chequeAmount > 0 && empty($this->cheques)) {
                             Cheque::create([
-                                'cheque_number' => 'CHQ-' . now()->format('YmdHis'),
+                                'cheque_number' => $sale->invoice_number . '-CHQ-' . now()->format('YmdHis'),
                                 'cheque_date' => now()->format('Y-m-d'),
                                 'bank_name' => 'Pending',
                                 'cheque_amount' => $this->chequeAmount,
@@ -1125,13 +1223,13 @@ class StoreBilling extends Component
                                 'payment_id' => $payment->id,
                             ]);
                             $payment->update([
-                                'payment_reference' => 'CHQ-' . now()->format('YmdHis'),
+                                'payment_reference' => $sale->invoice_number . '-CHQ-' . now()->format('YmdHis'),
                             ]);
                         } else {
                             // Create detailed cheque records
                             foreach ($this->cheques as $cheque) {
                                 Cheque::create([
-                                    'cheque_number' => $cheque['number'],
+                                    'cheque_number' => $sale->invoice_number . '-' . $cheque['number'],
                                     'cheque_date' => $cheque['date'],
                                     'bank_name' => $cheque['bank_name'],
                                     'cheque_amount' => $cheque['amount'],
@@ -1141,7 +1239,7 @@ class StoreBilling extends Component
                                 ]);
                             }
                             $payment->update([
-                                'payment_reference' => 'CHQ-' . collect($this->cheques)->pluck('number')->implode(','),
+                                'payment_reference' => $sale->invoice_number . '-CHQ-' . collect($this->cheques)->pluck('number')->implode(','),
                                 'bank_name' => collect($this->cheques)->pluck('bank_name')->unique()->implode(', '),
                             ]);
                         }
@@ -1186,9 +1284,12 @@ class StoreBilling extends Component
             // Clear cart and reset payment fields after successful sale
             $this->cart = [];
             $this->additionalDiscount = null;
-            $this->additionalDiscountType = 'fixed';
-            $this->resetPaymentFields();
             $this->notes = '';
+            $this->resetPaymentFields();
+            $this->showPaymentModal = false;
+            $this->activeTab = 'single';
+
+            $this->lastSaleId = $sale->id;
             $this->dueDate = now()->addDays(7)->format('Y-m-d');
 
             // Reset to walking customer

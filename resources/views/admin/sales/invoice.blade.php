@@ -292,6 +292,41 @@
 </head>
 
 <body>
+    @php
+    $logoSrc = '';
+    $logoCandidates = [
+    'images/logo.png',
+    'images/logo.jpg',
+    'images/logo.jpeg',
+    'images/logo.webp',
+    ];
+
+    foreach ($logoCandidates as $relativePath) {
+    $fullPath = public_path($relativePath);
+    if (!is_file($fullPath)) {
+    continue;
+    }
+
+    $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+    $mime = match ($ext) {
+    'jpg', 'jpeg' => 'image/jpeg',
+    'webp' => 'image/webp',
+    default => 'image/png',
+    };
+
+    $binary = @file_get_contents($fullPath);
+    if ($binary === false) {
+    continue;
+    }
+
+    $logoSrc = 'data:' . $mime . ';base64,' . base64_encode($binary);
+    break;
+    }
+
+    if ($logoSrc === '') {
+    $logoSrc = asset('images/logo.png');
+    }
+    @endphp
     <div class="inv-wrap">
 
         {{-- ══ HEADER ══ --}}
@@ -301,7 +336,7 @@
                     <table cellpadding="0" cellspacing="0" class="inv-company-inner">
                         <tr>
                             <td rowspan="4" class="inv-logo-td">
-                                <img src="{{ asset('images/logo.png') }}" alt="" class="inv-logo">
+                                <img src="{{ $logoSrc }}" alt="" class="inv-logo">
                             </td>
                             <td class="inv-shop-name">{{ config('shop.name') }}</td>
                         </tr>
