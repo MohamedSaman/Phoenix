@@ -266,9 +266,21 @@
                                     step="0.01">
                             </td>
                             <td class="pos-ct-td pos-ct-disc">
-                                <span class="{{ $item['discount'] > 0 ? 'pos-disc-val' : 'pos-muted-val' }}">
-                                    {{ $item['discount'] > 0 ? '-Rs.'.number_format($item['discount'] * $item['quantity'], 2) : '—' }}
-                                </span>
+                                <div class="pos-disc-edit-wrap">
+                                    <input type="number"
+                                        class="pos-disc-input"
+                                        value="{{ $item['discount'] }}"
+                                        wire:change="updateDiscount({{ $index }}, $event.target.value)"
+                                        min="0"
+                                        max="{{ $item['price'] }}"
+                                        step="0.01"
+                                        placeholder="0">
+                                    @if($item['discount'] > 0)
+                                    <small class="pos-disc-val">
+                                        -Rs.{{ number_format($item['discount'] * $item['quantity'], 2) }}
+                                    </small>
+                                    @endif
+                                </div>
                             </td>
                             <td class="pos-ct-td pos-ct-total">
                                 <span class="pos-item-total">Rs.{{ number_format($item['total'], 2) }}</span>
@@ -1153,15 +1165,15 @@
     }
 
     .pos-ct-price {
-        width: 75px;
+        width: 100px;
     }
 
     .pos-ct-disc {
-        width: 65px;
+        width: 110px;
     }
 
     .pos-ct-total {
-        width: 80px;
+        width: 105px;
     }
 
     .pos-ct-rm {
@@ -1225,12 +1237,27 @@
     /* Data cell text alignment */
     .pos-ct-td.pos-ct-qty {
         text-align: center;
+        padding-right: 6px !important;
     }
 
     .pos-ct-td.pos-ct-price,
     .pos-ct-td.pos-ct-disc,
     .pos-ct-td.pos-ct-total {
         text-align: right;
+    }
+
+    .pos-ct-td.pos-ct-price {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+
+    .pos-ct-td.pos-ct-disc {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+
+    .pos-ct-td.pos-ct-total {
+        padding-left: 8px !important;
     }
 
     .pos-ct-td.pos-ct-rm {
@@ -1241,10 +1268,45 @@
         font-size: 0.76rem;
         font-weight: 500;
         color: var(--pos-danger);
+        white-space: nowrap;
     }
 
     .pos-muted-val {
         color: var(--pos-muted);
+        white-space: nowrap;
+    }
+
+    .pos-disc-edit-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: center;
+        gap: 3px;
+        min-height: 26px;
+    }
+
+    .pos-disc-input {
+        width: 100%;
+        height: 26px;
+        border: 1px solid var(--pos-border);
+        border-radius: 6px;
+        text-align: right;
+        font-size: 0.74rem;
+        font-weight: 600;
+        outline: none;
+        padding: 0 6px;
+        color: var(--pos-text);
+        background: var(--pos-surface);
+    }
+
+    .pos-disc-input:focus {
+        border-color: var(--pos-gold);
+        box-shadow: 0 0 0 2px rgba(212, 166, 61, 0.15);
+    }
+
+    .pos-disc-edit-wrap .pos-disc-val {
+        text-align: right;
+        line-height: 1;
     }
 
     .pos-item-name {
@@ -1285,7 +1347,7 @@
     .pos-qty-control {
         display: flex;
         align-items: center;
-        gap: 2px;
+        gap: 4px;
         justify-content: center;
     }
 
@@ -1333,7 +1395,7 @@
 
     /* Editable Price Input */
     .pos-price-input {
-        width: 80px;
+        width: 100%;
         height: 28px;
         border: 1px solid var(--pos-border);
         border-radius: 6px;
@@ -1345,6 +1407,8 @@
         color: var(--pos-text);
         background: var(--pos-surface);
         transition: border-color .15s, box-shadow .15s;
+        min-width: 0;
+        display: block;
     }
 
     .pos-price-input:focus {

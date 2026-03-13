@@ -851,6 +851,15 @@ class StoreBilling extends Component
     // Update Discount
     public function updateDiscount($index, $discount)
     {
+        if (!isset($this->cart[$index])) {
+            return;
+        }
+
+        if ($discount === '' || $discount === null || !is_numeric($discount)) {
+            $discount = 0;
+        }
+
+        $discount = (float) $discount;
         if ($discount < 0) $discount = 0;
         if ($discount > $this->cart[$index]['price']) {
             $discount = $this->cart[$index]['price'];
