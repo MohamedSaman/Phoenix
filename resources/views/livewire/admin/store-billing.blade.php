@@ -151,14 +151,14 @@
                         <div class="pos-product-img">
                             @if($product['image'])
                             @php
-                                $productImage = str_replace('\\', '/', $product['image']);
-                                if (preg_match('/^https?:\/\//i', $productImage)) {
-                                    $productImageUrl = $productImage;
-                                } elseif (str_starts_with($productImage, 'storage/') || str_starts_with($productImage, '/storage/')) {
-                                    $productImageUrl = '/' . ltrim($productImage, '/');
-                                } else {
-                                    $productImageUrl = '/storage/' . ltrim($productImage, '/');
-                                }
+                            $productImage = str_replace('\\', '/', $product['image']);
+                            if (preg_match('/^https?:\/\//i', $productImage)) {
+                            $productImageUrl = $productImage;
+                            } elseif (str_starts_with($productImage, 'storage/') || str_starts_with($productImage, '/storage/')) {
+                            $productImageUrl = '/' . ltrim($productImage, '/');
+                            } else {
+                            $productImageUrl = '/storage/' . ltrim($productImage, '/');
+                            }
                             @endphp
                             <img src="{{ $productImageUrl }}"
                                 alt="{{ $product['name'] }}"

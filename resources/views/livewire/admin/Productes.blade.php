@@ -760,17 +760,17 @@
                                 <div class="p-4 text-center">
                                     <div class="product-image-container mb-4 position-relative">
                                         @php
-                                            $viewProductImageUrl = asset('images/product.jpg');
-                                            if (!empty($viewProduct->image)) {
-                                                $viewProductImage = str_replace('\\', '/', $viewProduct->image);
-                                                if (preg_match('/^https?:\/\//i', $viewProductImage)) {
-                                                    $viewProductImageUrl = $viewProductImage;
-                                                } elseif (str_starts_with($viewProductImage, 'storage/') || str_starts_with($viewProductImage, '/storage/')) {
-                                                    $viewProductImageUrl = '/' . ltrim($viewProductImage, '/');
-                                                } else {
-                                                    $viewProductImageUrl = '/storage/' . ltrim($viewProductImage, '/');
-                                                }
-                                            }
+                                        $viewProductImageUrl = asset('images/product.jpg');
+                                        if (!empty($viewProduct->image)) {
+                                        $viewProductImage = str_replace('\\', '/', $viewProduct->image);
+                                        if (preg_match('/^https?:\/\//i', $viewProductImage)) {
+                                        $viewProductImageUrl = $viewProductImage;
+                                        } elseif (str_starts_with($viewProductImage, 'storage/') || str_starts_with($viewProductImage, '/storage/')) {
+                                        $viewProductImageUrl = '/' . ltrim($viewProductImage, '/');
+                                        } else {
+                                        $viewProductImageUrl = '/storage/' . ltrim($viewProductImage, '/');
+                                        }
+                                        }
                                         @endphp
                                         <img src="{{ $viewProductImageUrl }}"
                                             alt="Product Image" class="img-fluid rounded-3 shadow-sm product-image"
@@ -1549,14 +1549,14 @@
                                             <label for="editImage" class="form-label fw-semibold">Product Image:</label>
                                             @if($existingImage)
                                             @php
-                                                $existingImagePath = str_replace('\\', '/', $existingImage);
-                                                if (preg_match('/^https?:\/\//i', $existingImagePath)) {
-                                                    $existingImageUrl = $existingImagePath;
-                                                } elseif (str_starts_with($existingImagePath, 'storage/') || str_starts_with($existingImagePath, '/storage/')) {
-                                                    $existingImageUrl = '/' . ltrim($existingImagePath, '/');
-                                                } else {
-                                                    $existingImageUrl = '/storage/' . ltrim($existingImagePath, '/');
-                                                }
+                                            $existingImagePath = str_replace('\\', '/', $existingImage);
+                                            if (preg_match('/^https?:\/\//i', $existingImagePath)) {
+                                            $existingImageUrl = $existingImagePath;
+                                            } elseif (str_starts_with($existingImagePath, 'storage/') || str_starts_with($existingImagePath, '/storage/')) {
+                                            $existingImageUrl = '/' . ltrim($existingImagePath, '/');
+                                            } else {
+                                            $existingImageUrl = '/storage/' . ltrim($existingImagePath, '/');
+                                            }
                                             @endphp
                                             <div class="mb-2 d-flex align-items-center gap-2">
                                                 <img src="{{ $existingImageUrl }}" alt="Current Image"
