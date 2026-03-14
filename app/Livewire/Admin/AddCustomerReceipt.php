@@ -41,7 +41,7 @@ class AddCustomerReceipt extends Component
             'cheque_number' => '',
             'bank_name' => '',
             'cheque_date' => '',
-            'amount' => 0
+            'amount' => ''
         ]
     ];
 
@@ -53,7 +53,7 @@ class AddCustomerReceipt extends Component
     
     public $allocations = [];
     public $totalDueAmount = 0;
-    public $totalPaymentAmount = 0;
+    public $totalPaymentAmount = '';
     public $remainingAmount = 0;
     public $showPaymentModal = false;
     public $showViewModal = false;
@@ -107,7 +107,7 @@ class AddCustomerReceipt extends Component
         $this->paymentData['payment_date'] = now()->format('Y-m-d');
         $this->cheques[0]['cheque_date'] = now()->format('Y-m-d');
         $this->bankTransfer['transfer_date'] = now()->format('Y-m-d');
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
     }
 
     public function updatedSearch()
@@ -120,12 +120,13 @@ class AddCustomerReceipt extends Component
 
     public function updatedTotalPaymentAmount()
     {
-        if ($this->totalPaymentAmount > $this->totalDueAmount) {
+        $amount = (float)$this->totalPaymentAmount;
+        if ($amount > $this->totalDueAmount) {
             $this->totalPaymentAmount = $this->totalDueAmount;
         }
 
-        if ($this->totalPaymentAmount < 0) {
-            $this->totalPaymentAmount = 0;
+        if ($this->totalPaymentAmount !== '' && $amount < 0) {
+            $this->totalPaymentAmount = '';
         }
 
         $this->calculateRemainingAmount();
@@ -161,7 +162,7 @@ class AddCustomerReceipt extends Component
         $this->selectedCustomer = Customer::find($customerId);
         $this->loadCustomerSales();
         $this->selectedInvoices = [];
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
         $this->totalDueAmount = 0;
         $this->initializeAllocations();
     }
@@ -173,7 +174,7 @@ class AddCustomerReceipt extends Component
         $this->selectedInvoices = [];
         $this->allocations = [];
         $this->totalDueAmount = 0;
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
         $this->remainingAmount = 0;
         $this->resetPaymentData();
     }
@@ -192,7 +193,7 @@ class AddCustomerReceipt extends Component
                 'cheque_number' => '',
                 'bank_name' => '',
                 'cheque_date' => now()->format('Y-m-d'),
-                'amount' => 0
+                'amount' => ''
             ]
         ];
 
@@ -215,7 +216,7 @@ class AddCustomerReceipt extends Component
         }
         
         $this->calculateTotalDue();
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
         $this->remainingAmount = $this->totalDueAmount;
         $this->initializeAllocations();
     }
@@ -227,7 +228,7 @@ class AddCustomerReceipt extends Component
     {
         $this->selectedInvoices = array_column($this->customerSales, 'id');
         $this->calculateTotalDue();
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
         $this->remainingAmount = $this->totalDueAmount;
         $this->initializeAllocations();
     }
@@ -239,7 +240,7 @@ class AddCustomerReceipt extends Component
     {
         $this->selectedInvoices = [];
         $this->totalDueAmount = 0;
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
         $this->remainingAmount = 0;
         $this->allocations = [];
     }
@@ -320,7 +321,7 @@ class AddCustomerReceipt extends Component
 
     private function calculateRemainingAmount()
     {
-        $this->remainingAmount = $this->totalDueAmount - $this->totalPaymentAmount;
+        $this->remainingAmount = $this->totalDueAmount - (float)$this->totalPaymentAmount;
     }
 
     private function initializeAllocations()
@@ -442,7 +443,7 @@ class AddCustomerReceipt extends Component
         $this->selectedInvoices = [];
         $this->allocations = [];
         $this->totalDueAmount = 0;
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
         $this->remainingAmount = 0;
         $this->resetPaymentData();
     }
@@ -453,7 +454,7 @@ class AddCustomerReceipt extends Component
             'cheque_number' => '',
             'bank_name' => '',
             'cheque_date' => now()->format('Y-m-d'),
-            'amount' => 0
+            'amount' => ''
         ];
     }
 

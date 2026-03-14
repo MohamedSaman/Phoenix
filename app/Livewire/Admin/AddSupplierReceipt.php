@@ -53,7 +53,7 @@ class AddSupplierReceipt extends Component
         'cheque_number' => '',
         'bank_name' => '',
         'cheque_date' => '',
-        'amount' => 0
+        'amount' => ''
     ];
 
     public $bankTransfer = [
@@ -81,12 +81,13 @@ class AddSupplierReceipt extends Component
 
     public function updatedTotalPaymentAmount()
     {
+        $amount = (float)$this->totalPaymentAmount;
         $maxPayment = $this->totalDueAmount - $this->overpaymentToApply;
-        if ($this->totalPaymentAmount > $maxPayment) {
+        if ($amount > $maxPayment) {
             $this->totalPaymentAmount = $maxPayment;
         }
-        if ($this->totalPaymentAmount < 0) {
-            $this->totalPaymentAmount = 0;
+        if ($this->totalPaymentAmount !== '' && $amount < 0) {
+            $this->totalPaymentAmount = '';
         }
 
         $this->calculateRemainingAmount();
@@ -109,7 +110,7 @@ class AddSupplierReceipt extends Component
                 'cheque_number' => '',
                 'bank_name' => '',
                 'cheque_date' => now()->format('Y-m-d'),
-                'amount' => 0
+                'amount' => ''
             ];
         }
 
@@ -129,14 +130,14 @@ class AddSupplierReceipt extends Component
         $this->selectedSupplier = ProductSupplier::find($supplierId);
         $this->loadSupplierOrders();
         $this->selectedOrders = [];
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
         $this->totalDueAmount = 0;
         $this->initializeAllocations();
         
         // Load supplier overpayment
         $this->supplierOverpayment = $this->selectedSupplier->getAvailableOverpayment();
         $this->useOverpayment = false;
-        $this->overpaymentToApply = 0;
+        $this->overpaymentToApply = '';
     }
 
     public function clearSelectedSupplier()
@@ -146,11 +147,11 @@ class AddSupplierReceipt extends Component
         $this->selectedOrders = [];
         $this->allocations = [];
         $this->totalDueAmount = 0;
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
         $this->remainingAmount = 0;
         $this->supplierOverpayment = 0;
         $this->useOverpayment = false;
-        $this->overpaymentToApply = 0;
+        $this->overpaymentToApply = '';
         $this->resetPaymentData();
     }
 
@@ -175,7 +176,7 @@ class AddSupplierReceipt extends Component
         }
         
         $this->calculateTotalDue();
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
         $this->remainingAmount = $this->totalDueAmount;
         $this->initializeAllocations();
     }
@@ -184,7 +185,7 @@ class AddSupplierReceipt extends Component
     {
         $this->selectedOrders = collect($this->supplierOrders)->pluck('id')->toArray();
     $this->calculateTotalDue();
-    $this->totalPaymentAmount = 0;
+    $this->totalPaymentAmount = '';
     $this->remainingAmount = $this->totalDueAmount;
     $this->initializeAllocations();
     }
@@ -193,7 +194,7 @@ class AddSupplierReceipt extends Component
     {
         $this->selectedOrders = [];
         $this->totalDueAmount = 0;
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
         $this->remainingAmount = 0;
         $this->allocations = [];
     }
@@ -207,7 +208,7 @@ class AddSupplierReceipt extends Component
         
         // Reset overpayment application when orders change
         $this->useOverpayment = false;
-        $this->overpaymentToApply = 0;
+        $this->overpaymentToApply = '';
     }
 
     public function toggleOverpayment()
@@ -218,7 +219,7 @@ class AddSupplierReceipt extends Component
             // Apply overpayment (max of available overpayment or total due)
             $this->overpaymentToApply = min($this->supplierOverpayment, $this->totalDueAmount);
         } else {
-            $this->overpaymentToApply = 0;
+            $this->overpaymentToApply = '';
         }
         
         $this->calculateRemainingAmount();
@@ -226,15 +227,16 @@ class AddSupplierReceipt extends Component
 
     public function updatedOverpaymentToApply()
     {
+        $amount = (float)$this->overpaymentToApply;
         // Validate overpayment amount
-        if ($this->overpaymentToApply > $this->supplierOverpayment) {
+        if ($amount > $this->supplierOverpayment) {
             $this->overpaymentToApply = $this->supplierOverpayment;
         }
-        if ($this->overpaymentToApply > $this->totalDueAmount) {
+        if ($amount > $this->totalDueAmount) {
             $this->overpaymentToApply = $this->totalDueAmount;
         }
-        if ($this->overpaymentToApply < 0) {
-            $this->overpaymentToApply = 0;
+        if ($this->overpaymentToApply !== '' && $amount < 0) {
+            $this->overpaymentToApply = '';
         }
         
         $this->calculateRemainingAmount();
@@ -242,7 +244,7 @@ class AddSupplierReceipt extends Component
 
     private function calculateRemainingAmount()
     {
-        $this->remainingAmount = $this->totalDueAmount - $this->totalPaymentAmount - $this->overpaymentToApply;
+        $this->remainingAmount = $this->totalDueAmount - (float)$this->totalPaymentAmount - (float)$this->overpaymentToApply;
         if ($this->remainingAmount < 0) {
             $this->remainingAmount = 0;
         }
@@ -266,7 +268,7 @@ class AddSupplierReceipt extends Component
     private function autoAllocatePayment()
     {
         // Total payment includes both cash payment and overpayment credit
-        $remainingPayment = $this->totalPaymentAmount + $this->overpaymentToApply;
+        $remainingPayment = (float)$this->totalPaymentAmount + (float)$this->overpaymentToApply;
 
         foreach ($this->supplierOrders as $order) {
             $orderId = $order->id;
@@ -304,7 +306,7 @@ class AddSupplierReceipt extends Component
         }
 
         // Allow payment if either cash payment or overpayment is being applied
-        if ($this->totalPaymentAmount <= 0 && $this->overpaymentToApply <= 0) {
+        if ((float)$this->totalPaymentAmount <= 0 && (float)$this->overpaymentToApply <= 0) {
             $this->dispatch('show-toast', [
                 'type' => 'error',
                 'message' => 'Please enter a payment amount or apply overpayment credit.'
@@ -312,7 +314,7 @@ class AddSupplierReceipt extends Component
             return;
         }
 
-        $totalPaymentWithOverpayment = $this->totalPaymentAmount + $this->overpaymentToApply;
+        $totalPaymentWithOverpayment = (float)$this->totalPaymentAmount + (float)$this->overpaymentToApply;
         if ($totalPaymentWithOverpayment > $this->totalDueAmount) {
             $this->dispatch('show-toast', [
                 'type' => 'error',
@@ -368,12 +370,12 @@ class AddSupplierReceipt extends Component
             'reference_number' => '',
             'notes' => ''
         ];
-        $this->totalPaymentAmount = 0;
+        $this->totalPaymentAmount = '';
         $this->cheque = [
             'cheque_number' => '',
             'bank_name' => '',
             'cheque_date' => now()->format('Y-m-d'),
-            'amount' => 0
+            'amount' => ''
         ];
         $this->bankTransfer = [
             'bank_name' => '',
@@ -393,7 +395,7 @@ class AddSupplierReceipt extends Component
             'totalPaymentAmount' => "required|numeric|min:{$minPayment}",
         ]);
 
-        $totalPaymentWithOverpayment = $this->totalPaymentAmount + $this->overpaymentToApply;
+        $totalPaymentWithOverpayment = (float)$this->totalPaymentAmount + (float)$this->overpaymentToApply;
         if ($totalPaymentWithOverpayment > $this->totalDueAmount) {
             $this->addError('totalPaymentAmount', 'Total payment amount cannot exceed total due.');
             return;
@@ -477,7 +479,7 @@ class AddSupplierReceipt extends Component
                 // Create a record for overpayment-only transaction
                 $payment = PurchasePayment::create([
                     'supplier_id' => $this->selectedSupplier->id,
-                    'amount' => 0,
+                    'amount' => '',
                     'payment_method' => 'overpayment_credit',
                     'payment_date' => $this->paymentData['payment_date'],
                     'notes' => "Payment made using overpayment credit: " . number_format($overpaymentUsed, 2),
