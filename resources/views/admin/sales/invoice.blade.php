@@ -477,7 +477,15 @@
                         @if($sale->due_amount > 0 && $sale->due_date)
                         <tr>
                             <td class="inv-tot-lbl">Due Date</td>
-                            <td class="inv-tot-val">{{ \Carbon\Carbon::parse($sale->due_date)->format('d/m/Y') }}</td>
+                            <td class="inv-tot-val">
+                                {{ \Carbon\Carbon::parse($sale->due_date)->format('d/m/Y') }}
+                                @php
+                                    $dueDays = \Carbon\Carbon::parse($sale->created_at)->startOfDay()->diffInDays(\Carbon\Carbon::parse($sale->due_date)->startOfDay(), false);
+                                @endphp
+                                @if($dueDays > 0)
+                                    <span style="font-size: 9px; font-weight: normal;">({{ $dueDays }} Days)</span>
+                                @endif
+                            </td>
                         </tr>
                         @endif
                     </table>

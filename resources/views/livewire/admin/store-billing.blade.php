@@ -898,7 +898,7 @@
             </div>
             <div class="pos-modal-body">
                 <p class="text-muted mb-3">Payment amount is less than the grand total. The due amount will be added to the customer's account.</p>
-                <div class="pos-summary-table">
+                <div class="pos-summary-table mb-3">
                     <div class="pos-summary-row">
                         <span>Grand Total</span>
                         <span class="fw-semibold">Rs.{{ number_format($grandTotal, 2) }}</span>
@@ -911,6 +911,19 @@
                         <span>Due Amount</span>
                         <span class="fw-bold">Rs.{{ number_format($pendingDueAmount, 2) }}</span>
                     </div>
+                </div>
+
+                <div class="pos-due-days-input p-3 border rounded bg-light">
+                    <label class="pos-label mb-2">Due Days</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control pos-input" wire:model.live="dueDays" placeholder="Enter number of days">
+                        <span class="input-group-text py-0" style="font-size: 0.85rem;">Days</span>
+                    </div>
+                    @if($dueDate)
+                    <div class="text-muted small mt-2">
+                        <i class="bi bi-calendar-event me-1"></i>Due Date: <strong class="text-danger">{{ \Carbon\Carbon::parse($dueDate)->format('d/m/Y') }}</strong>
+                    </div>
+                    @endif
                 </div>
             </div>
             <div class="pos-modal-footer">
