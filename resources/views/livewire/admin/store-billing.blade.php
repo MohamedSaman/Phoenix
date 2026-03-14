@@ -699,7 +699,7 @@
     ════════════════════════════════════════════ --}}
     @if($showPaymentModal)
     <div class="pos-overlay" style="z-index: 1600;">
-        <div class="pos-modal-card" style="max-width:550px;">
+        <div class="pos-modal-card" style="max-width:800px;">
             <div class="pos-modal-header">
                 <div class="d-flex align-items-center gap-2">
                     <div class="pos-icon-badge">
@@ -1860,8 +1860,8 @@
 
     .pos-pm-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 5px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
     }
 
     .pos-pm-radio {
@@ -1873,11 +1873,11 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 3px;
-        padding: 8px 4px;
+        gap: 8px;
+        padding: 15px 10px;
         border: 1px solid var(--pos-border);
         border-radius: 8px;
-        font-size: 0.72rem;
+        font-size: 1.1rem;
         font-weight: 600;
         color: var(--pos-muted);
         cursor: pointer;
@@ -1886,7 +1886,7 @@
     }
 
     .pos-pm-label i {
-        font-size: 1.05rem;
+        font-size: 1.5rem;
     }
 
     .pos-pm-label:hover {
@@ -2156,12 +2156,12 @@
 
     .payment-tab-btn {
         flex: 1;
-        padding: 10px;
+        padding: 15px;
         border: none;
         background: none;
         color: var(--pos-muted);
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 1.1rem;
         border-radius: 8px;
         transition: all 0.2s;
         cursor: pointer;
