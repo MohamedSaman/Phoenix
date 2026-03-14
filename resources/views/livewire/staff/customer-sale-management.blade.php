@@ -622,17 +622,19 @@
                     </div>
                     @endif
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                <div class="modal-footer justify-content-between" style="background: #fdfbf7; border-top: none; padding: 25px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                    <button type="button" class="btn px-4 py-2" data-bs-dismiss="modal" style="background: white; border: 1px solid #dee2e6; color: #495057; border-radius: 8px;">
                         <i class="bi bi-x-lg me-1"></i> Close
                     </button>
-                    <a href="javascript:void(0)" class="btn btn-primary btn-action" onclick="printInvoice()">
-                        <i class="bi bi-printer me-1"></i> Print Invoice
-                    </a>
-                    <a href="{{ route('receipts.download', ['id' => $selectedSale->id ?? 0]) }}"
-                        class="btn btn-success btn-action" target="_blank">
-                        <i class="bi bi-download me-1"></i> Download PDF
-                    </a>
+                    <div class="d-flex gap-2">
+                        <a href="javascript:void(0)" class="btn px-4 py-2 btn-action" onclick="printInvoice()" style="background: white; border: 1px solid #c7952a; color: #c7952a; border-radius: 8px;">
+                            <i class="bi bi-printer me-1"></i> Print Invoice
+                        </a>
+                        <a href="{{ route('receipts.download', ['id' => $selectedSale->id ?? 0]) }}"
+                            class="btn px-4 py-2 btn-action" target="_blank" style="background: linear-gradient(135deg, #c7952a, #b8860b); color: white; border: none; border-radius: 8px; font-weight: 600;">
+                            <i class="bi bi-download me-1"></i> Download Invoice
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

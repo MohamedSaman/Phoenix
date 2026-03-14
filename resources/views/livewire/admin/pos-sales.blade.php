@@ -525,17 +525,17 @@ use App\Models\Sale;
                 </div>
                 @endif
                 {{-- ==================== FOOTER BUTTONS ==================== --}}
-                <div class="modal-footer bg-light justify-content-between">
-                    <button type="button" class="btn btn-secondary" wire:click="closeModals">
+                <div class="modal-footer justify-content-between" style="background: #fdfbf7; border-top: none; padding: 25px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                    <button type="button" class="btn px-4 py-2" wire:click="closeModals" style="background: white; border: 1px solid #dee2e6; color: #495057; border-radius: 8px;">
                         <i class="bi bi-x-circle me-1"></i> Close
                     </button>
                     @if($selectedSale)
-                    <div>
-                        <button type="button" class="btn btn-success me-2" wire:click="downloadInvoice({{ $selectedSale->id }})">
-                            <i class="bi bi-download me-1"></i> Download PDF
-                        </button>
-                        <button type="button" class="btn btn-outline-primary" wire:click="printInvoice({{ $selectedSale->id }})">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn px-4 py-2" wire:click="printInvoice({{ $selectedSale->id }})" style="background: white; border: 1px solid #c7952a; color: #c7952a; border-radius: 8px;">
                             <i class="bi bi-printer me-1"></i> Print
+                        </button>
+                        <button type="button" class="btn px-4 py-2" wire:click="downloadInvoice({{ $selectedSale->id }})" style="background: linear-gradient(135deg, #c7952a, #b8860b); color: white; border: none; border-radius: 8px; font-weight: 600;">
+                            <i class="bi bi-download me-1"></i> Download Invoice
                         </button>
                     </div>
                     @endif
