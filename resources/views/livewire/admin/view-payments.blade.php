@@ -286,8 +286,8 @@
                             <!-- Receipt Header -->
                             <div class="text-center mb-4">
                                 <h3 class="mb-0">USN Auto Parts</h3>
-                                <p class="mb-0 text-muted small">103 H,Yatiyanthota Road,Seethawaka,avissawella.</p>
-                                <p class="mb-0 text-muted small">Phone: (076) 9085352 | Email: autopartsusn@gmail.com</p>
+                                <p class="mb-0 text-muted small">{{ config('shop.address', 'NO 92, PASYALA ROAD, KAL-ELIYA, SRI-LANKA.') }}</p>
+                                <p class="mb-0 text-muted small">Phone: {{ config('shop.phone', '+94 70 58 53 442') }} | Email: {{ config('shop.email', 'phoenixbathware@gmail.com') }}</p>
                                 <h4 class="mt-3 border-bottom border-2 pb-2">PAYMENT RECEIPT</h4>
                             </div>
 

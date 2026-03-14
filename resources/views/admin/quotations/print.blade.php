@@ -347,8 +347,8 @@
 
 
         <div class="footer">
-            <p>103 H, Yatiyanthota Road, Seethawaka, Avissawella</p>
-            <p>Phone: (076) 9085352 | Email: autopartsusn@gmail.com</p>
+            <p>{{ config('shop.address', 'NO 92, PASYALA ROAD, KAL-ELIYA, SRI-LANKA.') }}</p>
+            <p>Phone: {{ config('shop.phone', '+94 70 58 53 442') }} | Email: {{ config('shop.email', 'phoenixbathware@gmail.com') }}</p>
             <p><strong>Thank you for your business!</strong></p>
         </div>
     </div>

@@ -152,8 +152,8 @@
     {{-- Header --}}
     <div class="header">
         <img src="{{ public_path('images/USN.png') }}" alt="USN AUTO PARTS Logo">
-        <p>103 H, Yatiyanthota Road, Seethawaka, Avissawella</p>
-        <p><strong>TEL:</strong> (076) 9085352 | <strong>EMAIL:</strong> autopartsusn@gmail.com</p>
+        <p>{{ config('shop.address', 'NO 92, PASYALA ROAD, KAL-ELIYA, SRI-LANKA.') }}</p>
+        <p><strong>TEL:</strong> {{ config('shop.phone', '+94 70 58 53 442') }} | <strong>EMAIL:</strong> {{ config('shop.email', 'phoenixbathware@gmail.com') }}</p>
         <h1>CLOSE REGISTER SUMMARY</h1>
     </div>
 

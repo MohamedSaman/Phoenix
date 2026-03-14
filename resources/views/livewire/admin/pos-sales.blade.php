@@ -517,8 +517,8 @@ use App\Models\Sale;
                             </div>
                         </div>
                         <div class="border-top pt-3">
-                            <p class="text-center mb-0"><strong>ADDRESS :</strong> 103 H, Yatiyanthota Road, Seethawaka, Avissawella</p>
-                            <p class="text-center mb-0"><strong>TEL :</strong> (076) 9085352, <strong>EMAIL :</strong> autopartsusn@gmail.com</p>
+                            <p class="text-center mb-0"><strong>ADDRESS :</strong> {{ config('shop.address', 'NO 92, PASYALA ROAD, KAL-ELIYA, SRI-LANKA.') }}</p>
+                            <p class="text-center mb-0"><strong>TEL :</strong> {{ config('shop.phone', '+94 70 58 53 442') }}, <strong>EMAIL :</strong> {{ config('shop.email', 'phoenixbathware@gmail.com') }}</p>
                             <p class="text-center" style="font-size: 11px;"><strong>Goods return will be accepted within 10 days only. Electrical and body parts non-returnable.</strong></p>
                         </div>
                     </div>
