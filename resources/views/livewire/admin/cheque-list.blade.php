@@ -240,8 +240,19 @@
                     {{-- Bank Name --}}
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Bank Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('editBankName') is-invalid @enderror"
-                            wire:model.live="editBankName" placeholder="Enter bank name">
+                        <select class="form-select @error('editBankName') is-invalid @enderror" wire:model.live="editBankName">
+                            <option value="">Select Bank</option>
+                            <option value="Bank of Ceylon">Bank of Ceylon</option>
+                            <option value="Commercial Bank of Ceylon">Commercial Bank of Ceylon</option>
+                            <option value="People's Bank">People's Bank</option>
+                            <option value="Hatton National Bank">Hatton National Bank</option>
+                            <option value="Sampath Bank">Sampath Bank</option>
+                            <option value="DFCC Bank">DFCC Bank</option>
+                            <option value="National Development Bank">National Development Bank</option>
+                            <option value="Nations Trust Bank">Nations Trust Bank</option>
+                            <option value="Seylan Bank">Seylan Bank</option>
+                            <option value="Amana Bank">Amana Bank</option>
+                        </select>
                         @error('editBankName')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
