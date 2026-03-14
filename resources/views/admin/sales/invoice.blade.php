@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice - {{ $sale->invoice_number }}</title>
     <style>
         * {
@@ -13,330 +11,301 @@
         }
 
         body {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 8.5pt;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
             color: #000;
             background: #fff;
-            line-height: 1.2;
-            padding: 2px;
+            padding: 15px; /* Margin padding to mimic page */
         }
 
-        @page {
-            size: A4 landscape;
-            margin: 4mm;
+        /* -- HEADER -- */
+        .inv-wrap {
+            width: 100%;
+            border: 2px solid #000;
+            position: relative;
         }
-
-        /* ── Header ── */
+        
         .inv-hdr-tbl {
             width: 100%;
+            border-bottom: 2px solid #000;
             border-collapse: collapse;
         }
-
+        
         .inv-company-td {
-            width: 66%;
-            border: 1px solid #000;
-            border-right: none;
-            padding: 5px 8px;
-            vertical-align: middle;
-        }
-
-        .inv-company-inner {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .inv-logo-td {
-            width: 52px;
-            padding-right: 8px;
-            vertical-align: middle;
-        }
-
-        .inv-logo {
-            height: 44px;
-            width: auto;
-            display: block;
-        }
-
-        .inv-shop-name {
-            font-size: 13pt;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            padding-bottom: 1px;
-        }
-
-        .inv-shop-tag {
-            font-size: 7.5pt;
-            font-style: italic;
-            color: #444;
-            padding-bottom: 1px;
-        }
-
-        .inv-shop-addr,
-        .inv-shop-contact {
-            font-size: 7.5pt;
-        }
-
-        .inv-infobox-td {
-            width: 34%;
-            border: 1px solid #000;
-            padding: 0;
+            padding: 10px;
             vertical-align: top;
+            width: 60%;
         }
-
+        
+        .inv-infobox-td {
+            width: 40%;
+            vertical-align: top;
+            border-left: 2px solid #000;
+            padding: 0;
+        }
+        
         .inv-ib-tbl {
             width: 100%;
             border-collapse: collapse;
         }
-
-        .inv-hdr-tbl,
-        .inv-bto-tbl,
-        .inv-items-tbl,
-        .inv-bot-tbl,
-        .inv-sig-tbl {
-            page-break-inside: avoid;
+        
+        .inv-ib-tbl td {
+            padding: 3px 6px;
+            border-bottom: 1px solid #000;
+            font-size: 10px;
         }
-
+        
+        .inv-ib-tbl tr:last-child td {
+            border-bottom: none;
+        }
+        
         .inv-ib-lbl {
-            border: 1px solid #000;
-            padding: 2px 5px;
-            font-size: 7.5pt;
-            font-weight: bold;
-            white-space: nowrap;
-            width: 42%;
-            background: #1a5276;
+            background-color: #0072BC;
             color: #fff;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
+            font-weight: bold;
+            width: 80px;
+            border-right: 1px solid #000;
         }
-
+        
         .inv-ib-val {
-            border: 1px solid #000;
-            border-left: none;
-            padding: 2px 5px;
-            font-size: 7.5pt;
+            background-color: #fff;
+            color: #000;
+            font-weight: bold;
         }
-
-        /* ── Bill To ── */
-        .inv-bto-tbl {
+        
+        .inv-company-inner {
             width: 100%;
             border-collapse: collapse;
         }
-
-        .inv-bto-td {
-            border: 1px solid #000;
-            border-top: none;
-            padding: 4px 8px;
-            font-size: 8pt;
+        
+        .inv-logo-td {
+            width: 90px;
+            text-align: center;
+            vertical-align: middle;
+            padding-right: 15px;
+        }
+        
+        .inv-logo {
+            max-width: 90px;
+            max-height: 90px;
+        }
+        
+        .inv-shop-name {
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            font-size: 22px;
+            color: #ED1C24;
+            padding-bottom: 2px;
+            letter-spacing: 0.5px;
+        }
+        
+        .inv-shop-tag {
+            font-size: 11px;
+            font-style: italic;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
+            font-weight: bold;
+            color: #0072BC;
+            padding-bottom: 2px;
+        }
+        
+        .inv-shop-addr, .inv-shop-contact {
+            font-size: 10px;
+            font-family: 'Arial', sans-serif;
+            color: #000;
         }
 
-        /* ── Items Table ── */
+        /* -- BILL TO -- */
+        .inv-bto-tbl {
+            width: 100%;
+            border-bottom: 2px solid #000;
+            border-collapse: collapse;
+        }
+        
+        .inv-bto-td {
+            padding: 5px 10px;
+            font-size: 10px;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
+            font-weight: bold;
+        }
+
+        /* -- ITEMS TABLE -- */
         .inv-items-tbl {
             width: 100%;
             border-collapse: collapse;
-            border-top: none;
+            border-bottom: 2px solid #000;
         }
-
+        
         .inv-items-tbl th {
-            background: #1a5276;
+            background-color: #0072BC;
             color: #fff;
-            border: 1px solid #000;
-            padding: 3px 5px;
-            font-size: 8pt;
-            font-weight: bold;
             text-align: left;
+            padding: 4px 6px;
+            font-size: 10px;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
+            font-weight: bold;
+            border-right: 1px solid #000;
+            border-bottom: 2px solid #000;
         }
-
+        
         .inv-items-tbl td {
-            border: 1px solid #000;
-            padding: 2px 5px;
-            font-size: 8pt;
+            padding: 4px 6px;
+            font-size: 10px;
+            font-family: 'Arial', sans-serif;
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
         }
-
+        
+        .inv-items-tbl th:last-child, 
+        .inv-items-tbl td:last-child {
+            border-right: none;
+        }
+        
+        .inv-tr { text-align: right; }
+        .inv-tc { text-align: center; }
+        
         .inv-filler td {
-            height: 9px;
+            height: 20px;
+            border-bottom: 1px solid #000;
         }
-
-        .inv-c-code {
-            width: 11%;
-        }
-
-        .inv-c-qty {
-            width: 7%;
-        }
-
-        .inv-c-price {
-            width: 14%;
-        }
-
-        .inv-c-disc {
-            width: 13%;
-        }
-
-        .inv-c-amt {
-            width: 14%;
-        }
-
-        .inv-tc {
-            text-align: center;
-        }
-
-        .inv-tr {
-            text-align: right;
-        }
-
-        /* ── Bottom Row ── */
+        
+        /* -- BOTTOM TABLE -- */
         .inv-bot-tbl {
             width: 100%;
             border-collapse: collapse;
+            border-bottom: 2px solid #000;
         }
-
+        
         .inv-bot-left {
-            border: 1px solid #000;
-            border-top: none;
-            padding: 5px 8px;
             vertical-align: top;
+            padding: 10px;
+            width: 60%;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
         }
-
+        
+        .inv-bot-right {
+            vertical-align: top;
+            width: 40%;
+            border-left: 2px solid #000;
+            padding: 0;
+        }
+        
         .inv-out-lbl {
             font-weight: bold;
-            font-size: 8pt;
-            margin-bottom: 2px;
+            margin-bottom: 5px;
+            font-size: 10px;
         }
-
+        
         .inv-out-val {
-            font-size: 8.5pt;
+            font-style: italic;
+            font-family: 'Arial', sans-serif;
+            font-size: 11px;
         }
-
-        .inv-bot-right {
-            width: 36%;
-            border: 1px solid #000;
-            border-top: none;
-            border-left: none;
-            padding: 0;
-            vertical-align: top;
-        }
-
+        
         .inv-tot-tbl {
             width: 100%;
             border-collapse: collapse;
         }
-
-        .inv-tot-lbl {
-            border: 1px solid #000;
-            padding: 2px 6px;
-            font-size: 8pt;
+        
+        .inv-tot-tbl td {
+            padding: 5px 8px;
+            font-size: 11px;
             font-weight: bold;
-            width: 48%;
-            background: #1a5276;
+            font-family: 'Arial', sans-serif;
+            border-bottom: 1px solid #000;
+        }
+        
+        .inv-tot-tbl tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .inv-tot-lbl {
+            background-color: #0072BC;
             color: #fff;
+            width: 40%;
+            font-family: 'Helvetica', sans-serif;
+            border-right: 1px solid #000;
         }
-
+        
         .inv-tot-val {
-            border: 1px solid #000;
-            border-left: none;
-            padding: 2px 6px;
-            font-size: 8pt;
             text-align: right;
+            border-bottom: 1px solid #000;
         }
-
-        .inv-bal-row .inv-tot-lbl,
-        .inv-bal-row .inv-tot-val {
-            border-top: 2px solid #000;
-            font-size: 9pt;
-        }
-
-        /* ── Signature Row ── */
+        
+        /* -- SIGNATURE ROW -- */
         .inv-sig-tbl {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 5px;
         }
-
+        
         .inv-sig-td {
-            width: 27%;
-            border: 1px solid #000;
-            border-top: none;
-            padding: 6px 8px 4px;
+            width: 30%;
+            text-align: center;
             vertical-align: bottom;
+            padding: 15px 10px 5px;
         }
-
+        
         .inv-note-td {
-            border: 1px solid #000;
-            border-top: none;
-            border-left: none;
-            border-right: none;
-            padding: 6px 8px;
-            font-size: 7.5pt;
+            width: 40%;
             text-align: center;
-            vertical-align: middle;
+            vertical-align: top;
             font-style: italic;
+            font-size: 9px;
+            font-family: 'Arial', sans-serif;
+            color: #ED1C24;
+            padding: 8px;
+            border-left: 1px solid #000;
+            border-right: 1px solid #000;
         }
-
+        
         .inv-sig-line {
-            border-bottom: 1px solid #000;
-            height: 22px;
-            margin-bottom: 3px;
+            border-top: 1px solid #000;
+            margin: 0 auto 5px;
+            width: 80%;
         }
-
+        
         .inv-sig-lbl {
-            font-size: 7.5pt;
+            font-size: 10px;
+            font-family: 'Helvetica', sans-serif;
             font-weight: bold;
-            text-align: center;
         }
 
-        /* ═══ Print Styles ═══ */
-        @media print {
-            @page {
-                size: A4 landscape;
-                margin: 4mm;
-            }
+        /* WATERMARK FIX FOR PDF */
+        .inv-watermark-container {
+            position: relative;
+        }
+        .inv-watermark {
+            position: absolute;
+            top: 50px;
+            left: 200px;
+            width: 350px;
+            opacity: 0.1;
+            z-index: -1;
         }
     </style>
 </head>
-
 <body>
-    @php
-    $logoSrc = '';
-    $logoCandidates = [
-    'images/logo.png',
-    'images/logo.jpg',
-    'images/logo.jpeg',
-    'images/logo.webp',
-    ];
-
-    foreach ($logoCandidates as $relativePath) {
-    $fullPath = public_path($relativePath);
-    if (!is_file($fullPath)) {
-    continue;
-    }
-
-    $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
-    $mime = match ($ext) {
-    'jpg', 'jpeg' => 'image/jpeg',
-    'webp' => 'image/webp',
-    default => 'image/png',
-    };
-
-    $binary = @file_get_contents($fullPath);
-    if ($binary === false) {
-    continue;
-    }
-
-    $logoSrc = 'data:' . $mime . ';base64,' . base64_encode($binary);
-    break;
-    }
-
-    if ($logoSrc === '') {
-    $logoSrc = asset('images/logo.png');
-    }
-    @endphp
     <div class="inv-wrap">
 
-        {{-- ══ HEADER ══ --}}
+        {{-- -- HEADER -- --}}
         <table class="inv-hdr-tbl" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="inv-company-td">
                     <table cellpadding="0" cellspacing="0" class="inv-company-inner">
                         <tr>
                             <td rowspan="4" class="inv-logo-td">
-                                <img src="{{ $logoSrc }}" alt="" class="inv-logo">
+                                <?php
+                                $logoPath = public_path('images/logo.png');
+                                if(file_exists($logoPath)) {
+                                    $imgData = base64_encode(file_get_contents($logoPath));
+                                    $src = 'data:image/png;base64,'.$imgData;
+                                } else {
+                                    $src = '';
+                                }
+                                ?>
+                                @if($src)
+                                    <img src="{{ $src }}" alt="" class="inv-logo">
+                                @endif
                             </td>
                             <td class="inv-shop-name">{{ config('shop.name') }}</td>
                         </tr>
@@ -367,7 +336,19 @@
                         </tr>
                         <tr>
                             <td class="inv-ib-lbl">Sales Rep.</td>
-                            <td class="inv-ib-val">{{ $sale->user->name ?? '-' }}</td>
+                            <td class="inv-ib-val">
+                                @php
+                                    $repName = '-';
+                                    if ($sale->sales_rep_id) {
+                                        $repUser = \App\Models\User::find($sale->sales_rep_id);
+                                        $repName = $repUser ? $repUser->name : '-';
+                                    } elseif ($sale->admin_id) {
+                                        $repUser = \App\Models\User::find($sale->admin_id);
+                                        $repName = $repUser ? $repUser->name : 'Admin';
+                                    }
+                                @endphp
+                                {{ $repName }}
+                            </td>
                         </tr>
                         <tr>
                             <td class="inv-ib-lbl">Payment</td>
@@ -404,34 +385,40 @@
             </tr>
         </table>
 
-        {{-- ══ BILL TO ══ --}}
+        {{-- -- BILL TO -- --}}
         <table class="inv-bto-tbl" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="inv-bto-td">
                     <strong>Bill To:</strong>&nbsp;
-                    {{ $sale->customer->name ?? 'Walk-in Customer' }}
-                    @if(isset($sale->customer->address) && $sale->customer->address)
-                    &nbsp;|&nbsp; {{ $sale->customer->address }}
-                    @endif
-                    @if(isset($sale->customer->phone) && $sale->customer->phone)
-                    &nbsp;&nbsp; <strong>Tel:</strong> {{ $sale->customer->phone }}
-                    @endif
+                    <span style="font-family: 'Arial', sans-serif; font-weight: normal;">
+                        {{ optional($sale->customer)->name ?? 'Walking Customer' }}
+                        @if(optional($sale->customer)->address)
+                        &nbsp;|&nbsp; {{ $sale->customer->address }}
+                        @endif
+                        @if(optional($sale->customer)->phone)
+                        &nbsp;&nbsp; <strong>Tel:</strong> {{ $sale->customer->phone }}
+                        @endif
+                    </span>
                 </td>
             </tr>
         </table>
 
-        {{-- ══ ITEMS TABLE ══ --}}
-        <table class="inv-items-tbl" cellpadding="0" cellspacing="0">
-            <thead>
-                <tr>
-                    <th class="inv-c-code">Code</th>
-                    <th class="inv-c-desc">Description</th>
-                    <th class="inv-c-qty">Qty</th>
-                    <th class="inv-c-price">Unit Price</th>
-                    <th class="inv-c-disc">Discount</th>
-                    <th class="inv-c-amt">Amount</th>
-                </tr>
-            </thead>
+        {{-- -- ITEMS TABLE -- --}}
+        <div class="inv-watermark-container">
+            @if($src)
+                <img src="{{ $src }}" class="inv-watermark" alt="">
+            @endif
+            <table class="inv-items-tbl" cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th class="inv-c-code">Code</th>
+                        <th class="inv-c-desc">Description</th>
+                        <th class="inv-c-qty inv-tc">Qty</th>
+                        <th class="inv-c-price inv-tr">Unit Price</th>
+                        <th class="inv-c-disc inv-tr">Discount</th>
+                        <th class="inv-c-amt inv-tr">Amount</th>
+                    </tr>
+                </thead>
             <tbody>
                 @foreach($sale->items as $item)
                 <tr>
@@ -445,7 +432,7 @@
                     <td class="inv-c-amt inv-tr">Rs.{{ number_format(($item->unit_price - $item->discount_per_unit) * $item->quantity, 2) }}</td>
                 </tr>
                 @endforeach
-                @php $invFiller = max(0, 3 - count($sale->items)); @endphp
+                @php $invFiller = max(0, 8 - count($sale->items)); @endphp
                 @for($f = 0; $f < $invFiller; $f++)
                     <tr class="inv-filler">
                     <td>&nbsp;</td>
@@ -455,11 +442,12 @@
                     <td></td>
                     <td></td>
                     </tr>
-                    @endfor
+                @endfor
             </tbody>
         </table>
+        </div>
 
-        {{-- ══ BOTTOM: OUTSTANDINGS + TOTALS ══ --}}
+        {{-- -- BOTTOM: OUTSTANDINGS + TOTALS -- --}}
         <table class="inv-bot-tbl" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="inv-bot-left">
@@ -480,7 +468,7 @@
                         </tr>
                         <tr>
                             <td class="inv-tot-lbl">Paid</td>
-                            <td class="inv-tot-val">Rs.{{ number_format($sale->paid_amount ?? ($sale->total_amount - $sale->due_amount), 2) }}</td>
+                            <td class="inv-tot-val">Rs.{{ number_format($sale->payments->sum('amount'), 2) }}</td>
                         </tr>
                         <tr class="inv-bal-row">
                             <td class="inv-tot-lbl">Balance</td>
@@ -497,7 +485,7 @@
             </tr>
         </table>
 
-        {{-- ══ SIGNATURE ROW ══ --}}
+        {{-- -- SIGNATURE ROW -- --}}
         <table class="inv-sig-tbl" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="inv-sig-td">
@@ -516,5 +504,4 @@
 
     </div>
 </body>
-
 </html>

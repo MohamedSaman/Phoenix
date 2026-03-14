@@ -2929,7 +2929,7 @@
     }
 
     .inv-logo {
-        height: 44px;
+        height: 100px;
         width: auto;
         display: block;
     }
