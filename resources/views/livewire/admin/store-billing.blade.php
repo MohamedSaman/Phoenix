@@ -1913,9 +1913,9 @@
     .pos-input-prefix-sm {
         background: var(--pos-surface);
         border-color: var(--pos-border);
-        font-size: 0.78rem;
+        font-size: 1.1rem;
         font-weight: 600;
-        padding: 4px 8px;
+        padding: 4px 15px;
         border-radius: 0 !important;
         color: var(--pos-gold-dark);
     }
@@ -2690,12 +2690,12 @@
     }
 
     .pos-input-lg {
-        font-size: 1.5rem !important;
+        font-size: 2.2rem !important;
         border: 2px solid var(--pos-border) !important;
         border-radius: 0 10px 10px 0 !important;
         font-weight: 700 !important;
         text-align: center;
-        padding: 12px !important;
+        padding: 20px !important;
     }
 
     .pos-input-lg:focus {
