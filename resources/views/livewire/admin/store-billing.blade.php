@@ -1,4 +1,261 @@
 <div class="pos-wrapper">
+    <style>
+        .pos-invoice-print-area {
+            background-color: #fff;
+            color: #000;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            padding: 20px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .inv-wrap {
+            width: 100%;
+            border: 2px solid #000;
+        }
+        .inv-hdr-tbl {
+            width: 100%;
+            border-bottom: 2px solid #000;
+        }
+        .inv-company-td {
+            padding: 10px;
+            vertical-align: top;
+        }
+        .inv-infobox-td {
+            width: 350px;
+            vertical-align: top;
+            border-left: 2px solid #000;
+        }
+        .inv-ib-tbl {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .inv-ib-tbl td {
+            padding: 4px 8px;
+            border-bottom: 1px solid #000;
+            font-size: 13px;
+        }
+        .inv-ib-tbl tr:last-child td {
+            border-bottom: none;
+        }
+        .inv-ib-lbl {
+            background-color: #0072BC;
+            color: #fff;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
+            font-weight: bold;
+            width: 100px;
+            border-right: 1px solid #000;
+        }
+        .inv-ib-val {
+            background-color: #fff;
+            color: #000;
+            font-weight: bold;
+        }
+        .inv-company-inner {
+            width: 100%;
+        }
+        .inv-logo-td {
+            width: 100px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .inv-logo {
+            max-width: 120px;
+            max-height: 120px;
+        }
+        .inv-shop-name {
+            font-family: 'Impact', 'Haettenschweiler', 'Arial Black', sans-serif;
+            font-size: 26px;
+            font-weight: normal; /* Impact is already bold */
+            color: #ED1C24;
+            padding-bottom: 2px;
+            letter-spacing: 0.5px;
+            transform: scaleX(1.05); /* Slight horizontal stretch */
+            transform-origin: left center;
+            display: inline-block;
+        }
+        .inv-shop-tag {
+            font-size: 12px;
+            font-style: italic;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
+            font-weight: bold;
+            color: #0072BC;
+            padding-bottom: 2px;
+        }
+        .inv-shop-addr, .inv-shop-contact {
+            font-size: 12px;
+            font-family: 'Arial', 'Univers', 'Open Sans', sans-serif;
+            color: #000;
+        }
+        .inv-bto-tbl {
+            width: 100%;
+            border-bottom: 2px solid #000;
+        }
+        .inv-bto-td {
+            padding: 6px 10px;
+            font-size: 13px;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
+            font-weight: bold;
+        }
+        .inv-items-tbl {
+            width: 100%;
+            border-collapse: collapse;
+            border-bottom: 2px solid #000;
+        }
+        .inv-items-tbl th {
+            background-color: #0072BC;
+            color: #fff;
+            text-align: left;
+            padding: 6px 10px;
+            font-size: 13px;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
+            font-weight: bold;
+            border-right: 1px solid #000;
+            border-bottom: 2px solid #000;
+        }
+        .inv-items-tbl th:last-child {
+            border-right: none;
+        }
+        .inv-items-tbl td {
+            padding: 6px 10px;
+            font-size: 13px;
+            font-family: 'Arial', 'Univers', sans-serif;
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+        }
+        .inv-items-tbl td:last-child {
+            border-right: none;
+        }
+        .inv-tr { text-align: right; }
+        .inv-tc { text-align: center; }
+        
+        .inv-filler td {
+            height: 25px; /* Minimum height for empty rows */
+        }
+        
+        .inv-bot-tbl {
+            width: 100%;
+            border-collapse: collapse;
+            border-bottom: 2px solid #000;
+        }
+        .inv-bot-left {
+            vertical-align: top;
+            padding: 10px;
+            width: 60%;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
+        }
+        .inv-bot-right {
+            vertical-align: top;
+            width: 40%;
+            border-left: 2px solid #000;
+        }
+        .inv-out-lbl {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        .inv-out-val {
+            font-style: italic;
+            font-family: 'Arial', 'Univers', sans-serif;
+        }
+        .inv-tot-tbl {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .inv-tot-tbl td {
+            padding: 6px 10px;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: 'Arial', 'Univers', sans-serif;
+            border-bottom: 1px solid #000;
+        }
+        .inv-tot-tbl tr:last-child td {
+            border-bottom: none;
+        }
+        .inv-tot-lbl {
+            background-color: #0072BC;
+            color: #fff;
+            width: 40%;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
+            border-right: 1px solid #000;
+        }
+        .inv-tot-val {
+            text-align: right;
+            border-bottom: 1px solid #000;
+        }
+        
+        .inv-sig-tbl {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .inv-sig-td {
+            width: 30%;
+            text-align: center;
+            vertical-align: bottom;
+            padding: 20px 10px 10px;
+        }
+        .inv-note-td {
+            width: 40%;
+            text-align: center;
+            vertical-align: top;
+            font-style: italic;
+            font-size: 11px;
+            font-family: 'Arial', 'Univers', 'Open Sans', sans-serif;
+            color: #ED1C24;
+            padding: 10px;
+            border-left: 1px solid #000;
+            border-right: 1px solid #000;
+        }
+        .inv-sig-line {
+            border-top: 1px solid #000;
+            margin: 0 auto 5px;
+            width: 80%;
+        }
+        .inv-sig-lbl {
+            font-size: 12px;
+            font-family: 'Helvetica', 'Roboto', sans-serif;
+            font-weight: bold;
+        }
+
+        .inv-watermark-container {
+            position: relative;
+        }
+        .inv-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.12;
+            z-index: 0;
+            pointer-events: none;
+            width: 50%;
+            max-width: 400px;
+        }
+        .inv-items-tbl {
+            position: relative;
+            z-index: 1;
+        }
+        
+            @media print {
+                @page {
+                    size: 8.5in 5.5in; /* Custom 8.5 x 5.5 inch standard receipt paper / A5 size */
+                    margin: 10mm;
+                }
+                body * { visibility: hidden; }
+                #saleReceiptPrintContent, #saleReceiptPrintContent * { visibility: visible; }
+                #saleReceiptPrintContent {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                }
+                .pos-overlay, .pos-modal-card {
+                    background: transparent !important;
+                    box-shadow: none !important;
+                }
+            }
+    </style>
 
     {{-- Toast Notifications --}}
     <div id="posToastContainer" class="pos-toast-container"></div>
@@ -377,7 +634,7 @@
     ════════════════════════════════════════════ --}}
     @if($showCustomerModal)
     <div class="pos-overlay">
-        <div class="pos-modal-card" style="max-width:620px;">
+        <div class="pos-modal-card" style="max-width:1200px;">
             <div class="pos-modal-header">
                 <div class="d-flex align-items-center gap-2">
                     <div class="pos-icon-badge">
@@ -672,25 +929,26 @@
          SALE RECEIPT MODAL
     ════════════════════════════════════════════ --}}
     @if($showSaleModal && $createdSale)
-    <div class="pos-overlay" style="align-items:flex-start; padding: 20px; overflow-y:auto;">
-        <div class="pos-modal-card" style="max-width:800px; width:100%;">
-            <div class="pos-modal-header">
-                <div class="d-flex align-items-center gap-2">
-                    <div class="pos-icon-badge success">
-                        <i class="bi bi-cart-check"></i>
+    <div class="pos-overlay" style="align-items:flex-start; padding: 20px; overflow-y:auto; z-index: 2000;">
+        <div class="pos-modal-card" style="max-width: 1200px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div class="pos-modal-header" style="background: linear-gradient(135deg, #c7952a, #dba434); color: white; border-bottom: none; padding: 20px 25px;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="pos-icon-badge" style="background: rgba(255,255,255,0.2); color: white; border: none; width: 48px; height: 48px;">
+                        <i class="bi bi-cart-check" style="font-size: 1.5rem;"></i>
                     </div>
                     <div>
-                        <h5 class="mb-0 fw-bold">Sale Completed!</h5>
-                        <small class="opacity-75">{{ $createdSale->invoice_number }}</small>
+                        <h4 class="mb-0 fw-bold text-white">Sale Completed!</h4>
+                        <div class="text-white-50" style="font-size: 14px;">{{ $createdSale->invoice_number }}</div>
                     </div>
                 </div>
-                <button type="button" class="btn pos-btn-close" wire:click="createNewSale">
+                <button type="button" class="btn btn-sm" wire:click="createNewSale" style="background: rgba(255,255,255,0.2); color: white; border-radius: 8px;">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
 
             <div class="pos-modal-body p-0" id="saleReceiptPrintContent">
-                <div class="inv-wrap">
+                <div class="pos-invoice-print-area">
+                    <div class="inv-wrap">
 
                     {{-- ══ HEADER ══ --}}
                     <table class="inv-hdr-tbl" cellpadding="0" cellspacing="0">
@@ -772,29 +1030,33 @@
                         <tr>
                             <td class="inv-bto-td">
                                 <strong>Bill To:</strong>&nbsp;
-                                {{ $createdSale->customer->name }}
-                                @if($createdSale->customer->address)
-                                &nbsp;|&nbsp; {{ $createdSale->customer->address }}
-                                @endif
-                                @if($createdSale->customer->phone)
-                                &nbsp;&nbsp; <strong>Tel:</strong> {{ $createdSale->customer->phone }}
-                                @endif
+                                <span style="font-family: 'Arial', sans-serif; font-weight: normal;">
+                                    {{ $createdSale->customer->name }}
+                                    @if($createdSale->customer->address)
+                                    &nbsp;|&nbsp; {{ $createdSale->customer->address }}
+                                    @endif
+                                    @if($createdSale->customer->phone)
+                                    &nbsp;&nbsp; <strong>Tel:</strong> {{ $createdSale->customer->phone }}
+                                    @endif
+                                </span>
                             </td>
                         </tr>
                     </table>
 
                     {{-- ══ ITEMS TABLE ══ --}}
-                    <table class="inv-items-tbl" cellpadding="0" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th class="inv-c-code">Code</th>
-                                <th class="inv-c-desc">Description</th>
-                                <th class="inv-c-qty">Qty</th>
-                                <th class="inv-c-price">Unit Price</th>
-                                <th class="inv-c-disc">Discount</th>
-                                <th class="inv-c-amt">Amount</th>
-                            </tr>
-                        </thead>
+                    <div class="inv-watermark-container">
+                        <img src="{{ asset('images/logo.png') }}" class="inv-watermark" alt="">
+                        <table class="inv-items-tbl" cellpadding="0" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th class="inv-c-code">Code</th>
+                                    <th class="inv-c-desc">Description</th>
+                                    <th class="inv-c-qty inv-tc">Qty</th>
+                                    <th class="inv-c-price inv-tr">Unit Price</th>
+                                    <th class="inv-c-disc inv-tr">Discount</th>
+                                    <th class="inv-c-amt inv-tr">Amount</th>
+                                </tr>
+                            </thead>
                         <tbody>
                             @foreach($createdSale->items as $item)
                             <tr>
@@ -821,6 +1083,7 @@
                                 @endfor
                         </tbody>
                     </table>
+                    </div>
 
                     {{-- ══ BOTTOM: OUTSTANDINGS + TOTALS ══ --}}
                     <table class="inv-bot-tbl" cellpadding="0" cellspacing="0">
@@ -878,16 +1141,17 @@
                     </table>
 
                 </div>
+                </div>
             </div>
 
-            <div class="pos-modal-footer justify-content-center gap-2">
-                <button type="button" class="btn pos-btn-secondary" wire:click="createNewSale">
+            <div class="pos-modal-footer justify-content-center gap-3" style="background: #fdfbf7; border-top: none; padding: 25px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                <button type="button" class="btn pos-btn-secondary px-4 py-2" wire:click="createNewSale" style="background: white; border: 1px solid #dee2e6; color: #495057; border-radius: 8px;">
                     <i class="bi bi-x-circle me-1"></i>Close
                 </button>
-                <button type="button" class="btn pos-btn-outline" wire:click="printSaleReceipt">
+                <button type="button" class="btn pos-btn-outline px-4 py-2" wire:click="printSaleReceipt" style="background: white; border: 1px solid #c7952a; color: #c7952a; border-radius: 8px;">
                     <i class="bi bi-printer me-1"></i>Print
                 </button>
-                <button type="button" class="btn pos-btn-gradient" wire:click="downloadInvoice">
+                <button type="button" class="btn pos-btn-gradient px-4 py-2" wire:click="downloadInvoice" style="background: linear-gradient(135deg, #c7952a, #b8860b); color: white; border: none; border-radius: 8px; font-weight: 600;">
                     <i class="bi bi-download me-1"></i>Download Invoice
                 </button>
             </div>
@@ -900,7 +1164,7 @@
     ════════════════════════════════════════════ --}}
     @if($showCloseRegisterModal)
     <div class="pos-overlay" style="align-items:flex-start; padding:20px; overflow-y:auto;">
-        <div class="pos-modal-card" style="max-width:640px; width:100%;">
+        <div class="pos-modal-card" style="max-width:1200px; width:100%;">
             <div class="pos-modal-header">
                 <div class="d-flex align-items-center gap-2">
                     <div class="pos-icon-badge">
