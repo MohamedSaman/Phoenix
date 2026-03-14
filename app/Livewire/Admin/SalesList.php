@@ -417,7 +417,7 @@ class SalesList extends Component
 
             $pdf = PDF::loadView('admin.sales.invoice', compact('sale'));
 
-            $pdf->setPaper('a4', 'portrait');
+            $pdf->setPaper('a5', 'landscape');
             $pdf->setOption('dpi', 150);
             $pdf->setOption('defaultFont', 'sans-serif');
 
