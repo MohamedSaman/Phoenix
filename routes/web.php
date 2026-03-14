@@ -155,6 +155,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('/manage-admin', ManageAdmin::class)->name('manage-admin');
         Route::get('/manage-staff', ManageStaff::class)->name('manage-staff');
         Route::get('/manage-customer', ManageCustomer::class)->name('manage-customer');
+        Route::get('/customer/{customer}/transactions', \App\Livewire\Admin\CustomerTransactionHistory::class)->name('customer-transactions');
         Route::get('/Product-stock-details', ProductStockDetails::class)->name('Product-stock-details');
         Route::get('/staff-stock-details', StaffStockDetails::class)->name('staff-stock-details');
 
@@ -233,6 +234,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
         // Customers
         Route::get('/manage-customer', ManageCustomer::class)->name('manage-customer');
+        Route::get('/customer/{customer}/transactions', \App\Livewire\Admin\CustomerTransactionHistory::class)->name('customer-transactions');
         Route::get('/customer-sale-details', CustomerSaleDetails::class)->name('customer-sale-details');
         Route::get('/customer-sale-management', CustomerSaleManagement::class)->name('customer-sale-management');
 

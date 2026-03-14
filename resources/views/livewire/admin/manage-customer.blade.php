@@ -118,6 +118,13 @@
                 </button>
             </li>
 
+            <!-- Transaction History -->
+            <li>
+                <a class="dropdown-item" href="{{ route((auth()->user()->role === 'admin' ? 'admin.' : 'staff.') . 'customer-transactions', $customer->id) }}" wire:navigate>
+                    <i class="bi bi-clock-history text-secondary me-2"></i> Transaction History
+                </a>
+            </li>
+
             <!-- Edit Customer -->
             <li>
                 <button class="dropdown-item"
