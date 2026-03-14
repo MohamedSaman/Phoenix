@@ -630,20 +630,33 @@
                         @if($paymentData['payment_method'] === 'cheque')
                         <div class="col-12">
                             <div class="border rounded p-3 bg-light">
-                                <h6 class="fw-semibold mb-3 text-success">
-                                    <i class="bi bi-receipt me-2"></i>Cheque Details
-                                </h6>
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold">Cheque Number <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('cheque.cheque_number') is-invalid @enderror"
-                                            wire:model="cheque.cheque_number"
-                                            placeholder="Enter cheque number">
-                                        @error('cheque.cheque_number') <span class="text-danger small">{{ $message }}</span> @enderror
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-semibold text-success mb-0">
+                                        <i class="bi bi-receipt me-2"></i>Cheque Details
+                                    </h6>
+                                    <button type="button" class="btn btn-sm btn-outline-success" wire:click="addCheque">
+                                        <i class="bi bi-plus-circle"></i> Add Another Cheque
+                                    </button>
+                                </div>
+
+                                @foreach($cheques as $index => $chequeData)
+                                <div class="row g-3 {{ !$loop->last ? 'mb-3 pb-3 border-bottom' : '' }}">
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-semibold">Amount <span class="text-danger">*</span></label>
+                                        <input type="number" step="0.01" class="form-control @error('cheques.'.$index.'.amount') is-invalid @enderror"
+                                            wire:model="cheques.{{ $index }}.amount" placeholder="0.00">
+                                        @error('cheques.'.$index.'.amount') <span class="text-danger small">{{ $message }}</span> @enderror
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-semibold">Cheque Number <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control @error('cheques.'.$index.'.cheque_number') is-invalid @enderror"
+                                            wire:model="cheques.{{ $index }}.cheque_number"
+                                            placeholder="Enter cheque number">
+                                        @error('cheques.'.$index.'.cheque_number') <span class="text-danger small">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold">Bank Name <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('cheque.bank_name') is-invalid @enderror" wire:model="cheque.bank_name">
+                                        <select class="form-select @error('cheques.'.$index.'.bank_name') is-invalid @enderror" wire:model="cheques.{{ $index }}.bank_name">
                                             <option value="">Select Bank</option>
                                             <option value="Bank of Ceylon">Bank of Ceylon</option>
                                             <option value="Commercial Bank of Ceylon">Commercial Bank of Ceylon</option>
@@ -656,15 +669,23 @@
                                             <option value="Seylan Bank">Seylan Bank</option>
                                             <option value="Amana Bank">Amana Bank</option>
                                         </select>
-                                        @error('cheque.bank_name') <span class="text-danger small">{{ $message }}</span> @enderror
+                                        @error('cheques.'.$index.'.bank_name') <span class="text-danger small">{{ $message }}</span> @enderror
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-2">
                                         <label class="form-label fw-semibold">Cheque Date <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control @error('cheque.cheque_date') is-invalid @enderror"
-                                            wire:model="cheque.cheque_date">
-                                        @error('cheque.cheque_date') <span class="text-danger small">{{ $message }}</span> @enderror
+                                        <input type="date" class="form-control @error('cheques.'.$index.'.cheque_date') is-invalid @enderror"
+                                            wire:model="cheques.{{ $index }}.cheque_date">
+                                        @error('cheques.'.$index.'.cheque_date') <span class="text-danger small">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        @if(count($cheques) > 1)
+                                            <button type="button" class="btn btn-outline-danger w-100" wire:click="removeCheque({{ $index }})" title="Remove">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
+                                @endforeach
                             </div>
                         </div>
                         @endif

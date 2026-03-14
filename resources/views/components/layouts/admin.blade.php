@@ -820,19 +820,19 @@
                     </a>
                     <div class="collapse" id="salesSubmenu">
                         <ul class="nav flex-column ms-3">
-                            <li class="nav-item">
+                            {{-- <li class="nav-item">
                                 <a class="nav-link py-2" href="{{ route('admin.sales-system') }}">
                                     <i class="bi bi-plus-circle"></i> <span>Add Sales</span>
                                 </a>
-                            </li>
-                            <li class="nav-item">
+                            </li> --}}
+                            {{-- <li class="nav-item">
                                 <a class="nav-link py-2" href="{{ route('admin.sales-list') }}">
                                     <i class="bi bi-table"></i> <span>List Sales</span>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li class="nav-item">
                                 <a class="nav-link py-2" href="{{ route('admin.pos-sales') }}">
-                                    <i class="bi bi-shop"></i> <span>POS Sales</span>
+                                    <i class="bi bi-shop"></i> <span>List Sales</span>
                                 </a>
                             </li>
                             {{-- no need him  --}}
