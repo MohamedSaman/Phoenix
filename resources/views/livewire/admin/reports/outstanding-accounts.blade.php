@@ -270,7 +270,7 @@
                                     @forelse($selectedDetailData['invoices'] as $invoice)
                                         <tr>
                                             <td><span class="badge bg-primary">{{ $invoice->invoice_number }}</span></td>
-                                            <td>{{ $invoice->created_at->format('M d, Y') }}</td>
+                                            <td>{{ $invoice->created_at->format('d/m/Y') }}</td>
                                             <td>Rs.{{ number_format($invoice->total_amount, 2) }}</td>
                                             <td class="text-danger fw-bold">Rs.{{ number_format($invoice->due_amount, 2) }}</td>
                                             <td>
@@ -332,7 +332,7 @@
                                     @forelse($selectedDetailData['orders'] as $order)
                                         <tr>
                                             <td><span class="badge bg-info">{{ $order->order_code }}</span></td>
-                                            <td>{{ \Carbon\Carbon::parse($order->order_date)->format('M d, Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($order->order_date)->format('d/m/Y') }}</td>
                                             <td>{{ $order->items->count() }}</td>
                                             <td>Rs.{{ number_format($order->total_amount, 2) }}</td>
                                             <td class="text-warning fw-bold">Rs.{{ number_format($order->due_amount, 2) }}</td>

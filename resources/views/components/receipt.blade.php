@@ -1,7 +1,7 @@
 {{-- components/receipt.blade.php --}}
 <div class="receipt-container">
     <h4>Invoice #{{ $receipt->invoice_number }}</h4>
-    <p>Date: {{ $receipt->created_at->format('d-m-Y H:i') }}</p>
+    <p>Date: {{ $receipt->created_at->format('d/m/Y H:i') }}</p>
     <p>Customer: {{ $receipt->customer->name ?? '' }}</p>
     <hr>
     <table class="table table-bordered">

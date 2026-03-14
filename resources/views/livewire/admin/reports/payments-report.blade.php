@@ -52,7 +52,7 @@
                                             {{ $payment->payment_reference ?? $payment->card_number ?? '-' }}
                                         </td>
                                         <td class="pe-4" style="color: #666;">
-                                            {{ $payment->payment_date ? $payment->payment_date->format('M d, Y') : '-' }}
+                                            {{ $payment->payment_date ? $payment->payment_date->format('d/m/Y') : '-' }}
                                         </td>
                                     </tr>
                                 @endforeach
@@ -122,7 +122,7 @@
                                             {{ $payment->payment_reference ?? $payment->cheque_number ?? '-' }}
                                         </td>
                                         <td class="pe-4" style="color: #666;">
-                                            {{ $payment->payment_date ? $payment->payment_date->format('M d, Y') : '-' }}
+                                            {{ $payment->payment_date ? $payment->payment_date->format('d/m/Y') : '-' }}
                                         </td>
                                     </tr>
                                 @endforeach

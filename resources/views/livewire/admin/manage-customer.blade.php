@@ -406,12 +406,12 @@
                                 <div class="row">
                                     <div class="col-4 text-muted fw-semibold mb-2">Created:</div>
                                     <div class="col-8 mb-2">
-                                        {{ $viewCustomerDetail['created_at'] ? \Carbon\Carbon::parse($viewCustomerDetail['created_at'])->format('M d, Y h:i A') : '-' }}
+                                        {{ $viewCustomerDetail['created_at'] ? \Carbon\Carbon::parse($viewCustomerDetail['created_at'])->format('d/m/Y h:i A') : '-' }}
                                     </div>
                                     
                                     <div class="col-4 text-muted fw-semibold mb-2">Last Updated:</div>
                                     <div class="col-8 mb-2">
-                                        {{ $viewCustomerDetail['updated_at'] ? \Carbon\Carbon::parse($viewCustomerDetail['updated_at'])->format('M d, Y h:i A') : '-' }}
+                                        {{ $viewCustomerDetail['updated_at'] ? \Carbon\Carbon::parse($viewCustomerDetail['updated_at'])->format('d/m/Y h:i A') : '-' }}
                                     </div>
                                 </div>
                             </div>

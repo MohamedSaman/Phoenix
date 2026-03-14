@@ -301,7 +301,7 @@
                     <div class="row">
                         <div class="col-12">
                             <h6 class="fw-semibold" style="color:#3b5b0c;">Created:</h6>
-                            <p>{{ $selectedDeposit->created_at->format('d M Y, H:i A') }}</p>
+                            <p>{{ $selectedDeposit->created_at->format('d/m/Y h:i A') }}</p>
                         </div>
                     </div>
                 </div>

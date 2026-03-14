@@ -204,7 +204,7 @@
                                             <div class="d-flex flex-column">
                                                 <h6 class="mb-0 text-sm">{{ $payment->sale->invoice_number }}</h6>
                                                 <p class="text-xs text-muted mb-0">
-                                                    {{ $payment->sale->created_at->format('d M Y') }}
+                                                    {{ $payment->sale->created_at->format('d/m/Y') }}
                                                 </p>
                                             </div>
                                         </td>

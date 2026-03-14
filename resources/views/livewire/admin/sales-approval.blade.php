@@ -212,7 +212,7 @@
                                 </td>
                                 <td class="text-center">
                                     <div>
-                                        <span class="fw-medium text-dark">{{ $sale->created_at->format('M d, Y') }}</span>
+                                        <span class="fw-medium text-dark">{{ $sale->created_at->format('d/m/Y') }}</span>
                                         <div class="text-muted small">{{ $sale->created_at->format('h:i A') }}</div>
                                     </div>
                                 </td>
@@ -289,7 +289,7 @@
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label fw-semibold text-muted small">Sale Date</label>
-                                                <p class="fw-bold text-dark mb-0">{{ $selectedSale->created_at->format('M d, Y h:i A') }}</p>
+                                                <p class="fw-bold text-dark mb-0">{{ $selectedSale->created_at->format('d/m/Y h:i A') }}</p>
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label fw-semibold text-muted small">Status</label>
@@ -547,7 +547,7 @@
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label fw-semibold text-muted small">Sale Date</label>
-                                                <p class="fw-bold text-dark mb-0">{{ $editingSale->created_at->format('M d, Y h:i A') }}</p>
+                                                <p class="fw-bold text-dark mb-0">{{ $editingSale->created_at->format('d/m/Y h:i A') }}</p>
                                             </div>
                                         </div>
                                     </div>

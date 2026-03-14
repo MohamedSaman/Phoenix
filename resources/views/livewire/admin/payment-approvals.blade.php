@@ -181,7 +181,7 @@
                                         </div>
                                         <div>
                                             <span class="fw-medium text-dark">{{ $payment->sale->invoice_number }}</span>
-                                            <div class="text-muted small">{{ $payment->created_at->format('M d, Y') }}</div>
+                                            <div class="text-muted small">{{ $payment->created_at->format('d/m/Y') }}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -221,7 +221,7 @@
                                 </td>
                                 <td class="text-center">
                                     <div>
-                                        <span class="fw-medium text-dark">{{ $payment->created_at->format('M d, Y') }}</span>
+                                        <span class="fw-medium text-dark">{{ $payment->created_at->format('d/m/Y') }}</span>
                                         <div class="text-muted small">{{ $payment->created_at->format('h:i A') }}</div>
                                     </div>
                                 </td>
@@ -284,7 +284,7 @@
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label fw-semibold text-muted small">Payment Date</label>
-                                                <p class="fw-bold text-dark mb-0">{{ $selectedPayment->created_at->format('M d, Y h:i A') }}</p>
+                                                <p class="fw-bold text-dark mb-0">{{ $selectedPayment->created_at->format('d/m/Y h:i A') }}</p>
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label fw-semibold text-muted small">Status</label>
@@ -295,7 +295,7 @@
                                             <div class="col-6">
                                                 <label class="form-label fw-semibold text-muted small">Due Date</label>
                                                 <p class="fw-bold text-dark mb-0 {{ now()->gt($selectedPayment->due_date) ? 'text-danger' : '' }}">
-                                                    {{ $selectedPayment->due_date ? $selectedPayment->due_date->format('M d, Y') : 'N/A' }}
+                                                    {{ $selectedPayment->due_date ? $selectedPayment->due_date->format('d/m/Y') : 'N/A' }}
                                                 </p>
                                             </div>
                                         </div>
@@ -381,7 +381,7 @@
                                             <div class="col-12 col-md-3">
                                                 <div class="text-center">
                                                     <label class="form-label fw-semibold text-muted small">Payment Date</label>
-                                                    <p class="fw-bold text-dark h5 mb-0">{{ $selectedPayment->payment_date->format('M d, Y') }}</p>
+                                                    <p class="fw-bold text-dark h5 mb-0">{{ $selectedPayment->payment_date->format('d/m/Y') }}</p>
                                                 </div>
                                             </div>
                                             @endif
@@ -577,7 +577,7 @@
                                                 This payment has already been {{ $selectedPayment->status === 'approved' ? 'approved' : 'rejected' }}.
                                             </p>
                                             @if($selectedPayment->status === 'approved' && $selectedPayment->payment_date)
-                                            <p class="mb-0 small">Approved on: {{ $selectedPayment->payment_date->format('M d, Y h:i A') }}</p>
+                                            <p class="mb-0 small">Approved on: {{ $selectedPayment->payment_date->format('d/m/Y h:i A') }}</p>
                                             @endif
                                         </div>
                                     </div>

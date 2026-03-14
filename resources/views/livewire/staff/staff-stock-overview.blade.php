@@ -241,7 +241,7 @@
                                     wire:click="viewSaleDetails({{ $sale->id }})">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">Batch #{{ $sale->id }}</h6>
-                                        <small>{{ $sale->created_at->format('d M Y') }}</small>
+                                        <small>{{ $sale->created_at->format('d/m/Y') }}</small>
                                     </div>
                                     <p class="mb-1">{{ $sale->total_quantity }} items assigned</p>
                                     <div class="d-flex justify-content-between align-items-center">
@@ -284,7 +284,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <p class="mb-1"><strong>Assigned By:</strong> {{ $selectedSale->admin->name }}</p>
-                                        <p class="mb-1"><strong>Assigned On:</strong> {{ $selectedSale->created_at->format('d M Y, h:i A') }}</p>
+                                        <p class="mb-1"><strong>Assigned On:</strong> {{ $selectedSale->created_at->format('d/m/Y h:i A') }}</p>
                                     </div>
                                     <div class="col-md-6 text-md-end">
                                         <p class="mb-1"><strong>Total Items:</strong> {{ $selectedSale->total_quantity }}</p>

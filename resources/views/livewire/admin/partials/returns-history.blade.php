@@ -22,7 +22,7 @@
                     <strong class="text-warning">{{ $return['invoice_number'] ?? 'N/A' }}</strong>
                 </td>
                 <td>
-                    <small>{{ \Carbon\Carbon::parse($return['return_date'])->format('d M Y, h:i A') }}</small>
+                    <small>{{ \Carbon\Carbon::parse($return['return_date'])->format('d/m/Y h:i A') }}</small>
                 </td>
                 <td>
                     <div class="fw-semibold">{{ $return['customer_name'] ?? 'Walk-in' }}</div>

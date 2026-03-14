@@ -168,7 +168,7 @@
                                     <div>
                                         <span class="fw-medium text-dark">{{ $sale->invoice_number }}</span>
                                         <div class="text-muted small">
-                                            {{ $sale->created_at->format('d M Y') }}
+                                            {{ $sale->created_at->format('d/m/Y') }}
                                         </div>
                                     </div>
                                 </td>

@@ -377,7 +377,7 @@
                                     <td class="text-end">Rs.{{ number_format($return->unit_price, 2) }}</td>
                                     <td class="text-end text-info fw-bold">Rs.{{ number_format($return->total_amount, 2) }}</td>
                                     <td><span class="badge bg-warning text-dark">{{ ucfirst($return->return_reason) }}</span></td>
-                                    <td>{{ $return->created_at ? $return->created_at->format('M d, Y') : '-' }}</td>
+                                    <td>{{ $return->created_at ? $return->created_at->format('d/m/Y') : '-' }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -528,7 +528,7 @@
 
                     <div class="text-center mt-4 pt-3 border-top">
                         <p class="text-muted mb-0">Thank you for your payment!</p>
-                        <small class="text-muted">Generated on {{ now()->format('M d, Y h:i A') }}</small>
+                        <small class="text-muted">Generated on {{ now()->format('d/m/Y h:i A') }}</small>
                     </div>
                 </div>
                 

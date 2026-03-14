@@ -176,7 +176,7 @@ use App\Models\Sale;
                                 <input type="checkbox" class="form-check-input row-checkbox" onchange="toggleRowHighlight(this)">
                             </td>
                             <td class="text-center" wire:click="viewSale({{ $sale->id }})">
-                                <div>{{ $sale->created_at->format('M d, Y') }}</div>
+                                <div>{{ $sale->created_at->format('d/m/Y') }}</div>
                             </td>
                             <td wire:click="viewSale({{ $sale->id }})">
                                 @if($sale->customer)
@@ -355,7 +355,7 @@ use App\Models\Sale;
                                 </tr>
                                 <tr>
                                     <td><strong>Date</strong></td>
-                                    <td>{{ $selectedSale->created_at->format('M d, Y h:i A') }}</td>
+                                    <td>{{ $selectedSale->created_at->format('d/m/Y h:i A') }}</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Sale Type</strong></td>
@@ -614,7 +614,7 @@ use App\Models\Sale;
                                                 <h6 class="mb-0 fw-bold">Payment #{{ $payment->id }}</h6>
                                                 <small class="text-muted">
                                                     <i class="bi bi-calendar3 me-1"></i>
-                                                    {{ $payment->payment_date ? $payment->payment_date->format('M d, Y h:i A') : '-' }}
+                                                    {{ $payment->payment_date ? $payment->payment_date->format('d/m/Y h:i A') : '-' }}
                                                 </small>
                                             </div>
                                         </div>
@@ -782,7 +782,7 @@ use App\Models\Sale;
                             <p><strong>Invoice:</strong> {{ $selectedSale->invoice_number }}</p>
                             <p><strong>Customer:</strong> {{ $selectedSale->customer->name ?? 'Walk-in Customer' }}</p>
                             <p><strong>Amount:</strong> Rs.{{ number_format($selectedSale->total_amount, 2) }}</p>
-                            <p><strong>Date:</strong> {{ $selectedSale->created_at->format('M d, Y') }}</p>
+                            <p><strong>Date:</strong> {{ $selectedSale->created_at->format('d/m/Y') }}</p>
                             <p><strong>Items:</strong> {{ $selectedSale->items->count() }} products</p>
                         </div>
                     </div>

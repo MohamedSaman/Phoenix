@@ -108,7 +108,7 @@
                                 <td class="fw-medium">{{ $loan->employee ? $loan->employee->fname : 'Unknown' }}</td>
                                 <td>LKR {{ number_format($loan->loan_amount, 0) }}</td>
                                 <td>{{ number_format($loan->interest_rate, 2) }}%</td>
-                                <td>{{ \Carbon\Carbon::parse($loan->start_date)->format('M d, Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($loan->start_date)->format('d/m/Y') }}</td>
                                 <td>{{ $loan->term_month }}</td>
                                 <td>LKR {{ number_format($loan->monthly_payment, 0) }}</td>
                                 <td>LKR {{ number_format($loan->remaining_balance, 0) }}</td>

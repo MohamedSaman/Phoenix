@@ -266,11 +266,11 @@
                     </tr>
                     <tr>
                         <td><strong>Date:</strong></td>
-                        <td>{{ $quotation->quotation_date->format('M d, Y') }}</td>
+                        <td>{{ $quotation->quotation_date->format('d/m/Y') }}</td>
                     </tr>
                     <tr>
                         <td><strong>Valid Until:</strong></td>
-                        <td>{{ \Carbon\Carbon::parse($quotation->valid_until)->format('M d, Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($quotation->valid_until)->format('d/m/Y') }}</td>
                     </tr>
                     <tr>
                         <td><strong>Status:</strong></td>

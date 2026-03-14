@@ -135,10 +135,10 @@
                                         <strong>{{ $payment->sale->customer->name ?? 'N/A' }}</strong>
                                     </td>
                                     <td class="text-center">
-                                        <small>{{ $payment->sale->created_at ? $payment->sale->created_at->format('Y-m-d H:i:s') : 'N/A' }}</small>
+                                        <small>{{ $payment->sale->created_at ? $payment->sale->created_at->format('d/m/Y h:i A') : 'N/A' }}</small>
                                     </td>
                                     <td class="text-center">
-                                        <small>{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('Y-m-d H:i:s') : 'N/A' }}</small>
+                                        <small>{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('d/m/Y h:i A') : 'N/A' }}</small>
                                     </td>
                                     <td class="text-end">
                                         <strong class="text-success">Rs.{{ number_format($payment->amount, 2) }}</strong>

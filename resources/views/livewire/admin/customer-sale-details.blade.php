@@ -281,7 +281,7 @@
                                                 </div>
                                             </td>
                                             <td>{{ $item->invoice_number }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($item->sale_date)->format('d M Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($item->sale_date)->format('d/m/Y') }}</td>
                                             <td class="text-center">
                                                 <span class="fw-bold text-dark">{{ $item->quantity }}</span>
                                             </td>

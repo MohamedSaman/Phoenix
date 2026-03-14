@@ -28,10 +28,10 @@
                     <small>{{ $quotation['reference_number'] ?? 'N/A' }}</small>
                 </td>
                 <td>
-                    <small>{{ \Carbon\Carbon::parse($quotation['quotation_date'])->format('d M Y') }}</small>
+                    <small>{{ \Carbon\Carbon::parse($quotation['quotation_date'])->format('d/m/Y') }}</small>
                 </td>
                 <td>
-                    <small>{{ \Carbon\Carbon::parse($quotation['valid_until'])->format('d M Y') }}</small>
+                    <small>{{ \Carbon\Carbon::parse($quotation['valid_until'])->format('d/m/Y') }}</small>
                     @if(\Carbon\Carbon::parse($quotation['valid_until'])->isPast())
                         <div><span class="badge bg-danger badge-sm">Expired</span></div>
                     @endif

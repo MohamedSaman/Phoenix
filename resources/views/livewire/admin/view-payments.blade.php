@@ -226,8 +226,8 @@
                                 <td class="text-center">
                                     <div>
                                         <span class="fw-medium text-dark">
-                                            {{ $payment->payment_date ? $payment->payment_date->format('d M Y') : 
-                                               ($payment->due_date ? 'Due: '.$payment->due_date->format('d M Y') : 'N/A') }}
+                                            {{ $payment->payment_date ? $payment->payment_date->format('d/m/Y') : 
+                                               ($payment->due_date ? 'Due: '.$payment->due_date->format('d/m/Y') : 'N/A') }}
                                         </span>
                                         @if($payment->payment_date)
                                         <div class="text-muted small">{{ $payment->payment_date->format('h:i A') }}</div>

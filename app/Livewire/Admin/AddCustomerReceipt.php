@@ -277,7 +277,7 @@ class AddCustomerReceipt extends Component
                 'id' => $sale->id,
                 'invoice_number' => $sale->invoice_number,
                 'sale_id' => $sale->sale_id,
-                'sale_date' => $sale->created_at->format('M d, Y'),
+                'sale_date' => $sale->created_at->format('d/m/Y'),
                 'original_total_amount' => $sale->total_amount,
                 'total_amount' => $adjustedTotalAmount,
                 'original_due_amount' => $sale->due_amount,

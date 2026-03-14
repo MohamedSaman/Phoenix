@@ -87,7 +87,7 @@
                         <div class="fw-semibold">{{ $order->supplier->name ?? 'N/A' }}</div>
                         <small class="text-muted">{{ $order->supplier->businessname ?? '' }}</small>
                     </td>
-                    <td>{{ \Carbon\Carbon::parse($order->order_date)->format('M d, Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($order->order_date)->format('d/m/Y') }}</td>
                     <td>{{ $order->items->count() }} items</td>
                     <td class="fw-bold">
                         Rs.{{ number_format($order->total_amount ?? 0, 2) }}

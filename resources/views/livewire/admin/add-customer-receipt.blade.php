@@ -435,7 +435,7 @@
                                 </tr>
                                 <tr>
                                     <td><strong>Date & Time:</strong></td>
-                                    <td>{{ $selectedSale->created_at->format('M d, Y h:i A') }}</td>
+                                    <td>{{ $selectedSale->created_at->format('d/m/Y h:i A') }}</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Original Total:</strong></td>
@@ -536,7 +536,7 @@
                                     <td class="text-center">{{ $return->return_quantity }}</td>
                                     <td class="text-end">Rs.{{ number_format($return->selling_price, 2) }}</td>
                                     <td class="text-end fw-bold text-danger">Rs.{{ number_format($return->total_amount, 2) }}</td>
-                                    <td class="text-center">{{ $return->created_at->format('M d, Y') }}</td>
+                                    <td class="text-center">{{ $return->created_at->format('d/m/Y') }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -838,7 +838,7 @@
                                         </tr>
                                         <tr>
                                             <td><strong>Payment Date:</strong></td>
-                                            <td>{{ \Carbon\Carbon::parse($latestPayment->payment_date)->format('M d, Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($latestPayment->payment_date)->format('d/m/Y') }}</td>
                                         </tr>
                                         <tr>
                                             <td><strong>Customer:</strong></td>

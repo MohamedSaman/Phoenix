@@ -271,11 +271,11 @@
                 <small class="text-muted d-block info-box">
                     <i class="fas fa-info-circle me-2"></i>
                     @if($startDate && $endDate)
-                        <strong>📅 Period:</strong> {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
+                        <strong>📅 Period:</strong> {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}
                     @elseif($startDate)
-                        <strong>📅 From:</strong> {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} onwards
+                        <strong>📅 From:</strong> {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} onwards
                     @elseif($endDate)
-                        <strong>📅 Until:</strong> {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
+                        <strong>📅 Until:</strong> {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}
                     @else
                         <strong>📅 Showing:</strong> Overall P&L (All Data)
                     @endif
@@ -682,11 +682,11 @@
             <strong style="color: #0c5460;">Report Period:</strong>
             <span style="color: #0c5460;">
                 @if($startDate && $endDate)
-                    {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
+                    {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} to {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}
                 @elseif($startDate)
-                    {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} onwards
+                    {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} onwards
                 @elseif($endDate)
-                    Up to {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
+                    Up to {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}
                 @else
                     Overall / All Data
                 @endif

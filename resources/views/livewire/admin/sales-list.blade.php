@@ -159,7 +159,7 @@
                             <td class="ps-4" onclick="event.stopPropagation();">
                                 <input type="checkbox" class="form-check-input row-checkbox" onchange="toggleRowHighlight(this)">
                             </td>
-                            <td class="text-center" wire:click="viewSale({{ $sale->id }})">{{ $sale->created_at->format('M d, Y') }}</td>
+                            <td class="text-center" wire:click="viewSale({{ $sale->id }})">{{ $sale->created_at->format('d/m/Y') }}</td>
                             <td wire:click="viewSale({{ $sale->id }})">
                                 @if($sale->customer)
                                 <div class="fw-medium">{{ $sale->customer->name }}</div>
@@ -300,7 +300,7 @@
                                 </tr>
                                 <tr>
                                     <td><strong>Date</strong></td>
-                                    <td>{{ $selectedSale->created_at->format('M d, Y h:i A') }}</td>
+                                    <td>{{ $selectedSale->created_at->format('d/m/Y h:i A') }}</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Sale Type</strong></td>
@@ -514,7 +514,7 @@
                                 <p><strong>Invoice:</strong> {{ $selectedSale->invoice_number }}</p>
                                 <p><strong>Customer:</strong> {{ $selectedSale->customer->name ?? 'Walk-in Customer' }}</p>
                                 <p><strong>Amount:</strong> Rs.{{ number_format($selectedSale->total_amount, 2) }}</p>
-                                <p><strong>Date:</strong> {{ $selectedSale->created_at->format('M d, Y') }}</p>
+                                <p><strong>Date:</strong> {{ $selectedSale->created_at->format('d/m/Y') }}</p>
                                 <p><strong>Items:</strong> {{ $selectedSale->items->count() }} products</p>
                             </div>
                         </div>

@@ -102,7 +102,7 @@
                             <tbody>
                                 @forelse ($dailyExpenses as $expense)
                                 <tr>
-                                    <td class="ps-4">{{ \Carbon\Carbon::parse($expense->date)->format('M d, Y') }}</td>
+                                    <td class="ps-4">{{ \Carbon\Carbon::parse($expense->date)->format('d/m/Y') }}</td>
                                     <td>
                                         <span class="fw-medium text-dark">{{ $expense->category }}</span>
                                     </td>
@@ -157,7 +157,7 @@
                             <tbody>
                                 @forelse ($monthlyExpenses as $expense)
                                 <tr>
-                                    <td class="ps-4">{{ \Carbon\Carbon::parse($expense->date)->format('M d, Y') }}</td>
+                                    <td class="ps-4">{{ \Carbon\Carbon::parse($expense->date)->format('d/m/Y') }}</td>
                                     <td>
                                         <span class="fw-medium text-dark">{{ $expense->category }}</span>
                                     </td>
@@ -441,7 +441,7 @@
                         <div class="col-md-6">
                             <div class="p-3 border rounded">
                                 <small class="text-muted d-block">Date</small>
-                                <strong>{{ $viewExpense->date ? \Carbon\Carbon::parse($viewExpense->date)->format('M d, Y') : 'N/A' }}</strong>
+                                <strong>{{ $viewExpense->date ? \Carbon\Carbon::parse($viewExpense->date)->format('d/m/Y') : 'N/A' }}</strong>
                             </div>
                         </div>
 
@@ -489,7 +489,7 @@
                         <div class="col-md-6">
                             <div class="p-3 border rounded">
                                 <small class="text-muted d-block">Created</small>
-                                <small>{{ $viewExpense->created_at->format('M d, Y h:i A') }}</small>
+                                <small>{{ $viewExpense->created_at->format('d/m/Y h:i A') }}</small>
                             </div>
                         </div>
 
@@ -497,7 +497,7 @@
                         <div class="col-md-6">
                             <div class="p-3 border rounded">
                                 <small class="text-muted d-block">Last Updated</small>
-                                <small>{{ $viewExpense->updated_at->format('M d, Y h:i A') }}</small>
+                                <small>{{ $viewExpense->updated_at->format('d/m/Y h:i A') }}</small>
                             </div>
                         </div>
                     </div>

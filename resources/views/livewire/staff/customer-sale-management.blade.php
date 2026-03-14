@@ -393,7 +393,7 @@
                                 </div>
                             </td>
                             <td>
-                                <div>{{ \Carbon\Carbon::parse($sale->created_at)->format('d M Y') }}</div>
+                                <div>{{ \Carbon\Carbon::parse($sale->created_at)->format('d/m/Y') }}</div>
                                 <div class="text-muted small">
                                     {{ \Carbon\Carbon::parse($sale->created_at)->format('h:i A') }}
                                 </div>
@@ -485,7 +485,7 @@
                                         <div class="mb-3">
                                             <div class="field-label">Sale Date</div>
                                             <div>
-                                                {{ \Carbon\Carbon::parse($selectedSale->created_at)->format('d M Y, h:i A') }}
+                                                {{ \Carbon\Carbon::parse($selectedSale->created_at)->format('d/m/Y h:i A') }}
                                             </div>
                                         </div>
                                     </div>

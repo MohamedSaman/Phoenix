@@ -141,7 +141,7 @@
                                             <i class="bi bi-calendar-event"></i> Upcoming Month
                                         </small>
                                         <p style="font-size: 0.75rem; color: #1c7ed6; margin: 3px 0 0 0;">
-                                            {{ $daysInMonth }} days - {{ $monthDate->format('M d') }} to {{ $monthDate->endOfMonth()->format('M d, Y') }}
+                                            {{ $daysInMonth }} days - {{ $monthDate->format('M d') }} to {{ $monthDate->endOfMonth()->format('d/m/Y') }}
                                         </p>
                                     </div>
                                 @else
@@ -187,7 +187,7 @@
                             <h6 class="fw-bold" style="color: #1c7ed6; margin-bottom: 5px;">{{ $monthNames[$month] }}</h6>
                             <p style="font-size: 0.75rem; color: #666; margin: 0;">
                                 <small>{{ $daysInMonth }} days</small><br>
-                                <small style="color: #1c7ed6;">{{ $nextYearDate->format('M d, Y') }}</small>
+                                <small style="color: #1c7ed6;">{{ $nextYearDate->format('d/m/Y') }}</small>
                             </p>
                         </div>
                     </div>

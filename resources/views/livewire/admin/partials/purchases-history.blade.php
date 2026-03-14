@@ -25,13 +25,13 @@
                     <strong class="text-success">{{ $purchase['order_code'] ?? 'N/A' }}</strong>
                 </td>
                 <td>
-                    <small>{{ \Carbon\Carbon::parse($purchase['order_date'])->format('d M Y') }}</small>
+                    <small>{{ \Carbon\Carbon::parse($purchase['order_date'])->format('d/m/Y') }}</small>
                 </td>
                 <td>
                     @if($purchase['received_date'] === 'Pending')
                         <span class="badge bg-warning">Pending</span>
                     @else
-                        <small>{{ \Carbon\Carbon::parse($purchase['received_date'])->format('d M Y') }}</small>
+                        <small>{{ \Carbon\Carbon::parse($purchase['received_date'])->format('d/m/Y') }}</small>
                     @endif
                 </td>
                 <td>

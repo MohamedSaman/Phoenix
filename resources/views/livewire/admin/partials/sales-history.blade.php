@@ -27,7 +27,7 @@
                     @endif
                 </td>
                 <td>
-                    <small>{{ \Carbon\Carbon::parse($sale['sale_date'])->format('d M Y, h:i A') }}</small>
+                    <small>{{ \Carbon\Carbon::parse($sale['sale_date'])->format('d/m/Y h:i A') }}</small>
                 </td>
                 <td>
                     <div class="fw-semibold">{{ $sale['customer_name'] ?? 'Walk-in' }}</div>

@@ -112,8 +112,8 @@
                 <tr>
                     <td width="50%">
                         <strong>Receipt #:</strong> {{ $payment->id }}<br>
-                        <strong>Payment Date:</strong> {{ \Carbon\Carbon::parse($payment->payment_date)->format('d-m-Y') }}<br>
-                        <strong>Generated On:</strong> {{ now()->format('d-m-Y H:i') }}
+                        <strong>Payment Date:</strong> {{ \Carbon\Carbon::parse($payment->payment_date)->format('d/m/Y') }}<br>
+                        <strong>Generated On:</strong> {{ now()->format('d/m/Y H:i') }}
                     </td>
                     <td width="50%">
                         <strong>Payment Method:</strong> {{ strtoupper($payment->payment_method) }}<br>
@@ -169,7 +169,7 @@
                 </tr>
                 <tr>
                     <td><strong>Cheque Date:</strong></td>
-                    <td>{{ $payment->cheque_date ? \Carbon\Carbon::parse($payment->cheque_date)->format('d-m-Y') : 'N/A' }}</td>
+                    <td>{{ $payment->cheque_date ? \Carbon\Carbon::parse($payment->cheque_date)->format('d/m/Y') : 'N/A' }}</td>
                 </tr>
                 @endif
                 @if($payment->payment_method === 'bank_transfer')
@@ -244,7 +244,7 @@
         <div class="footer">
             <p>This is a computer-generated receipt. No signature required.</p>
             <p>Thank you for your payment!</p>
-            <p>Generated on: {{ now()->format('d-m-Y H:i:s') }}</p>
+            <p>Generated on: {{ now()->format('d/m/Y H:i:s') }}</p>
         </div>
     </div>
 </body>

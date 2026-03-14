@@ -1198,7 +1198,7 @@
                                 <i class="bi bi-info-circle me-2"></i>
                                 <strong>Yesterday's Closing Cash:</strong> Rs. {{ number_format((float) $yesterdaySession->closing_cash, 2) }}
                                 <br>
-                                <small class="text-muted">{{ $yesterday->format('M d, Y') }}</small>
+                                <small class="text-muted">{{ $yesterday->format('d/m/Y') }}</small>
                             </div>
                             @endif
 

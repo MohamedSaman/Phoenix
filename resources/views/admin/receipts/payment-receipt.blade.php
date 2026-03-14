@@ -33,7 +33,7 @@
             <td class="label">Receipt ID</td>
             <td>#{{ $payment->id }}</td>
             <td class="label">Payment Date</td>
-            <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}</td>
+            <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('d/m/Y') }}</td>
         </tr>
         <tr>
             <td class="label">Customer Name</td>
@@ -67,7 +67,7 @@
                 <tr>
                     <td>{{ $cheque->cheque_number }}</td>
                     <td>{{ $cheque->bank_name }}</td>
-                    <td>{{ \Carbon\Carbon::parse($cheque->cheque_date)->format('M d, Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($cheque->cheque_date)->format('d/m/Y') }}</td>
                     <td class="text-right">Rs.{{ number_format($cheque->cheque_amount, 2) }}</td>
                 </tr>
                 @endforeach
@@ -82,7 +82,7 @@
             <td class="label">Bank Name</td>
             <td>{{ $payment->bank_name }}</td>
             <td class="label">Transfer Date</td>
-            <td>{{ $payment->transfer_date ? \Carbon\Carbon::parse($payment->transfer_date)->format('M d, Y') : 'N/A' }}</td>
+            <td>{{ $payment->transfer_date ? \Carbon\Carbon::parse($payment->transfer_date)->format('d/m/Y') : 'N/A' }}</td>
         </tr>
         <tr>
             <td class="label" colspan="1">Transfer Reference</td>
@@ -163,7 +163,7 @@
 
     <div class="footer">
         <p>Thank you for your payment!</p>
-        <p>Generated on: {{ now()->format('M d, Y h:i A') }}</p>
+        <p>Generated on: {{ now()->format('d/m/Y h:i A') }}</p>
     </div>
 </body>
 </html>

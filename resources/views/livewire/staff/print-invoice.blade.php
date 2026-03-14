@@ -88,7 +88,7 @@
             </td>
             <td class="invoice-details">
                 <strong>Invoice #:</strong> {{ $sale->invoice_number }}<br>
-                <strong>Date:</strong> {{ \Carbon\Carbon::parse($sale->created_at)->format('d M Y') }}<br>
+                <strong>Date:</strong> {{ \Carbon\Carbon::parse($sale->created_at)->format('d/m/Y') }}<br>
                 <strong>Payment Status:</strong> {{ ucfirst($sale->payment_status) }}
             </td>
         </tr>

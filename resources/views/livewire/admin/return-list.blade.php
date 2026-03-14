@@ -73,7 +73,7 @@
                             <td wire:click="showReceipt({{ $return->id }})">{{ $return->return_quantity }}</td>
                             <td wire:click="showReceipt({{ $return->id }})">Rs.{{ number_format($return->selling_price, 2) }}</td>
                             <td wire:click="showReceipt({{ $return->id }})">Rs.{{ number_format($return->total_amount, 2) }}</td>
-                            <td wire:click="showReceipt({{ $return->id }})">{{ $return->created_at?->format('M d, Y') }}</td>
+                            <td wire:click="showReceipt({{ $return->id }})">{{ $return->created_at?->format('d/m/Y') }}</td>
                             <td class="text-end pe-4">
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
@@ -291,7 +291,7 @@
                             <p><strong>Product:</strong> {{ $selectedReturn->product?->name ?? '-' }}</p>
                             <p><strong>Quantity:</strong> {{ $selectedReturn->return_quantity }}</p>
                             <p><strong>Amount:</strong> Rs.{{ number_format($selectedReturn->total_amount, 2) }}</p>
-                            <p><strong>Date:</strong> {{ $selectedReturn->created_at?->format('M d, Y') }}</p>
+                            <p><strong>Date:</strong> {{ $selectedReturn->created_at?->format('d/m/Y') }}</p>
                         </div>
                     </div>
                     @endif

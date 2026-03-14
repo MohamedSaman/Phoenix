@@ -807,7 +807,7 @@
                     </div>
                     @if($dueDays)
                     <div class="pos-info-box mt-3 py-2">
-                        <i class="bi bi-clock-history me-2"></i>This payment is due in <strong>{{ $dueDays }} days</strong> ({{ \Carbon\Carbon::parse($dueDate)->format('M d, Y') }})
+                        <i class="bi bi-clock-history me-2"></i>This payment is due in <strong>{{ $dueDays }} days</strong> ({{ \Carbon\Carbon::parse($dueDate)->format('d/m/Y') }})
                     </div>
                     @endif
                     @endif
