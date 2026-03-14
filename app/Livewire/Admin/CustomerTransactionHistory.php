@@ -94,10 +94,8 @@ class CustomerTransactionHistory extends Component
             return $transaction;
         });
 
-        // Simply reverse the array (newest at top) to maintain the exact mathematical sequence!
-        // Do NOT sortByDesc() here as it visually breaks lines sharing the same timestamp.
-        $processedTransactions = $processedTransactions->reverse()->values();
-
+        // Return transactions in standard chronological order (oldest first, newest last)
+        // This ensures chronological reading top-to-bottom makes logical sense to users.
         return view('livewire.admin.customer-transaction-history', [
             'transactions' => $processedTransactions
         ])->layout('components.layouts.admin');

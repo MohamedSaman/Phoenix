@@ -39,7 +39,7 @@
         </div>
         <div class="col-md-3">
             @php
-                $currentBalance = $transactions->first() ? $transactions->first()['balance'] : 0;
+                $currentBalance = $transactions->last() ? $transactions->last()['balance'] : 0;
             @endphp
             <div class="card shadow-sm border-0 border-start border-4 {{ $currentBalance > 0 ? 'border-danger' : 'border-primary' }} h-100">
                 <div class="card-body">
