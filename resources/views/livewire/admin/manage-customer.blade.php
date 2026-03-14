@@ -36,17 +36,25 @@
                     <i class="bi bi-journal-text text-primary me-2"></i> Customer List
                 </h5>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <label class="text-sm text-muted fw-medium">Show</label>
-                <select wire:model.live="perPage" class="form-select form-select-sm" style="width: 80px;">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                    <option value="200">200</option>
-                    <option value="500">500</option>
-                </select>
-                <span class="text-sm text-muted">entries</span>
+            <div class="d-flex align-items-center gap-3">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Search customers..." wire:model.live="search">
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="text-sm text-muted fw-medium mb-0">Show</label>
+                    <select wire:model.live="perPage" class="form-select form-select-sm" style="width: 80px;">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
+                    </select>
+                    <span class="text-sm text-muted mb-0">entries</span>
+                </div>
             </div>
         </div>
         <div class="card-body p-0 overflow-auto">

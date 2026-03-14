@@ -37,6 +37,12 @@ class ManageCustomer extends Component
     public $showViewModal = false;
     public $viewCustomerDetail = [];
     public $perPage = 10;
+    public $search = '';
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
 
     public function updatedPerPage()
     {
@@ -45,7 +51,15 @@ class ManageCustomer extends Component
 
     public function render()
     {
-        $customers = Customer::orderBy('name', 'asc')->paginate($this->perPage);
+        $customers = Customer::when($this->search, function ($query) {
+            $query->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('phone', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%')
+                  ->orWhere('business_name', 'like', '%' . $this->search . '%');
+        })
+        ->orderBy('name', 'asc')
+        ->paginate($this->perPage);
+        
         return view('livewire.admin.manage-customer', [
             'customers' => $customers,
         ])->layout($this->layout);

@@ -167,6 +167,31 @@ class AddCustomerReceipt extends Component
         $this->resetPaymentData();
     }
 
+    public function resetPaymentData()
+    {
+        $this->paymentData = [
+            'payment_date' => now()->format('Y-m-d'),
+            'payment_method' => 'cash',
+            'reference_number' => '',
+            'notes' => ''
+        ];
+        
+        $this->cheques = [
+            [
+                'cheque_number' => '',
+                'bank_name' => '',
+                'cheque_date' => now()->format('Y-m-d'),
+                'amount' => 0
+            ]
+        ];
+
+        $this->bankTransfer = [
+            'bank_name' => '',
+            'transfer_date' => now()->format('Y-m-d'),
+            'reference_number' => ''
+        ];
+    }
+
     /**
      * Toggle invoice selection
      */
@@ -408,25 +433,7 @@ class AddCustomerReceipt extends Component
         $this->totalDueAmount = 0;
         $this->totalPaymentAmount = 0;
         $this->remainingAmount = 0;
-        $this->paymentData = [
-            'payment_date' => now()->format('Y-m-d'),
-            'payment_method' => 'cash',
-            'reference_number' => '',
-            'notes' => ''
-        ];
-        $this->cheques = [
-            [
-                'cheque_number' => '',
-                'bank_name' => '',
-                'cheque_date' => now()->format('Y-m-d'),
-                'amount' => 0
-            ]
-        ];
-        $this->bankTransfer = [
-            'bank_name' => '',
-            'transfer_date' => now()->format('Y-m-d'),
-            'reference_number' => ''
-        ];
+        $this->resetPaymentData();
     }
 
     public function addCheque()
