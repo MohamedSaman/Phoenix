@@ -466,13 +466,17 @@
                             <td class="inv-tot-lbl">Net Total</td>
                             <td class="inv-tot-val">Rs.{{ number_format($sale->total_amount, 2) }}</td>
                         </tr>
-                        <tr>
-                            <td class="inv-tot-lbl">Paid</td>
-                            <td class="inv-tot-val">Rs.{{ number_format($sale->payments->sum('amount'), 2) }}</td>
-                        </tr>
-                        <tr class="inv-bal-row">
-                            <td class="inv-tot-lbl">Balance</td>
-                            <td class="inv-tot-val">Rs.{{ number_format($sale->due_amount, 2) }}</td>
+                          @php
+                              $displayPaid = min($sale->payments->sum('amount'), $sale->total_amount);
+                              $displayBalance = max(0, $sale->total_amount - $displayPaid);
+                          @endphp
+                          <tr>
+                              <td class="inv-tot-lbl">Paid</td>
+                              <td class="inv-tot-val">Rs.{{ number_format($displayPaid, 2) }}</td>
+                          </tr>
+                          <tr class="inv-bal-row">
+                              <td class="inv-tot-lbl">Balance</td>
+                              <td class="inv-tot-val">Rs.{{ number_format($displayBalance, 2) }}</td>
                         </tr>
                         @if($sale->due_amount > 0 && $sale->due_date)
                         <tr>

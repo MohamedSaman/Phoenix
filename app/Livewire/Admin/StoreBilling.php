@@ -1062,6 +1062,26 @@ class StoreBilling extends Component
                 return;
             }
 
+            // Handle "Draft Cheque" logic for late entry at night
+            $actualDueAmount = $this->dueAmount;
+            $actualPaymentStatus = $this->paymentStatus;
+            
+            $isDraftCheque = false;
+            $chequeDraftAmount = 0;
+            
+            if ($this->paymentMethod === 'cheque' && empty($this->cheques)) {
+                $isDraftCheque = true;
+                $chequeDraftAmount = $this->getChequeTotalAmount() > 0 ? $this->getChequeTotalAmount() : $this->grandTotal;
+            } elseif ($this->isMultipleMode() && $this->getChequeTotalAmount() > 0 && empty($this->cheques)) {
+                $isDraftCheque = true;
+                $chequeDraftAmount = $this->getChequeTotalAmount();
+            }
+
+            if ($isDraftCheque) {
+                $actualDueAmount += $chequeDraftAmount;
+                $actualPaymentStatus = ($actualDueAmount >= $this->grandTotal) ? 'pending' : 'partial';
+            }
+
             // Create sale
             $sale = Sale::create([
                 'sale_id' => Sale::generateSaleId(),
@@ -1072,9 +1092,9 @@ class StoreBilling extends Component
                 'discount_amount' => $this->totalDiscount + $this->additionalDiscountAmount,
                 'total_amount' => $this->grandTotal,
                 'payment_type' => $this->databasePaymentType,
-                'payment_status' => $this->paymentStatus,
-                'due_amount' => $this->dueAmount,
-                'due_date' => $this->dueAmount > 0 ? $this->dueDate : null,
+                'payment_status' => $actualPaymentStatus,
+                'due_amount' => $actualDueAmount,
+                'due_date' => $actualDueAmount > 0 ? ($this->dueDate ?: null) : null,
                 'notes' => $this->notes,
                 'user_id' => Auth::id(),
                 'status' => 'confirm',
@@ -1141,7 +1161,7 @@ class StoreBilling extends Component
             }
 
             // Create Payment Record
-            if ($this->paymentMethod !== 'credit' && $this->paymentMethod !== 'due' && (int)$this->totalPaidAmount > 0) {
+            if ($this->paymentMethod !== 'credit' && $this->paymentMethod !== 'due') {
                 // For multiple payment, create separate payment records
                 if ($this->isMultipleMode()) {
                     // Cash payment
@@ -1162,57 +1182,62 @@ class StoreBilling extends Component
 
                     // Cheque payment
                     $chequeTotal = $this->getChequeTotalAmount();
-                    if ($chequeTotal > 0) {
+                    if ($chequeTotal > 0 || $isDraftCheque) {
+                        $saveAmount = $isDraftCheque ? (int)$chequeDraftAmount : (int)$chequeTotal;
                         $chequePayment = Payment::create([
                             'customer_id' => $customer->id,
                             'sale_id' => $sale->id,
-                            'amount' => (int)$chequeTotal,
+                            'amount' => $saveAmount,
                             'payment_method' => 'cheque',
                             'payment_date' => now(),
-                            'is_completed' => true,
-                            'status' => 'paid',
+                            'is_completed' => !$isDraftCheque,
+                            'status' => $isDraftCheque ? 'pending' : 'paid',
                             'payment_reference' => $sale->invoice_number . '-CHQ-' . now()->format('YmdHis'),
                         ]);
 
-                        // Create cheque record with simple amount if no detailed cheques
-                        if ($this->chequeAmount > 0 && empty($this->cheques)) {
-                            Cheque::create([
-                                'cheque_number' => $sale->invoice_number . '-CHQ-' . now()->format('YmdHis'),
-                                'cheque_date' => now()->format('Y-m-d'),
-                                'bank_name' => 'Pending',
-                                'cheque_amount' => $this->chequeAmount,
-                                'status' => 'pending',
-                                'customer_id' => $customer->id,
-                                'payment_id' => $chequePayment->id,
-                            ]);
-                        } else {
-                            // Create detailed cheque records
-                            foreach ($this->cheques as $cheque) {
+                        if (!$isDraftCheque) {
+                            // Create cheque record with simple amount if no detailed cheques
+                            if ($this->chequeAmount > 0 && empty($this->cheques)) {
                                 Cheque::create([
-                                    'cheque_number' => $sale->invoice_number . '-' . $cheque['number'],
-                                    'cheque_date' => $cheque['date'],
-                                    'bank_name' => $cheque['bank_name'],
-                                    'cheque_amount' => $cheque['amount'],
+                                    'cheque_number' => $sale->invoice_number . '-CHQ-' . now()->format('YmdHis'),
+                                    'cheque_date' => now()->format('Y-m-d'),
+                                    'bank_name' => 'Pending',
+                                    'cheque_amount' => $this->chequeAmount,
                                     'status' => 'pending',
                                     'customer_id' => $customer->id,
                                     'payment_id' => $chequePayment->id,
                                 ]);
+                            } else {
+                                // Create detailed cheque records
+                                foreach ($this->cheques as $cheque) {
+                                    Cheque::create([
+                                        'cheque_number' => $sale->invoice_number . '-' . $cheque['number'],
+                                        'cheque_date' => $cheque['date'],
+                                        'bank_name' => $cheque['bank_name'],
+                                        'cheque_amount' => $cheque['amount'],
+                                        'status' => 'pending',
+                                        'customer_id' => $customer->id,
+                                        'payment_id' => $chequePayment->id,
+                                    ]);
+                                }
                             }
                         }
                     }
                 } else {
                     // Single payment method
-                    $payment = Payment::create([
-                        'customer_id' => $customer->id,
-                        'sale_id' => $sale->id,
-                        'amount' => (int)$this->totalPaidAmount,
-                        'payment_method' => $this->paymentMethod === 'cheque' ? 'cheque' : $this->paymentMethod,
-                        'payment_date' => now(),
-                        'is_completed' => true,
-                        'status' => 'paid',
-                    ]);
+                    if ((int)$this->totalPaidAmount > 0 || $isDraftCheque) {
+                        $saveAmount = $isDraftCheque ? (int)$chequeDraftAmount : (int)$this->totalPaidAmount;
+                        $payment = Payment::create([
+                            'customer_id' => $customer->id,
+                            'sale_id' => $sale->id,
+                            'amount' => $saveAmount,
+                            'payment_method' => $this->paymentMethod === 'cheque' ? 'cheque' : $this->paymentMethod,
+                            'payment_date' => now(),
+                            'is_completed' => !$isDraftCheque,
+                            'status' => $isDraftCheque ? 'pending' : 'paid',
+                        ]);
 
-                    // Handle payment method specific data
+                        // Handle payment method specific data
                     if ($this->paymentMethod === 'cash') {
                         $payment->update([
                             'payment_reference' => 'CASH-' . now()->format('YmdHis'),
@@ -1220,37 +1245,43 @@ class StoreBilling extends Component
                         // Update cash in hands - add cash payment
                         $this->updateCashInHands((int)$this->totalPaidAmount);
                     } elseif ($this->paymentMethod === 'cheque') {
-                        // Create cheque record with simple amount if no detailed cheques
-                        if ($this->chequeAmount > 0 && empty($this->cheques)) {
-                            Cheque::create([
-                                'cheque_number' => $sale->invoice_number . '-CHQ-' . now()->format('YmdHis'),
-                                'cheque_date' => now()->format('Y-m-d'),
-                                'bank_name' => 'Pending',
-                                'cheque_amount' => $this->chequeAmount,
-                                'status' => 'pending',
-                                'customer_id' => $customer->id,
-                                'payment_id' => $payment->id,
-                            ]);
+                        if ($isDraftCheque) {
                             $payment->update([
-                                'payment_reference' => $sale->invoice_number . '-CHQ-' . now()->format('YmdHis'),
+                                'payment_reference' => 'DRAFT-CHQ-' . now()->format('YmdHis'),
                             ]);
                         } else {
-                            // Create detailed cheque records
-                            foreach ($this->cheques as $cheque) {
+                            // Create cheque record with simple amount if no detailed cheques
+                            if ($this->chequeAmount > 0 && empty($this->cheques)) {
                                 Cheque::create([
-                                    'cheque_number' => $sale->invoice_number . '-' . $cheque['number'],
-                                    'cheque_date' => $cheque['date'],
-                                    'bank_name' => $cheque['bank_name'],
-                                    'cheque_amount' => $cheque['amount'],
+                                    'cheque_number' => $sale->invoice_number . '-CHQ-' . now()->format('YmdHis'),
+                                    'cheque_date' => now()->format('Y-m-d'),
+                                    'bank_name' => 'Pending',
+                                    'cheque_amount' => $this->chequeAmount,
                                     'status' => 'pending',
                                     'customer_id' => $customer->id,
                                     'payment_id' => $payment->id,
                                 ]);
+                                $payment->update([
+                                    'payment_reference' => $sale->invoice_number . '-CHQ-' . now()->format('YmdHis'),
+                                ]);
+                            } else {
+                                // Create detailed cheque records
+                                foreach ($this->cheques as $cheque) {
+                                    Cheque::create([
+                                        'cheque_number' => $sale->invoice_number . '-' . $cheque['number'],
+                                        'cheque_date' => $cheque['date'],
+                                        'bank_name' => $cheque['bank_name'],
+                                        'cheque_amount' => $cheque['amount'],
+                                        'status' => 'pending',
+                                        'customer_id' => $customer->id,
+                                        'payment_id' => $payment->id,
+                                    ]);
+                                }
+                                $payment->update([
+                                    'payment_reference' => $sale->invoice_number . '-CHQ-' . collect($this->cheques)->pluck('number')->implode(','),
+                                    'bank_name' => collect($this->cheques)->pluck('bank_name')->unique()->implode(', '),
+                                ]);
                             }
-                            $payment->update([
-                                'payment_reference' => $sale->invoice_number . '-CHQ-' . collect($this->cheques)->pluck('number')->implode(','),
-                                'bank_name' => collect($this->cheques)->pluck('bank_name')->unique()->implode(', '),
-                            ]);
                         }
                     } elseif ($this->paymentMethod === 'bank_transfer') {
                         $payment->update([
@@ -1262,8 +1293,9 @@ class StoreBilling extends Component
                     }
                 }
             }
+        }
 
-            DB::commit();
+        DB::commit();
 
             // Ensure there is an open POS session for this user and update its totals
             $this->currentSession = POSSession::getTodaySession(Auth::id());
