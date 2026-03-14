@@ -831,7 +831,7 @@
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text">Rs.</span>
                                         <input type="number" class="form-control" 
-                                            wire:model.lazy="overpaymentToApply" 
+                                            wire:model.lazy="overpaymentToApply" placeholder="0" 
                                             min="0" 
                                             max="{{ min($supplierOverpayment, $totalDueAmount) }}" 
                                             step="0.01">
@@ -846,7 +846,7 @@
                                 <label class="form-label fw-semibold">Enter Payment Amount <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text">Rs.</span>
-                                    <input type="number" class="form-control" wire:model.lazy="totalPaymentAmount" min="0" max="{{ $totalDueAmount - $overpaymentToApply }}" step="0.01" placeholder="Enter amount...">
+                                    <input type="number" class="form-control" wire:model.lazy="totalPaymentAmount" min="0" max="{{ $totalDueAmount - $overpaymentToApply }}" step="0.01" placeholder="0">
                                 </div>
                                 <small class="text-muted">Maximum: Rs.{{ number_format($totalDueAmount - $overpaymentToApply, 2) }}</small>
                                 @error('totalPaymentAmount')

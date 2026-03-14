@@ -37,7 +37,7 @@ class QuotationList extends Component
     public $totalDiscount = 0;
     public $subtotal = 0;
     public $grandTotal = 0;
-    public $additionalDiscountAmount = 0;
+    public $additionalDiscountAmount = '';
 
     public $quotationToDelete = null;
     public $searchTerms = [];

@@ -28,7 +28,7 @@ class AddSupplierReceipt extends Component
     public $supplierOrders = [];
     public $selectedOrders = [];
     public $totalDueAmount = 0;
-    public $totalPaymentAmount = 0;
+    public $totalPaymentAmount = '';
     public $remainingAmount = 0;
     public $showPaymentModal = false;
     public $showReceiptModal = false;
@@ -39,7 +39,7 @@ class AddSupplierReceipt extends Component
     // Overpayment tracking
     public $supplierOverpayment = 0;
     public $useOverpayment = false;
-    public $overpaymentToApply = 0;
+    public $overpaymentToApply = '';
 
     // Payment modal fields
     public $paymentData = [

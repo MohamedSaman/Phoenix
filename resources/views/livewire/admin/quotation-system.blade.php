@@ -203,7 +203,7 @@
                                         <input type="number" class="form-control form-control-sm text-danger"
                                             wire:change="updateDiscount({{ $index }}, $event.target.value)"
                                             value="{{ $item['discount'] }}" min="0" step="0.01"
-                                            placeholder="0.00">
+                                            placeholder="0">
                                     </td>
                                     <td class="fw-bold">
                                         Rs.{{ number_format($item['total'], 2) }}

@@ -292,7 +292,7 @@
                                                                 <label class="form-label fw-semibold">Amount (Rs.)</label>
                                                                 <div class="input-group">
                                                                     <span class="input-group-text bg-light">Rs.</span>
-                                                                    <input type="number" step="0.01" class="form-control" wire:model="depositAmount" placeholder="0.00">
+                                                                    <input type="number" step="0.01" class="form-control" wire:model="depositAmount" placeholder="0">
                                                                 </div>
                                                                 @error('depositAmount') <span class="text-danger small">{{ $message }}</span> @enderror
                                                             </div>

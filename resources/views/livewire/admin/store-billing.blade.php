@@ -293,7 +293,7 @@
                             wire:model="openingCashAmount"
                             step="0.01"
                             min="0"
-                            placeholder="0.00"
+                            placeholder="0"
                             autofocus>
                     </div>
                     @error('openingCashAmount')
@@ -756,7 +756,7 @@
                         <label class="pos-label">Amount Received</label>
                         <div class="input-group">
                             <span class="input-group-text pos-input-prefix-sm">Rs.</span>
-                            <input type="number" class="form-control pos-input-lg py-3" wire:model.live="cashAmount" placeholder="0.00" autofocus>
+                            <input type="number" class="form-control pos-input-lg py-3" wire:model.live="cashAmount" placeholder="0" autofocus>
                         </div>
                     </div>
                     @elseif($paymentMethod === 'cheque')
@@ -819,7 +819,7 @@
                         <label class="pos-label">Cash Amount</label>
                         <div class="input-group">
                             <span class="input-group-text pos-input-prefix-sm">Rs.</span>
-                            <input type="number" class="form-control pos-input" wire:model.live="cashAmount" placeholder="0.00">
+                            <input type="number" class="form-control pos-input" wire:model.live="cashAmount" placeholder="0">
                         </div>
                     </div>
                     <div class="col-md-6">

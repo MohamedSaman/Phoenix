@@ -329,7 +329,7 @@
                                                     <div class="mb-3">
                                                         <label class="form-label fw-semibold">Received Amount <span class="text-danger">*</span></label>
                                                         <input type="number" step="0.01" class="form-control @error('receivedAmount') is-invalid @enderror"
-                                                            wire:model="receivedAmount" required placeholder="0.00">
+                                                            wire:model="receivedAmount" required placeholder="0">
                                                         @error('receivedAmount')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror

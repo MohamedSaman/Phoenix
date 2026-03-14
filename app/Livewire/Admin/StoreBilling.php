@@ -36,7 +36,7 @@ class StoreBilling extends Component
 
     // Opening Cash Modal
     public $showOpeningCashModal = false;
-    public $openingCashAmount = 0;
+    public $openingCashAmount = '';
 
     // Session Summary Data
     public $sessionSummary = [];
@@ -185,7 +185,7 @@ class StoreBilling extends Component
         if (!$this->currentSession || $this->currentSession->isClosed()) {
 
             // Always set opening cash to 0 (auto-add 0 every day)
-            $this->openingCashAmount = 0;
+            $this->openingCashAmount = '';
 
             // Auto-submit opening cash without showing modal
             try {

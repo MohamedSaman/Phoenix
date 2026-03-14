@@ -58,7 +58,7 @@ class BillingPage extends Component
     public $paymentReceiptImagePreview = null;
     public $bankName = '';
 
-    public $initialPaymentAmount = 0;
+    public $initialPaymentAmount = '';
     public $initialPaymentMethod = '';
     public $initialPaymentReceiptImage;
     public $initialPaymentReceiptImagePreview = null;

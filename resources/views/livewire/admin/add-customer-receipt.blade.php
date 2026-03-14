@@ -322,7 +322,7 @@
                                     step="0.01"
                                     class="form-control"
                                     wire:model.live="totalPaymentAmount"
-                                    placeholder="0.00">
+                                    placeholder="0">
                             </div>
                             <small class="text-muted">Maximum: Rs.{{ number_format($totalDueAmount, 2) }}</small>
                             @error('totalPaymentAmount')
@@ -644,7 +644,7 @@
                                     <div class="col-md-3">
                                         <label class="form-label fw-semibold">Amount <span class="text-danger">*</span></label>
                                         <input type="number" step="0.01" class="form-control @error('cheques.'.$index.'.amount') is-invalid @enderror"
-                                            wire:model="cheques.{{ $index }}.amount" placeholder="0.00">
+                                            wire:model="cheques.{{ $index }}.amount" placeholder="0">
                                         @error('cheques.'.$index.'.amount') <span class="text-danger small">{{ $message }}</span> @enderror
                                     </div>
                                     <div class="col-md-3">

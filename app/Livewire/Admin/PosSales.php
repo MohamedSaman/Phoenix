@@ -38,7 +38,7 @@ class PosSales extends Component
     public $editNotes;
     public $editDueAmount;
     public $editPaidAmount;
-    public $editPayBalanceAmount = 0;
+    public $editPayBalanceAmount = '';
     public $perPage = 10;
 
     public function mount()

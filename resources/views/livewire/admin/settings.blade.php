@@ -440,7 +440,7 @@
                                     <span class="input-group-text">₱</span>
                                     <input type="number" step="0.01" wire:model="expenseAmount"
                                         class="form-control @error('expenseAmount') is-invalid @enderror"
-                                        placeholder="0.00">
+                                        placeholder="0">
                                     @error('expenseAmount')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

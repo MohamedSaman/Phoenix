@@ -38,7 +38,7 @@ class SalesList extends Component
     public $editNotes;
     public $editDueAmount;
     public $editPaidAmount;
-    public $editPayBalanceAmount = 0;
+    public $editPayBalanceAmount = '';
 
     // Return properties
     public $returnItems = [];

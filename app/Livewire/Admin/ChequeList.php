@@ -29,7 +29,7 @@ class ChequeList extends Component
     public $editChequeNumber = '';
     public $editBankName = '';
     public $editChequeDate = '';
-    public $editChequeAmount = 0;
+    public $editChequeAmount = '';
 
     public function updatedPerPage()
     {

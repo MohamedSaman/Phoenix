@@ -343,7 +343,7 @@ class AddCustomerReceipt extends Component
 
     private function autoAllocatePayment()
     {
-        $remainingPayment = $this->totalPaymentAmount;
+        $remainingPayment = (float)$this->totalPaymentAmount;
 
         foreach ($this->customerSales as $sale) {
             $saleId = $sale['id'];
