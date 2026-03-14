@@ -886,7 +886,7 @@
          PARTIAL PAYMENT CONFIRMATION MODAL
     ════════════════════════════════════════════ --}}
     @if($showPaymentConfirmModal)
-    <div class="pos-overlay">
+    <div class="pos-overlay" style="z-index: 2500;">
         <div class="pos-modal-card" style="max-width:440px;">
             <div class="pos-modal-header pos-modal-warning">
                 <div class="d-flex align-items-center gap-2">
