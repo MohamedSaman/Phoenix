@@ -62,33 +62,44 @@ class AddCustomerReceipt extends Component
     public $latestPayment = null;
     public $paymentSuccess = false;
 
-    protected $rules = [
-        'paymentData.payment_date' => 'required|date',
-        'paymentData.payment_method' => 'required|in:cash,cheque,bank_transfer',
-        'paymentData.reference_number' => 'nullable|string|max:100',
-        'paymentData.notes' => 'nullable|string|max:500',
-        'totalPaymentAmount' => 'required|numeric|min:0.01',
-        'cheques.*.cheque_number' => 'required_if:paymentData.payment_method,cheque|string|max:50',
-        'cheques.*.bank_name' => 'required_if:paymentData.payment_method,cheque|string|max:100',
-        'cheques.*.cheque_date' => 'required_if:paymentData.payment_method,cheque|date',
-        'cheques.*.amount' => 'required_if:paymentData.payment_method,cheque|numeric|min:0.01',
-        'bankTransfer.bank_name' => 'required_if:paymentData.payment_method,bank_transfer|string|max:100',
-        'bankTransfer.transfer_date' => 'required_if:paymentData.payment_method,bank_transfer|date',
-        'bankTransfer.reference_number' => 'required_if:paymentData.payment_method,bank_transfer|string|max:100',
-    ];
+    protected function rules()
+    {
+        $rules = [
+            'paymentData.payment_date' => 'required|date',
+            'paymentData.payment_method' => 'required|in:cash,cheque,bank_transfer',
+            'paymentData.reference_number' => 'nullable|string|max:100',
+            'paymentData.notes' => 'nullable|string|max:500',
+            'totalPaymentAmount' => 'required|numeric|min:0.01',
+        ];
+
+        if ($this->paymentData['payment_method'] === 'cheque') {
+            $rules['cheques.*.cheque_number'] = 'required|string|max:50';
+            $rules['cheques.*.bank_name'] = 'required|string|max:100';
+            $rules['cheques.*.cheque_date'] = 'required|date';
+            $rules['cheques.*.amount'] = 'required|numeric|min:0.01';
+        }
+
+        if ($this->paymentData['payment_method'] === 'bank_transfer') {
+            $rules['bankTransfer.bank_name'] = 'required|string|max:100';
+            $rules['bankTransfer.transfer_date'] = 'required|date';
+            $rules['bankTransfer.reference_number'] = 'required|string|max:100';
+        }
+
+        return $rules;
+    }
 
     protected $messages = [
         'paymentData.payment_date.required' => 'Payment date is required.',
         'paymentData.payment_method.required' => 'Payment method is required.',
         'totalPaymentAmount.required' => 'Payment amount is required.',
         'totalPaymentAmount.min' => 'Payment amount must be at least Rs. 0.01',
-        'cheques.*.cheque_number.required_if' => 'Cheque number is required for all cheques.',
-        'cheques.*.bank_name.required_if' => 'Bank name is required for all cheques.',
-        'cheques.*.cheque_date.required_if' => 'Cheque date is required for all cheques.',
-        'cheques.*.amount.required_if' => 'Cheque amount is required for all cheques.',
-        'bankTransfer.bank_name.required_if' => 'Bank name is required for bank transfer.',
-        'bankTransfer.transfer_date.required_if' => 'Transfer date is required for bank transfer.',
-        'bankTransfer.reference_number.required_if' => 'Reference number is required for bank transfer.',
+        'cheques.*.cheque_number.required' => 'Cheque number is required for all cheques.',
+        'cheques.*.bank_name.required' => 'Bank name is required for all cheques.',
+        'cheques.*.cheque_date.required' => 'Cheque date is required for all cheques.',
+        'cheques.*.amount.required' => 'Cheque amount is required for all cheques.',
+        'bankTransfer.bank_name.required' => 'Bank name is required for bank transfer.',
+        'bankTransfer.transfer_date.required' => 'Transfer date is required for bank transfer.',
+        'bankTransfer.reference_number.required' => 'Reference number is required for bank transfer.',
     ];
 
     public function mount()
