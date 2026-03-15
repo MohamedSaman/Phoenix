@@ -17,6 +17,7 @@ use App\Livewire\Admin\SupplierList;
 use App\Livewire\Admin\ViewPayments;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Livewire\Admin\AdminDashboard;
 use App\Livewire\Admin\ManageCustomer;
 use App\Livewire\Admin\ProductBrandlist;
@@ -105,6 +106,20 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/user/profile', function () {
         return view('profile.show');
     })->name('profile.show');
+
+    Route::get('/user/profile-photo/{user}', function (\App\Models\User $user) {
+        if (!$user->profile_photo_path || !Storage::disk('public')->exists($user->profile_photo_path)) {
+            abort(404);
+        }
+
+        $fileContent = Storage::disk('public')->get($user->profile_photo_path);
+        $mimeType = (new \finfo(FILEINFO_MIME_TYPE))->buffer($fileContent) ?: 'application/octet-stream';
+
+        return response($fileContent, 200, [
+            'Content-Type' => $mimeType,
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    })->name('profile.photo.show');
 
     // Generic dashboard route: redirect authenticated users to their role-specific dashboard
     Route::get('/dashboard', function () {

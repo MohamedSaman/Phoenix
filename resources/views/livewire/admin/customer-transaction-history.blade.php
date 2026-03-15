@@ -39,7 +39,7 @@
         </div>
         <div class="col-md-3">
             @php
-                $currentBalance = $transactions->last() ? $transactions->last()['balance'] : 0;
+            $currentBalance = $transactions->last() ? $transactions->last()['balance'] : 0;
             @endphp
             <div class="card shadow-sm border-0 border-start border-4 {{ $currentBalance > 0 ? 'border-danger' : 'border-primary' }} h-100">
                 <div class="card-body">
@@ -63,6 +63,7 @@
                             <th class="py-3 px-3 text-nowrap" style="width: 15%">Date & Time</th>
                             <th class="py-3 px-3">Type</th>
                             <th class="py-3 px-3">Reference / Details</th>
+                            <th class="py-3 px-3 text-center" style="width: 10%">Cheque Count</th>
                             <th class="py-3 px-3 text-end" style="width: 15%">Debit <small class="text-white-50">(Rs.)</small></th>
                             <th class="py-3 px-3 text-end" style="width: 15%">Credit <small class="text-white-50">(Rs.)</small></th>
                             <th class="py-3 px-3 text-end" style="width: 15%">Balance <small class="text-white-50">(Rs.)</small></th>
@@ -76,16 +77,23 @@
                             </td>
                             <td class="px-3">
                                 @if($transaction['type'] == 'Sale')
-                                    <span class="badge bg-info text-dark w-100">Sale</span>
+                                <span class="badge bg-info text-dark w-100">Sale</span>
                                 @elseif($transaction['type'] == 'Payment')
-                                    <span class="badge bg-success w-100">Payment</span>
+                                <span class="badge bg-success w-100">Payment</span>
                                 @elseif($transaction['type'] == 'Return')
-                                    <span class="badge bg-warning text-dark w-100">Return</span>
+                                <span class="badge bg-warning text-dark w-100">Return</span>
                                 @endif
                             </td>
                             <td class="px-3">
                                 <span class="fw-bold text-dark">{{ $transaction['reference'] }}</span><br>
                                 <span class="text-muted" style="font-size:0.8rem;">{{ $transaction['details'] }}</span>
+                            </td>
+                            <td class="px-3 text-center">
+                                @if(!is_null($transaction['cheque_count']))
+                                <span class="fw-bold text-dark">{{ $transaction['cheque_count'] }}</span>
+                                @else
+                                -
+                                @endif
                             </td>
                             <td class="px-3 text-end text-danger fw-semibold">
                                 {{ $transaction['debit'] > 0 ? number_format($transaction['debit'], 2) : '-' }}
@@ -99,7 +107,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
+                            <td colspan="7" class="text-center py-5 text-muted">
                                 <i class="bi bi-inbox fs-1 d-block mb-3 text-black-50"></i>
                                 <h5>No transactions found</h5>
                                 <p class="mb-0">There are no sales, payments, or returns for this customer yet.</p>
@@ -109,7 +117,7 @@
                     </tbody>
                     <tfoot class="table-light fw-bold border-top-2">
                         <tr>
-                            <td colspan="3" class="text-end py-3">Totals:</td>
+                            <td colspan="4" class="text-end py-3">Totals:</td>
                             <td class="text-end text-danger py-3">Rs.{{ number_format($transactions->sum('debit'), 2) }}</td>
                             <td class="text-end text-success py-3">Rs.{{ number_format($transactions->sum('credit'), 2) }}</td>
                             <td class="text-end py-3 text-{{ $currentBalance > 0 ? 'danger' : 'success' }}">Rs.{{ number_format($currentBalance, 2) }}</td>

@@ -1190,8 +1190,8 @@
 
                 {{-- <li>
                     <a class="nav-link" href="{{ route('staff.settings') }}">
-                        <i class="bi bi-gear"></i> <span>Settings</span>
-                    </a>
+                <i class="bi bi-gear"></i> <span>Settings</span>
+                </a>
                 </li> --}}
             </ul>
         </div>
@@ -1206,8 +1206,12 @@
             <div class="dropdown">
                 <div class="admin-info dropdown-toggle" id="adminDropdown" role="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
-                    <div class="admin-avatar">S</div>
-                    <div class="admin-name">Staff</div>
+                    @if(auth()->user()->profile_photo_path)
+                    <img src="{{ route('profile.photo.show', auth()->id()) }}?v={{ md5((string) auth()->user()->profile_photo_path) }}" class="admin-avatar" alt="{{ auth()->user()->name }}" style="object-fit:cover;">
+                    @else
+                    <div class="admin-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    @endif
+                    <div class="admin-name">{{ auth()->user()->name }}</div>
                 </div>
 
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">

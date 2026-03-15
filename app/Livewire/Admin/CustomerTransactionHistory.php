@@ -31,16 +31,18 @@ class CustomerTransactionHistory extends Component
                     'debit' => $sale->total_amount,
                     'credit' => 0,
                     'details' => 'Sale Invoice: ' . ($sale->invoice_number ?? ''),
+                    'cheque_count' => null,
                 ];
             });
 
         // 2. Get Payments (Decreases Balance / Credit)
-        $payments = Payment::where(function($query) {
-                $query->where('customer_id', $this->customer->id)
-                      ->orWhereHas('sale', function($q) {
-                          $q->where('customer_id', $this->customer->id);
-                      });
-            })
+        $payments = Payment::where(function ($query) {
+            $query->where('customer_id', $this->customer->id)
+                ->orWhereHas('sale', function ($q) {
+                    $q->where('customer_id', $this->customer->id);
+                });
+        })
+            ->withCount('cheques')
             ->get()
             ->map(function ($payment) {
                 return [
@@ -50,14 +52,15 @@ class CustomerTransactionHistory extends Component
                     'date' => $payment->payment_date ?? $payment->created_at,
                     'debit' => 0,
                     'credit' => $payment->amount,
-                    'details' => 'Payment via ' . ucfirst($payment->payment_method),
+                    'details' => 'Payment via ' . ucfirst(str_replace('_', ' ', $payment->payment_method)),
+                    'cheque_count' => $payment->payment_method === 'cheque' ? $payment->cheques_count : null,
                 ];
             });
 
         // 3. Get Returns (Decreases Balance / Credit)
-        $returns = ReturnsProduct::whereHas('sale', function($q) {
-                $q->where('customer_id', $this->customer->id);
-            })
+        $returns = ReturnsProduct::whereHas('sale', function ($q) {
+            $q->where('customer_id', $this->customer->id);
+        })
             ->get()
             ->map(function ($return) {
                 return [
@@ -68,6 +71,7 @@ class CustomerTransactionHistory extends Component
                     'debit' => 0,
                     'credit' => $return->total_amount,
                     'details' => 'Product Return',
+                    'cheque_count' => null,
                 ];
             });
 
@@ -76,7 +80,7 @@ class CustomerTransactionHistory extends Component
             ->concat($sales)
             ->concat($payments)
             ->concat($returns)
-            ->sortBy(function($transaction) {
+            ->sortBy(function ($transaction) {
                 // Ensure strictly stable sorting if timestamps are exactly identical.
                 // Sales (type A) come first, then returns (type B), then payments (type C).
                 $typeOrder = ['Sale' => 1, 'Return' => 2, 'Payment' => 3];
@@ -90,6 +94,7 @@ class CustomerTransactionHistory extends Component
         $processedTransactions = $transactions->map(function ($transaction) use (&$balance) {
             $balance += $transaction['debit'];
             $balance -= $transaction['credit'];
+            $transaction['cheque_count'] = $transaction['cheque_count'] ?? null;
             $transaction['balance'] = $balance;
             return $transaction;
         });
